@@ -20,6 +20,9 @@ const PDFViewerApp = lazy(() =>
 const MarkdownViewerApp = lazy(() =>
   import('../Applications/MarkdownViewerApp').then((module) => ({ default: module.MarkdownViewerApp }))
 );
+const CalculatorApp = lazy(() =>
+  import('../Applications/CalculatorApp').then((module) => ({ default: module.CalculatorApp }))
+);
 const DefaultApp = lazy(() => import('../Applications/DefaultApp').then((module) => ({ default: module.DefaultApp })));
 
 /**
@@ -68,6 +71,8 @@ export const ApplicationManager: React.FC<ApplicationManagerProps> = ({ componen
           return <PDFViewerApp />;
         case 'MarkdownViewer':
           return <MarkdownViewerApp />;
+        case 'calculator':
+          return <CalculatorApp />;
         default:
           return <DefaultApp component={component} />;
       }

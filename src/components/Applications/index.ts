@@ -4,4 +4,5 @@ export { TerminalApp } from './TerminalApp';
 export { ContactFormApp } from './ContactFormApp';
 export { PDFViewerApp } from './PDFViewerApp';
 export { MarkdownViewerApp } from './MarkdownViewerApp';
+export { CalculatorApp } from './CalculatorApp';
 export { DefaultApp } from './DefaultApp';
