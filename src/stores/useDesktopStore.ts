@@ -34,6 +34,7 @@ interface DesktopState {
   wallpaper: string;
   isDragging: boolean;
   draggedItem: string | null;
+  isStartMenuOpen: boolean;
 }
 
 interface DesktopActions {
@@ -54,6 +55,8 @@ interface DesktopActions {
   initializeFileSystem: () => void;
   updateIconPosition: (id: string, position: { x: number; y: number }) => void;
   setDragging: (isDragging: boolean, itemId?: string) => void;
+  toggleStartMenu: () => void;
+  closeStartMenu: () => void;
 }
 
 const defaultFileSystem: FileSystemItem[] = [
@@ -148,6 +151,7 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
       wallpaper: '/wallpapers/default.jpg',
       isDragging: false,
       draggedItem: null,
+      isStartMenuOpen: false,
 
       openWindow: (windowConfig) => {
         const { nextZIndex } = get();
@@ -312,6 +316,14 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
 
       setDragging: (isDragging, itemId) => {
         set({ isDragging, draggedItem: itemId || null });
+      },
+
+      toggleStartMenu: () => {
+        set((state) => ({ isStartMenuOpen: !state.isStartMenuOpen }));
+      },
+
+      closeStartMenu: () => {
+        set({ isStartMenuOpen: false });
       },
     }),
     {

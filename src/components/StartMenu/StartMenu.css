@@ -1,0 +1,214 @@
+.start-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 15000;
+  pointer-events: none;
+}
+
+.start-menu {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 640px;
+  max-height: 750px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  overflow: hidden;
+  pointer-events: all;
+  animation: startMenuSlideUp 0.2s ease-out;
+}
+
+@keyframes startMenuSlideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.start-menu-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background: var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: white;
+}
+
+.user-name {
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.start-menu-content {
+  padding: 20px;
+  max-height: 550px;
+  overflow-y: auto;
+}
+
+.pinned-apps h3,
+.recommended-section h3 {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+}
+
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.app-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: var(--text-primary);
+  font-size: 12px;
+  min-height: 80px;
+}
+
+.app-button:hover {
+  background: var(--bg-tertiary);
+}
+
+.app-button:active {
+  background: var(--accent);
+  color: white;
+}
+
+.app-icon {
+  font-size: 24px;
+  display: block;
+}
+
+.app-name {
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+.recommended-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.recommended-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.recommended-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.recommended-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+.recommended-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.recommended-name {
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.recommended-desc {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.start-menu-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.power-button {
+  width: 40px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.power-button:hover {
+  background: var(--bg-tertiary);
+}
+
+.power-button:active {
+  background: var(--accent);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .start-menu {
+    width: 90vw;
+    max-width: 400px;
+  }
+
+  .app-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  }
+
+  .app-button {
+    min-height: 70px;
+    padding: 8px 4px;
+  }
+}
