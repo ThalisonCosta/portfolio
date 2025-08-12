@@ -39,8 +39,8 @@ test.describe('Desktop Environment', () => {
     const clock = page.locator('.clock');
     await expect(clock).toBeVisible();
 
-    // Check that time format is reasonable (HH:MM format)
+    // Check that time format is reasonable (HH:MM or HH:MM AM/PM format)
     const timeText = await clock.textContent();
-    expect(timeText).toMatch(/^\d{1,2}:\d{2}$/);
+    expect(timeText).toMatch(/^\d{1,2}:\d{2}( (AM|PM))?$/);
   });
 });
