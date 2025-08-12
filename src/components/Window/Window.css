@@ -1,0 +1,115 @@
+.window {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px var(--shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
+  min-height: 200px;
+  backdrop-filter: blur(10px);
+}
+
+.window.maximized {
+  border-radius: 0;
+  border: none;
+}
+
+.window-header {
+  height: 32px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  cursor: move;
+  user-select: none;
+}
+
+.window-title {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.window-controls {
+  display: flex;
+  gap: 1px;
+}
+
+.window-control {
+  width: 32px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--text-primary);
+  transition: background-color 0.2s;
+  border-radius: 3px;
+}
+
+.window-control:hover {
+  background: var(--bg-tertiary);
+}
+
+.window-control.close:hover {
+  background: #e81123;
+  color: white;
+}
+
+.window-control.minimize:hover {
+  background: var(--bg-tertiary);
+}
+
+.window-control.maximize:hover {
+  background: var(--bg-tertiary);
+}
+
+.window-content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.window-resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  cursor: se-resize;
+  background: linear-gradient(
+    -45deg,
+    transparent 30%,
+    var(--border-color) 30%,
+    var(--border-color) 35%,
+    transparent 35%,
+    transparent 65%,
+    var(--border-color) 65%,
+    var(--border-color) 70%,
+    transparent 70%
+  );
+}
+
+.window-resize-handle:hover {
+  background: linear-gradient(
+    -45deg,
+    transparent 30%,
+    var(--accent) 30%,
+    var(--accent) 35%,
+    transparent 35%,
+    transparent 65%,
+    var(--accent) 65%,
+    var(--accent) 70%,
+    transparent 70%
+  );
+}
