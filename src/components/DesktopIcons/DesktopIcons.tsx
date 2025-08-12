@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useDesktopStore } from '../../stores/useDesktopStore';
 import type { FileSystemItem } from '../../stores/useDesktopStore';
 import './DesktopIcons.css';
 
 export const DesktopIcons: React.FC = () => {
-  const { fileSystem, openWindow, updateIconPosition, setDragging, isDragging, draggedItem } = useDesktopStore();
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const { fileSystem, openWindow, setDragging, isDragging, draggedItem } = useDesktopStore();
 
   const handleIconDoubleClick = (item: FileSystemItem) => {
     if (item.type === 'file') {
@@ -70,11 +69,6 @@ export const DesktopIcons: React.FC = () => {
   };
 
   const handleDragStart = (e: React.DragEvent, item: FileSystemItem) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const offsetX = e.clientX - rect.left;
-    const offsetY = e.clientY - rect.top;
-    
-    setDragOffset({ x: offsetX, y: offsetY });
     setDragging(true, item.id);
     
     e.dataTransfer.effectAllowed = 'move';
@@ -83,7 +77,6 @@ export const DesktopIcons: React.FC = () => {
 
   const handleDragEnd = () => {
     setDragging(false);
-    setDragOffset({ x: 0, y: 0 });
   };
 
   return (
