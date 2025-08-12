@@ -138,9 +138,10 @@ test.describe('Desktop Drag and Drop', () => {
       const secondNewBox = await secondIcon.boundingBox();
 
       // First icon should have moved significantly
-      const firstMoved = Math.abs(firstNewBox!.x - firstInitialBox!.x) > 20 || Math.abs(firstNewBox!.y - firstInitialBox!.y) > 20;
+      const firstMoved =
+        Math.abs(firstNewBox!.x - firstInitialBox!.x) > 20 || Math.abs(firstNewBox!.y - firstInitialBox!.y) > 20;
       expect(firstMoved).toBe(true);
-      
+
       // Second icon may have moved due to collision detection, but should still be on screen
       expect(secondNewBox!.x).toBeGreaterThanOrEqual(0);
       expect(secondNewBox!.y).toBeGreaterThanOrEqual(0);

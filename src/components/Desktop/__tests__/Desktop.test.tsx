@@ -1,4 +1,4 @@
-import React from 'react';
+/** @jsxImportSource react */
 import { render } from '@testing-library/react';
 import { Desktop } from '../Desktop';
 
