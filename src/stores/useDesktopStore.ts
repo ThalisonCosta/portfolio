@@ -17,6 +17,8 @@ export interface WindowState {
   isMinimized: boolean;
   /** Whether the window is maximized to full screen */
   isMaximized: boolean;
+  /** Whether the window can be resized */
+  isResizable?: boolean;
   /** Current position of the window on screen */
   position: { x: number; y: number };
   /** Current size dimensions of the window */

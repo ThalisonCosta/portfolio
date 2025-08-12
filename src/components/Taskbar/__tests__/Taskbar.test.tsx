@@ -75,27 +75,27 @@ describe('Taskbar Component', () => {
     expect(screen.getByText('15/12/2023')).toBeInTheDocument();
   });
 
-  test('renders taskbar items for non-minimized windows', () => {
+  test('renders taskbar items for all windows', () => {
     render(<Taskbar />);
 
-    // Should show non-minimized window
+    // Should show both minimized and non-minimized windows
     expect(screen.getByText('Text Editor')).toBeInTheDocument();
-
-    // Should not show minimized window
-    expect(screen.queryByText('File Explorer')).not.toBeInTheDocument();
+    expect(screen.getByText('File Explorer')).toBeInTheDocument();
+    
+    // Check that minimized window has the 'minimized' class
+    const minimizedWindow = screen.getByText('File Explorer');
+    expect(minimizedWindow).toHaveClass('minimized');
   });
 
-  test('limits taskbar items to maximum of 3', () => {
+  test('limits taskbar items to maximum of 8', () => {
     // This test validates the taskbar item limiting behavior
-    // With the current mock having only 1 non-minimized window,
-    // we test that the filter works correctly
     render(<Taskbar />);
 
     const taskbarItems = screen.getAllByRole('button').filter((button) => button.classList.contains('taskbar-item'));
 
-    // Current mock has only 1 non-minimized window (Text Editor)
-    expect(taskbarItems.length).toBeLessThanOrEqual(3);
-    expect(taskbarItems.length).toBeGreaterThanOrEqual(0);
+    // Current mock has 2 windows (Text Editor and File Explorer)
+    expect(taskbarItems.length).toBeLessThanOrEqual(8);
+    expect(taskbarItems.length).toBe(2);
   });
 
   test('clicking start button toggles start menu', () => {
@@ -117,15 +117,20 @@ describe('Taskbar Component', () => {
   });
 
   test('clicking minimized window taskbar item restores window', () => {
-    // This test validates the current behavior where minimized windows
-    // are filtered out of the taskbar display
+    // This test validates clicking on minimized windows in taskbar
     render(<Taskbar />);
 
-    // Since minimized windows are not shown in taskbar based on current logic,
-    // we test that only non-minimized windows appear
-    // Should show non-minimized windows only
+    // Both windows should be shown in taskbar
     expect(screen.getByText('Text Editor')).toBeInTheDocument();
-    expect(screen.queryByText('File Explorer')).not.toBeInTheDocument(); // minimized
+    expect(screen.getByText('File Explorer')).toBeInTheDocument();
+    
+    // Click on minimized window
+    const minimizedTaskbarItem = screen.getByText('File Explorer');
+    fireEvent.click(minimizedTaskbarItem);
+    
+    // Should call minimizeWindow (toggles) and bringToFront
+    expect(mockActions.minimizeWindow).toHaveBeenCalledWith('window-2');
+    expect(mockActions.bringToFront).toHaveBeenCalledWith('window-2');
   });
 
   test('renders StartMenu component', () => {

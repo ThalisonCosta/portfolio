@@ -28,14 +28,26 @@ export const StartMenu: React.FC = React.memo(() => {
   }, [isStartMenuOpen, closeStartMenu]);
 
   const handleAppClick = (appName: string, component: string) => {
-    openWindow({
+    const { windows } = useDesktopStore.getState();
+    
+    // Calculator gets compact dimensions, others use default
+    const isCalculator = component === 'calculator';
+    
+    // Calculate position offset based on existing windows to prevent overlaps
+    const windowCount = windows.length;
+    const offset = windowCount * 30; // Stagger windows by 30px
+    
+    const windowConfig = {
       title: appName,
       component,
       isMinimized: false,
       isMaximized: false,
-      position: { x: 100, y: 100 },
-      size: { width: 800, height: 600 },
-    });
+      position: { x: 100 + offset, y: 100 + offset },
+      size: isCalculator ? { width: 320, height: 460 } : { width: 800, height: 600 },
+      isResizable: !isCalculator, // Calculator is non-resizable
+    };
+
+    openWindow(windowConfig);
     closeStartMenu();
   };
 

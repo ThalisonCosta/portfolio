@@ -41,12 +41,11 @@ export const Taskbar: React.FC = React.memo(() => {
         <div className="taskbar-left">
           <div className="taskbar-apps">
             {windows
-              .filter((w) => !w.isMinimized)
-              .slice(0, 3)
+              .slice(0, 8)
               .map((window) => (
                 <button
                   key={window.id}
-                  className="taskbar-item"
+                  className={`taskbar-item ${window.isMinimized ? 'minimized' : ''}`}
                   onClick={() => handleTaskbarClick(window.id)}
                   title={window.title}
                 >

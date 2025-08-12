@@ -11,7 +11,24 @@ export default {
   transformIgnorePatterns: ['node_modules/(?!(.*\\.mjs$))'],
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   testMatch: ['<rootDir>/src/**/__tests__/**/*.(ts|tsx)', '<rootDir>/src/**/(*.)+(spec|test).(ts|tsx)'],
-  collectCoverageFrom: ['src/**/*.(ts|tsx)', '!src/**/*.d.ts', '!src/main.tsx', '!src/vite-env.d.ts'],
+  collectCoverageFrom: [
+    'src/**/*.(ts|tsx)',
+    '!src/**/*.d.ts',
+    '!src/main.tsx',
+    '!src/vite-env.d.ts',
+    '!src/setupTests.ts',
+    '!src/**/*.stories.(ts|tsx)',
+    '!src/**/*.test.(ts|tsx)',
+    '!src/**/__tests__/**/*',
+  ],
   coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov', 'html'],
+  coverageReporters: ['text', 'lcov', 'html', 'clover'],
+  coverageThreshold: {
+    global: {
+      branches: 57,
+      functions: 57,
+      lines: 62,
+      statements: 60,
+    },
+  },
 };

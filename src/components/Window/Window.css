@@ -11,6 +11,12 @@
   backdrop-filter: blur(10px);
 }
 
+.window[data-component='calculator'] {
+  min-width: 280px;
+  min-height: 430px;
+  border-radius: 6px;
+}
+
 .window.maximized {
   border-radius: 0;
   border: none;

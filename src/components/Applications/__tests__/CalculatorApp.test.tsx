@@ -36,13 +36,18 @@ describe('CalculatorApp', () => {
       expect(screen.getByRole('button', { name: '×' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: '÷' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: '=' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: '%' })).toBeInTheDocument();
     });
 
     test('renders function buttons', () => {
       expect(screen.getByRole('button', { name: 'AC' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'C' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: '⌫' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: '.' })).toBeInTheDocument();
+    });
+
+    test('renders history display', () => {
+      const historyDisplay = document.querySelector('.history-display');
+      expect(historyDisplay).toBeInTheDocument();
     });
   });
 
@@ -201,32 +206,47 @@ describe('CalculatorApp', () => {
     });
   });
 
-  describe('Percentage Calculations', () => {
-    test('converts number to percentage', () => {
-      const button5 = screen.getByRole('button', { name: '5' });
-      const button0 = screen.getByRole('button', { name: '0' });
-      const percentButton = screen.getByRole('button', { name: '%' });
+  describe('Backspace Functionality', () => {
+    test('backspace removes last digit', () => {
+      const button1 = screen.getByRole('button', { name: '1' });
+      const button2 = screen.getByRole('button', { name: '2' });
+      const button3 = screen.getByRole('button', { name: '3' });
+      const backspaceButton = screen.getByRole('button', { name: '⌫' });
 
-      fireEvent.click(button5);
-      fireEvent.click(button0);
-      fireEvent.click(percentButton);
+      fireEvent.click(button1);
+      fireEvent.click(button2);
+      fireEvent.click(button3);
+      fireEvent.click(backspaceButton);
 
-      expect(getDisplayValue()).toBe('0.5');
+      expect(getDisplayValue()).toBe('12');
     });
 
-    test('handles percentage of decimal numbers', () => {
-      const button2 = screen.getByRole('button', { name: '2' });
+    test('backspace clears result state', () => {
       const button5 = screen.getByRole('button', { name: '5' });
-      const decimalButton = screen.getByRole('button', { name: '.' });
-      const percentButton = screen.getByRole('button', { name: '%' });
+      const button2 = screen.getByRole('button', { name: '2' });
+      const addButton = screen.getByRole('button', { name: '+' });
+      const equalsButton = screen.getByRole('button', { name: '=' });
+      const backspaceButton = screen.getByRole('button', { name: '⌫' });
 
+      fireEvent.click(button5);
+      fireEvent.click(addButton);
       fireEvent.click(button2);
-      fireEvent.click(button5);
-      fireEvent.click(decimalButton);
-      fireEvent.click(button5);
-      fireEvent.click(percentButton);
+      fireEvent.click(equalsButton);
 
-      expect(getDisplayValue()).toBe('0.255');
+      expect(getDisplayValue()).toBe('7');
+
+      fireEvent.click(backspaceButton);
+      expect(getDisplayValue()).toBe('0');
+    });
+
+    test('backspace on single digit shows zero', () => {
+      const button7 = screen.getByRole('button', { name: '7' });
+      const backspaceButton = screen.getByRole('button', { name: '⌫' });
+
+      fireEvent.click(button7);
+      fireEvent.click(backspaceButton);
+
+      expect(getDisplayValue()).toBe('0');
     });
   });
 
@@ -370,21 +390,78 @@ describe('CalculatorApp', () => {
       expect(getDisplayValue()).toBe('0');
     });
 
-    test('handles backspace for clear entry', () => {
+    test('handles backspace for digit removal', () => {
       fireEvent.keyDown(document, { key: '1' });
       fireEvent.keyDown(document, { key: '2' });
       fireEvent.keyDown(document, { key: '3' });
       fireEvent.keyDown(document, { key: 'Backspace' });
 
-      expect(getDisplayValue()).toBe('0');
+      expect(getDisplayValue()).toBe('12');
     });
 
-    test('handles percentage key', () => {
+    test('handles delete key for clear entry', () => {
+      fireEvent.keyDown(document, { key: '1' });
       fireEvent.keyDown(document, { key: '2' });
-      fireEvent.keyDown(document, { key: '0' });
-      fireEvent.keyDown(document, { key: '%' });
+      fireEvent.keyDown(document, { key: '3' });
+      fireEvent.keyDown(document, { key: 'Delete' });
 
-      expect(getDisplayValue()).toBe('0.2');
+      expect(getDisplayValue()).toBe('0');
+    });
+  });
+
+  describe('History Display', () => {
+    const getHistoryValue = () => {
+      const history = document.querySelector('.history-display');
+      return history?.textContent || '';
+    };
+
+    test('shows operation in history', () => {
+      const button5 = screen.getByRole('button', { name: '5' });
+      const addButton = screen.getByRole('button', { name: '+' });
+
+      fireEvent.click(button5);
+      fireEvent.click(addButton);
+
+      expect(getHistoryValue()).toBe('5 +');
+    });
+
+    test('shows complete expression in history on equals', () => {
+      const button5 = screen.getByRole('button', { name: '5' });
+      const button3 = screen.getByRole('button', { name: '3' });
+      const addButton = screen.getByRole('button', { name: '+' });
+      const equalsButton = screen.getByRole('button', { name: '=' });
+
+      fireEvent.click(button5);
+      fireEvent.click(addButton);
+      fireEvent.click(button3);
+      fireEvent.click(equalsButton);
+
+      expect(getHistoryValue()).toBe('5 + 3 =');
+      expect(getDisplayValue()).toBe('8');
+    });
+
+    test('clears history on AC', () => {
+      const button5 = screen.getByRole('button', { name: '5' });
+      const addButton = screen.getByRole('button', { name: '+' });
+      const allClearButton = screen.getByRole('button', { name: 'AC' });
+
+      fireEvent.click(button5);
+      fireEvent.click(addButton);
+      fireEvent.click(allClearButton);
+
+      expect(getHistoryValue()).toBe(' ');
+    });
+
+    test('updates operation in history when changed', () => {
+      const button5 = screen.getByRole('button', { name: '5' });
+      const addButton = screen.getByRole('button', { name: '+' });
+      const multiplyButton = screen.getByRole('button', { name: '×' });
+
+      fireEvent.click(button5);
+      fireEvent.click(addButton);
+      fireEvent.click(multiplyButton);
+
+      expect(getHistoryValue()).toBe('5 ×');
     });
   });
 

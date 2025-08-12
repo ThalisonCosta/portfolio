@@ -12,10 +12,13 @@
     "prettier:write": "prettier --write .",
     "format": "npm run prettier:write && npm run lint:fix",
     "preview": "vite preview",
-    "test": "jest",
     "test:watch": "jest --watch",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "test:unit": "jest --coverage",
+    "test:unit:no-coverage": "jest",
+    "test": "jest --coverage && playwright test",
+    "test:coverage": "jest --coverage --watchAll=false",
     "prepare": "husky"
   },
   "dependencies": {

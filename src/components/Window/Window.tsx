@@ -61,14 +61,20 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
       if (isDragging && !windowState.isMaximized) {
-        const newX = e.clientX - dragStart.x;
-        const newY = Math.max(0, e.clientY - dragStart.y);
+        // Calculate new position with boundary constraints
+        const newX = Math.max(0, Math.min(window.innerWidth - windowState.size.width, e.clientX - dragStart.x));
+        const newY = Math.max(0, Math.min(window.innerHeight - windowState.size.height - 48, e.clientY - dragStart.y)); // 48px for taskbar
         updateWindowPosition(windowState.id, { x: newX, y: newY });
-      } else if (isResizing && !windowState.isMaximized) {
+      } else if (isResizing && !windowState.isMaximized && windowState.isResizable !== false) {
         const deltaX = e.clientX - resizeStart.x;
         const deltaY = e.clientY - resizeStart.y;
-        const newWidth = Math.max(300, resizeStart.width + deltaX);
-        const newHeight = Math.max(200, resizeStart.height + deltaY);
+        
+        // Apply component-specific minimum sizes
+        const minWidth = windowState.component === 'calculator' ? 280 : 300;
+        const minHeight = windowState.component === 'calculator' ? 430 : 200;
+        
+        const newWidth = Math.max(minWidth, resizeStart.width + deltaX);
+        const newHeight = Math.max(minHeight, resizeStart.height + deltaY);
         updateWindowSize(windowState.id, { width: newWidth, height: newHeight });
       }
     },
@@ -77,6 +83,9 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
       isResizing,
       windowState.id,
       windowState.isMaximized,
+      windowState.isResizable,
+      windowState.component,
+      windowState.size,
       dragStart,
       resizeStart,
       updateWindowPosition,
@@ -102,7 +111,12 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
 
   const handleClose = () => closeWindow(windowState.id);
   const handleMinimize = () => minimizeWindow(windowState.id);
-  const handleMaximize = () => maximizeWindow(windowState.id);
+  const handleMaximize = () => {
+    // Don't allow maximizing non-resizable windows
+    if (windowState.isResizable !== false) {
+      maximizeWindow(windowState.id);
+    }
+  };
 
   if (windowState.isMinimized) {
     return null;
@@ -123,6 +137,7 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
       className={`window ${windowState.isMaximized ? 'maximized' : ''}`}
       style={windowStyle}
       onClick={() => bringToFront(windowState.id)}
+      data-component={windowState.component}
       role="dialog"
       aria-labelledby={`window-title-${windowState.id}`}
       aria-modal="false"
@@ -152,9 +167,10 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
           <button
             className="window-control maximize"
             onClick={handleMaximize}
-            title={windowState.isMaximized ? 'Restore window' : 'Maximize window'}
-            aria-label={windowState.isMaximized ? 'Restore window' : 'Maximize window'}
+            title={windowState.isResizable === false ? 'Cannot maximize this window' : (windowState.isMaximized ? 'Restore window' : 'Maximize window')}
+            aria-label={windowState.isResizable === false ? 'Cannot maximize this window' : (windowState.isMaximized ? 'Restore window' : 'Maximize window')}
             type="button"
+            disabled={windowState.isResizable === false}
           >
             {windowState.isMaximized ? '❐' : '□'}
           </button>
@@ -174,7 +190,7 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
         <ApplicationManager component={windowState.component} windowId={windowState.id} />
       </div>
 
-      {!windowState.isMaximized && (
+      {!windowState.isMaximized && windowState.isResizable !== false && (
         <div
           className="window-resize-handle"
           onMouseDown={handleResizeMouseDown}

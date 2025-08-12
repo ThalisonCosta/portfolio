@@ -14,6 +14,8 @@ interface CalculatorState {
   waitingForOperand: boolean;
   /** Whether the display shows the result of a calculation */
   isResult: boolean;
+  /** History display showing the current expression */
+  history: string;
 }
 
 /**
@@ -35,6 +37,7 @@ export const CalculatorApp: React.FC = () => {
     operation: null,
     waitingForOperand: false,
     isResult: false,
+    history: '',
   });
 
   /**
@@ -100,6 +103,35 @@ export const CalculatorApp: React.FC = () => {
   }, []);
 
   /**
+   * Backspace function - removes the last digit
+   */
+  const backspace = useCallback(() => {
+    setState((prevState) => {
+      const { display, isResult } = prevState;
+
+      if (isResult) {
+        return {
+          ...prevState,
+          display: '0',
+          isResult: false,
+        };
+      }
+
+      if (display.length > 1 && display !== '0') {
+        return {
+          ...prevState,
+          display: display.slice(0, -1),
+        };
+      }
+
+      return {
+        ...prevState,
+        display: '0',
+      };
+    });
+  }, []);
+
+  /**
    * Clears all calculator state (AC function)
    */
   const clearAll = useCallback(() => {
@@ -109,6 +141,7 @@ export const CalculatorApp: React.FC = () => {
       operation: null,
       waitingForOperand: false,
       isResult: false,
+      history: '',
     });
   }, []);
 
@@ -139,7 +172,7 @@ export const CalculatorApp: React.FC = () => {
   const performOperation = useCallback(
     (nextOperation: string) => {
       setState((prevState) => {
-        const { display, previousValue, operation, waitingForOperand } = prevState;
+        const { display, previousValue, operation, waitingForOperand, history } = prevState;
         const inputValue = parseFloat(display);
 
         if (previousValue === null) {
@@ -148,6 +181,7 @@ export const CalculatorApp: React.FC = () => {
             previousValue: inputValue,
             operation: nextOperation,
             waitingForOperand: true,
+            history: `${display} ${nextOperation}`,
           };
         }
 
@@ -155,6 +189,7 @@ export const CalculatorApp: React.FC = () => {
           return {
             ...prevState,
             operation: nextOperation,
+            history: history.slice(0, -1) + nextOperation,
           };
         }
 
@@ -169,6 +204,7 @@ export const CalculatorApp: React.FC = () => {
             operation: nextOperation,
             waitingForOperand: true,
             isResult: false,
+            history: `${formattedResult} ${nextOperation}`,
           };
         } catch {
           return {
@@ -178,6 +214,7 @@ export const CalculatorApp: React.FC = () => {
             operation: null,
             waitingForOperand: true,
             isResult: true,
+            history: '',
           };
         }
       });
@@ -190,7 +227,7 @@ export const CalculatorApp: React.FC = () => {
    */
   const performEquals = useCallback(() => {
     setState((prevState) => {
-      const { display, previousValue, operation } = prevState;
+      const { display, previousValue, operation, history } = prevState;
       const inputValue = parseFloat(display);
 
       if (previousValue !== null && operation) {
@@ -205,6 +242,7 @@ export const CalculatorApp: React.FC = () => {
             operation: null,
             waitingForOperand: true,
             isResult: true,
+            history: `${history} ${display} =`,
           };
         } catch {
           return {
@@ -214,6 +252,7 @@ export const CalculatorApp: React.FC = () => {
             operation: null,
             waitingForOperand: true,
             isResult: true,
+            history: '',
           };
         }
       }
@@ -266,10 +305,12 @@ export const CalculatorApp: React.FC = () => {
       } else if (e.key === 'Escape') {
         clearAll();
       } else if (e.key === 'Backspace') {
+        backspace();
+      } else if (e.key === 'Delete') {
         clear();
       }
     },
-    [inputNumber, inputDecimal, performOperation, performEquals, performPercentage, clearAll, clear]
+    [inputNumber, inputDecimal, performOperation, performEquals, performPercentage, clearAll, clear, backspace]
   );
 
   useEffect(() => {
@@ -297,6 +338,9 @@ export const CalculatorApp: React.FC = () => {
     <div className="calculator-app">
       <div className="calculator">
         <div className="calculator-display">
+          <div className="history-display" title={state.history}>
+            {state.history || ' '}
+          </div>
           <div className="display-value" title={state.display}>
             {formatDisplay(state.display)}
           </div>
@@ -307,11 +351,11 @@ export const CalculatorApp: React.FC = () => {
           <button className="btn btn-function" onClick={clearAll} title="Clear All (Escape)">
             AC
           </button>
-          <button className="btn btn-function" onClick={clear} title="Clear Entry (Backspace)">
+          <button className="btn btn-function" onClick={clear} title="Clear Entry (Delete)">
             C
           </button>
-          <button className="btn btn-function" onClick={performPercentage} title="Percentage (%)">
-            %
+          <button className="btn btn-function" onClick={backspace} title="Backspace">
+            ⌫
           </button>
           <button className="btn btn-operation" onClick={() => performOperation('÷')} title="Divide (/)">
             ÷
@@ -374,54 +418,70 @@ export const CalculatorApp: React.FC = () => {
 
       <style>{`
         .calculator-app {
-          display: flex;
-          justify-content: center;
-          align-items: center;
+          width: 100%;
           height: 100%;
-          padding: 20px;
-          background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+          display: flex;
+          flex-direction: column;
+          background: #2d3748;
         }
 
         .calculator {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
           background: #2d3748;
-          border-radius: 16px;
-          padding: 20px;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05);
-          max-width: 320px;
+          padding: 12px;
           width: 100%;
+          height: 100%;
+          box-sizing: border-box;
         }
 
         .calculator-display {
           background: #1a202c;
-          border-radius: 12px;
-          padding: 24px 20px;
-          margin-bottom: 20px;
+          border-radius: 8px;
+          padding: 16px 12px;
+          margin-bottom: 12px;
           border: 1px solid rgba(255, 255, 255, 0.1);
+          flex-shrink: 0;
+        }
+
+        .history-display {
+          font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+          font-size: 0.9rem;
+          font-weight: 300;
+          color: #a0aec0;
+          text-align: right;
+          min-height: 1.1em;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          line-height: 1.1;
+          margin-bottom: 6px;
         }
 
         .display-value {
           font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-          font-size: 2.5rem;
+          font-size: 2.2rem;
           font-weight: 300;
           color: white;
           text-align: right;
-          min-height: 1.2em;
+          min-height: 1.1em;
           word-wrap: break-word;
           overflow-wrap: break-word;
-          line-height: 1.2;
+          line-height: 1.1;
         }
 
         .calculator-buttons {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
-          gap: 12px;
+          gap: 8px;
+          flex: 1;
         }
 
         .btn {
-          height: 64px;
+          height: 56px;
           border: none;
-          border-radius: 12px;
-          font-size: 1.25rem;
+          border-radius: 8px;
+          font-size: 1.2rem;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.15s ease;
@@ -493,7 +553,6 @@ export const CalculatorApp: React.FC = () => {
           background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
           color: white;
           font-weight: 700;
-          grid-column: span 2;
         }
 
         .btn-equals:hover {
@@ -506,25 +565,54 @@ export const CalculatorApp: React.FC = () => {
 
         @media (max-width: 480px) {
           .calculator {
-            margin: 10px;
-            padding: 16px;
+            padding: 8px;
           }
 
           .calculator-display {
-            padding: 20px 16px;
+            padding: 12px 8px;
+            margin-bottom: 8px;
+          }
+
+          .history-display {
+            font-size: 0.8rem;
+            margin-bottom: 4px;
           }
 
           .display-value {
-            font-size: 2rem;
+            font-size: 1.8rem;
           }
 
           .btn {
-            height: 56px;
-            font-size: 1.1rem;
+            height: 44px;
+            font-size: 1rem;
           }
 
           .calculator-buttons {
-            gap: 10px;
+            gap: 6px;
+          }
+        }
+
+        @media (max-width: 360px) {
+          .calculator {
+            padding: 6px;
+          }
+
+          .calculator-display {
+            padding: 10px 6px;
+            margin-bottom: 6px;
+          }
+
+          .display-value {
+            font-size: 1.6rem;
+          }
+
+          .btn {
+            height: 40px;
+            font-size: 0.9rem;
+          }
+
+          .calculator-buttons {
+            gap: 4px;
           }
         }
       `}</style>
