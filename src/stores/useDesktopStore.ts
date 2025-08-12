@@ -32,6 +32,8 @@ interface DesktopState {
   nextZIndex: number;
   theme: 'light' | 'dark';
   wallpaper: string;
+  isDragging: boolean;
+  draggedItem: string | null;
 }
 
 interface DesktopActions {
@@ -50,6 +52,8 @@ interface DesktopActions {
   setTheme: (theme: 'light' | 'dark') => void;
   setWallpaper: (wallpaper: string) => void;
   initializeFileSystem: () => void;
+  updateIconPosition: (id: string, position: { x: number; y: number }) => void;
+  setDragging: (isDragging: boolean, itemId?: string) => void;
 }
 
 const defaultFileSystem: FileSystemItem[] = [
@@ -141,6 +145,8 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
       nextZIndex: 1000,
       theme: 'light',
       wallpaper: '/wallpapers/default.jpg',
+      isDragging: false,
+      draggedItem: null,
 
       openWindow: (windowConfig) => {
         const { nextZIndex } = get();
@@ -238,6 +244,93 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
       setWallpaper: (wallpaper) => set({ wallpaper }),
 
       initializeFileSystem: () => set({ fileSystem: defaultFileSystem }),
+
+      updateIconPosition: (id, position) => {
+        set((state) => {
+          const ICON_SIZE = 80;
+          const COLLISION_THRESHOLD = 60;
+
+          const checkCollision = (pos1: { x: number; y: number }, pos2: { x: number; y: number }) => {
+            const distance = Math.sqrt(
+              Math.pow(pos1.x - pos2.x, 2) + Math.pow(pos1.y - pos2.y, 2)
+            );
+            return distance < COLLISION_THRESHOLD;
+          };
+
+          const findSafePosition = (desiredPos: { x: number; y: number }, excludeId: string, items: FileSystemItem[]) => {
+            let safePos = { ...desiredPos };
+            let attempts = 0;
+            const maxAttempts = 20;
+
+            while (attempts < maxAttempts) {
+              const hasCollision = items.some(item => 
+                item.id !== excludeId && 
+                item.position && 
+                checkCollision(safePos, item.position)
+              );
+
+              if (!hasCollision) {
+                return safePos;
+              }
+
+              safePos.y += ICON_SIZE + 10;
+              attempts++;
+            }
+
+            return safePos;
+          };
+
+          const updatedFileSystem = state.fileSystem.map(folder => {
+            if (folder.children) {
+              const desktopItems = folder.children;
+              const draggedItem = desktopItems.find(item => item.id === id);
+              
+              if (!draggedItem) return folder;
+
+              const otherItems = desktopItems.filter(item => item.id !== id);
+              const collisionItem = otherItems.find(item => 
+                item.position && checkCollision(position, item.position)
+              );
+
+              let updatedChildren = [...desktopItems];
+
+              if (collisionItem && collisionItem.position) {
+                const newCollisionPosition = findSafePosition(
+                  { x: collisionItem.position.x, y: collisionItem.position.y + ICON_SIZE + 10 },
+                  collisionItem.id,
+                  otherItems.filter(item => item.id !== collisionItem.id)
+                );
+
+                updatedChildren = updatedChildren.map(item => {
+                  if (item.id === collisionItem.id) {
+                    return { ...item, position: newCollisionPosition };
+                  }
+                  if (item.id === id) {
+                    return { ...item, position };
+                  }
+                  return item;
+                });
+              } else {
+                updatedChildren = updatedChildren.map(item =>
+                  item.id === id ? { ...item, position } : item
+                );
+              }
+
+              return {
+                ...folder,
+                children: updatedChildren
+              };
+            }
+            return folder;
+          });
+
+          return { fileSystem: updatedFileSystem };
+        });
+      },
+
+      setDragging: (isDragging, itemId) => {
+        set({ isDragging, draggedItem: itemId || null });
+      },
     }),
     {
       name: 'desktop-store',

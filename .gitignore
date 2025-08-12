@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.vite
+
+# Tests
+playwright-report
+coverage
+test-results

@@ -17,7 +17,8 @@
   pointer-events: all;
   padding: 8px;
   border-radius: 4px;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, opacity 0.2s, transform 0.1s;
+  user-select: none;
 }
 
 .desktop-icon:hover {
@@ -26,6 +27,17 @@
 
 .desktop-icon.selected {
   background: rgba(0, 120, 212, 0.3);
+}
+
+.desktop-icon.dragging {
+  opacity: 0.6;
+  transform: scale(1.05);
+  z-index: 9999;
+  cursor: grabbing;
+}
+
+.desktop-icon:active {
+  cursor: grabbing;
 }
 
 .icon {

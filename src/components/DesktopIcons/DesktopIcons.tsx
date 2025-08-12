@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDesktopStore } from '../../stores/useDesktopStore';
 import type { FileSystemItem } from '../../stores/useDesktopStore';
 import './DesktopIcons.css';
 
 export const DesktopIcons: React.FC = () => {
-  const { fileSystem, openWindow } = useDesktopStore();
+  const { fileSystem, openWindow, updateIconPosition, setDragging, isDragging, draggedItem } = useDesktopStore();
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   const handleIconDoubleClick = (item: FileSystemItem) => {
     if (item.type === 'file') {
@@ -68,16 +69,36 @@ export const DesktopIcons: React.FC = () => {
     }
   };
 
+  const handleDragStart = (e: React.DragEvent, item: FileSystemItem) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+    
+    setDragOffset({ x: offsetX, y: offsetY });
+    setDragging(true, item.id);
+    
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', item.id);
+  };
+
+  const handleDragEnd = () => {
+    setDragging(false);
+    setDragOffset({ x: 0, y: 0 });
+  };
+
   return (
     <div className="desktop-icons">
       {getDesktopItems().map((item) => (
         <div
           key={item.id}
-          className="desktop-icon"
+          className={`desktop-icon ${isDragging && draggedItem === item.id ? 'dragging' : ''}`}
           style={{
             left: item.position?.x || 50,
             top: item.position?.y || 50,
           }}
+          draggable
+          onDragStart={(e) => handleDragStart(e, item)}
+          onDragEnd={handleDragEnd}
           onDoubleClick={() => handleIconDoubleClick(item)}
         >
           <div className="icon">
