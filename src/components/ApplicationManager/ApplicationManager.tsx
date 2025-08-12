@@ -56,14 +56,16 @@ const FileExplorerApp: React.FC = () => (
 );
 
 const TerminalApp: React.FC = () => (
-  <div style={{ 
-    padding: '16px', 
-    height: '100%', 
-    backgroundColor: '#000', 
-    color: '#00ff00',
-    fontFamily: 'monospace',
-    overflow: 'auto'
-  }}>
+  <div
+    style={{
+      padding: '16px',
+      height: '100%',
+      backgroundColor: '#000',
+      color: '#00ff00',
+      fontFamily: 'monospace',
+      overflow: 'auto',
+    }}
+  >
     <div>Windows Desktop Portfolio Terminal v1.0</div>
     <div>Type 'help' for available commands</div>
     <div style={{ marginTop: '10px' }}>
@@ -80,14 +82,17 @@ const ContactFormApp: React.FC = () => (
       <input type="text" placeholder="Your Name" style={{ padding: '8px' }} />
       <input type="email" placeholder="Your Email" style={{ padding: '8px' }} />
       <textarea placeholder="Your Message" rows={5} style={{ padding: '8px', resize: 'vertical' }} />
-      <button type="submit" style={{ 
-        padding: '10px', 
-        backgroundColor: '#0078d4', 
-        color: 'white', 
-        border: 'none', 
-        borderRadius: '4px',
-        cursor: 'pointer'
-      }}>
+      <button
+        type="submit"
+        style={{
+          padding: '10px',
+          backgroundColor: '#0078d4',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+        }}
+      >
         Send Message
       </button>
     </form>

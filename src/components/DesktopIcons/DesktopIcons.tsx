@@ -1,6 +1,5 @@
 import React from 'react';
-import { useDesktopStore } from '../../stores/useDesktopStore';
-import type { FileSystemItem } from '../../stores/useDesktopStore';
+import { useDesktopStore, type FileSystemItem } from '../../stores/useDesktopStore';
 import './DesktopIcons.css';
 
 export const DesktopIcons: React.FC = () => {
@@ -9,7 +8,7 @@ export const DesktopIcons: React.FC = () => {
   const handleIconDoubleClick = (item: FileSystemItem) => {
     if (item.type === 'file') {
       let component = 'TextEditor';
-      
+
       switch (item.name.split('.').pop()) {
         case 'txt':
           component = 'TextEditor';
@@ -48,7 +47,7 @@ export const DesktopIcons: React.FC = () => {
   };
 
   const getDesktopItems = () => {
-    const desktop = fileSystem.find(item => item.path === '/Desktop');
+    const desktop = fileSystem.find((item) => item.path === '/Desktop');
     return desktop?.children || [];
   };
 
@@ -70,7 +69,7 @@ export const DesktopIcons: React.FC = () => {
 
   const handleDragStart = (e: React.DragEvent, item: FileSystemItem) => {
     setDragging(true, item.id);
-    
+
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', item.id);
   };
@@ -94,9 +93,7 @@ export const DesktopIcons: React.FC = () => {
           onDragEnd={handleDragEnd}
           onDoubleClick={() => handleIconDoubleClick(item)}
         >
-          <div className="icon">
-            {item.type === 'folder' ? '📁' : getIconForFile(item.name)}
-          </div>
+          <div className="icon">{item.type === 'folder' ? '📁' : getIconForFile(item.name)}</div>
           <div className="icon-label">{item.name}</div>
         </div>
       ))}

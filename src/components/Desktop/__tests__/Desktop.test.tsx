@@ -14,8 +14,8 @@ jest.mock('../../../stores/useDesktopStore', () => ({
         type: 'folder',
         path: '/Desktop',
         icon: 'folder',
-        children: []
-      }
+        children: [],
+      },
     ],
     clearSelection: jest.fn(),
     openWindow: jest.fn(),
@@ -25,7 +25,7 @@ jest.mock('../../../stores/useDesktopStore', () => ({
 describe('Desktop Component', () => {
   test('renders desktop environment', () => {
     render(<Desktop />);
-    
+
     const desktopElement = document.querySelector('.desktop');
     expect(desktopElement).toBeInTheDocument();
     expect(desktopElement).toHaveClass('desktop', 'light');
@@ -33,10 +33,10 @@ describe('Desktop Component', () => {
 
   test('has correct background style', () => {
     render(<Desktop />);
-    
+
     const desktopElement = document.querySelector('.desktop');
     expect(desktopElement).toHaveStyle({
-      backgroundImage: 'url(/wallpapers/default.jpg)'
+      backgroundImage: 'url(/wallpapers/default.jpg)',
     });
   });
 });

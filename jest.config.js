@@ -8,20 +8,10 @@ export default {
   transform: {
     '^.+\\.(t|j)sx?$': '@swc/jest',
   },
-  transformIgnorePatterns: [
-    'node_modules/(?!(.*\\.mjs$))',
-  ],
+  transformIgnorePatterns: ['node_modules/(?!(.*\\.mjs$))'],
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
-  testMatch: [
-    '<rootDir>/src/**/__tests__/**/*.(ts|tsx)',
-    '<rootDir>/src/**/(*.)+(spec|test).(ts|tsx)',
-  ],
-  collectCoverageFrom: [
-    'src/**/*.(ts|tsx)',
-    '!src/**/*.d.ts',
-    '!src/main.tsx',
-    '!src/vite-env.d.ts',
-  ],
+  testMatch: ['<rootDir>/src/**/__tests__/**/*.(ts|tsx)', '<rootDir>/src/**/(*.)+(spec|test).(ts|tsx)'],
+  collectCoverageFrom: ['src/**/*.(ts|tsx)', '!src/**/*.d.ts', '!src/main.tsx', '!src/vite-env.d.ts'],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
 };

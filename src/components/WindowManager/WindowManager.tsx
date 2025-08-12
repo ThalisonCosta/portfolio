@@ -8,10 +8,7 @@ export const WindowManager: React.FC = () => {
   return (
     <>
       {windows.map((window) => (
-        <Window
-          key={window.id}
-          windowState={window}
-        />
+        <Window key={window.id} windowState={window} />
       ))}
     </>
   );

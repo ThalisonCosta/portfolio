@@ -70,8 +70,8 @@ const defaultFileSystem: FileSystemItem[] = [
         type: 'file',
         path: '/Desktop/About Me.txt',
         icon: 'text',
-        content: 'Welcome to my portfolio! I\'m a passionate developer...',
-        position: { x: 100, y: 100 }
+        content: "Welcome to my portfolio! I'm a passionate developer...",
+        position: { x: 100, y: 100 },
       },
       {
         id: 'resume',
@@ -79,7 +79,7 @@ const defaultFileSystem: FileSystemItem[] = [
         type: 'file',
         path: '/Desktop/Resume.pdf',
         icon: 'pdf',
-        position: { x: 200, y: 100 }
+        position: { x: 200, y: 100 },
       },
       {
         id: 'contact',
@@ -87,9 +87,9 @@ const defaultFileSystem: FileSystemItem[] = [
         type: 'file',
         path: '/Desktop/Contact.lnk',
         icon: 'link',
-        position: { x: 300, y: 100 }
-      }
-    ]
+        position: { x: 300, y: 100 },
+      },
+    ],
   },
   {
     id: 'projects',
@@ -104,7 +104,7 @@ const defaultFileSystem: FileSystemItem[] = [
         type: 'folder',
         path: '/Projects/Web Development',
         icon: 'folder',
-        children: []
+        children: [],
       },
       {
         id: 'mobile-apps',
@@ -112,9 +112,9 @@ const defaultFileSystem: FileSystemItem[] = [
         type: 'folder',
         path: '/Projects/Mobile Apps',
         icon: 'folder',
-        children: []
-      }
-    ]
+        children: [],
+      },
+    ],
   },
   {
     id: 'documents',
@@ -129,10 +129,11 @@ const defaultFileSystem: FileSystemItem[] = [
         type: 'file',
         path: '/Documents/Skills.md',
         icon: 'markdown',
-        content: '# Technical Skills\n\n## Frontend\n- React/TypeScript\n- JavaScript/HTML/CSS\n\n## Backend\n- Node.js\n- Python\n\n## Tools\n- Git/GitHub\n- Docker'
-      }
-    ]
-  }
+        content:
+          '# Technical Skills\n\n## Frontend\n- React/TypeScript\n- JavaScript/HTML/CSS\n\n## Backend\n- Node.js\n- Python\n\n## Tools\n- Git/GitHub\n- Docker',
+      },
+    ],
+  },
 ];
 
 export const useDesktopStore = create<DesktopState & DesktopActions>()(
@@ -156,7 +157,7 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
           isOpen: true,
           zIndex: nextZIndex,
         };
-        
+
         set((state) => ({
           windows: [...state.windows, newWindow],
           nextZIndex: nextZIndex + 1,
@@ -165,58 +166,42 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
 
       closeWindow: (id) => {
         set((state) => ({
-          windows: state.windows.filter(window => window.id !== id),
+          windows: state.windows.filter((window) => window.id !== id),
         }));
       },
 
       minimizeWindow: (id) => {
         set((state) => ({
-          windows: state.windows.map(window =>
-            window.id === id
-              ? { ...window, isMinimized: !window.isMinimized }
-              : window
+          windows: state.windows.map((window) =>
+            window.id === id ? { ...window, isMinimized: !window.isMinimized } : window
           ),
         }));
       },
 
       maximizeWindow: (id) => {
         set((state) => ({
-          windows: state.windows.map(window =>
-            window.id === id
-              ? { ...window, isMaximized: !window.isMaximized }
-              : window
+          windows: state.windows.map((window) =>
+            window.id === id ? { ...window, isMaximized: !window.isMaximized } : window
           ),
         }));
       },
 
       updateWindowPosition: (id, position) => {
         set((state) => ({
-          windows: state.windows.map(window =>
-            window.id === id
-              ? { ...window, position }
-              : window
-          ),
+          windows: state.windows.map((window) => (window.id === id ? { ...window, position } : window)),
         }));
       },
 
       updateWindowSize: (id, size) => {
         set((state) => ({
-          windows: state.windows.map(window =>
-            window.id === id
-              ? { ...window, size }
-              : window
-          ),
+          windows: state.windows.map((window) => (window.id === id ? { ...window, size } : window)),
         }));
       },
 
       bringToFront: (id) => {
         const { nextZIndex } = get();
         set((state) => ({
-          windows: state.windows.map(window =>
-            window.id === id
-              ? { ...window, zIndex: nextZIndex }
-              : window
-          ),
+          windows: state.windows.map((window) => (window.id === id ? { ...window, zIndex: nextZIndex } : window)),
           nextZIndex: nextZIndex + 1,
         }));
       },
@@ -233,7 +218,7 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
 
       removeSelectedItem: (item) => {
         set((state) => ({
-          selectedItems: state.selectedItems.filter(i => i !== item),
+          selectedItems: state.selectedItems.filter((i) => i !== item),
         }));
       },
 
@@ -251,22 +236,23 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
           const COLLISION_THRESHOLD = 60;
 
           const checkCollision = (pos1: { x: number; y: number }, pos2: { x: number; y: number }) => {
-            const distance = Math.sqrt(
-              Math.pow(pos1.x - pos2.x, 2) + Math.pow(pos1.y - pos2.y, 2)
-            );
+            const distance = Math.sqrt(Math.pow(pos1.x - pos2.x, 2) + Math.pow(pos1.y - pos2.y, 2));
             return distance < COLLISION_THRESHOLD;
           };
 
-          const findSafePosition = (desiredPos: { x: number; y: number }, excludeId: string, items: FileSystemItem[]) => {
+          const findSafePosition = (
+            desiredPos: { x: number; y: number },
+            excludeId: string,
+            items: FileSystemItem[]
+          ) => {
+            // eslint-disable-next-line prefer-const
             let safePos = { ...desiredPos };
             let attempts = 0;
             const maxAttempts = 20;
 
             while (attempts < maxAttempts) {
-              const hasCollision = items.some(item => 
-                item.id !== excludeId && 
-                item.position && 
-                checkCollision(safePos, item.position)
+              const hasCollision = items.some(
+                (item) => item.id !== excludeId && item.position && checkCollision(safePos, item.position)
               );
 
               if (!hasCollision) {
@@ -280,17 +266,15 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
             return safePos;
           };
 
-          const updatedFileSystem = state.fileSystem.map(folder => {
+          const updatedFileSystem = state.fileSystem.map((folder) => {
             if (folder.children) {
               const desktopItems = folder.children;
-              const draggedItem = desktopItems.find(item => item.id === id);
-              
+              const draggedItem = desktopItems.find((item) => item.id === id);
+
               if (!draggedItem) return folder;
 
-              const otherItems = desktopItems.filter(item => item.id !== id);
-              const collisionItem = otherItems.find(item => 
-                item.position && checkCollision(position, item.position)
-              );
+              const otherItems = desktopItems.filter((item) => item.id !== id);
+              const collisionItem = otherItems.find((item) => item.position && checkCollision(position, item.position));
 
               let updatedChildren = [...desktopItems];
 
@@ -298,10 +282,10 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
                 const newCollisionPosition = findSafePosition(
                   { x: collisionItem.position.x, y: collisionItem.position.y + ICON_SIZE + 10 },
                   collisionItem.id,
-                  otherItems.filter(item => item.id !== collisionItem.id)
+                  otherItems.filter((item) => item.id !== collisionItem.id)
                 );
 
-                updatedChildren = updatedChildren.map(item => {
+                updatedChildren = updatedChildren.map((item) => {
                   if (item.id === collisionItem.id) {
                     return { ...item, position: newCollisionPosition };
                   }
@@ -311,14 +295,12 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
                   return item;
                 });
               } else {
-                updatedChildren = updatedChildren.map(item =>
-                  item.id === id ? { ...item, position } : item
-                );
+                updatedChildren = updatedChildren.map((item) => (item.id === id ? { ...item, position } : item));
               }
 
               return {
                 ...folder,
-                children: updatedChildren
+                children: updatedChildren,
               };
             }
             return folder;
