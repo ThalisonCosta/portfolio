@@ -1,61 +1,119 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
+/**
+ * Represents the state of a window in the desktop environment
+ */
 export interface WindowState {
+  /** Unique identifier for the window */
   id: string;
+  /** Display title shown in the window title bar */
   title: string;
+  /** Component name to render inside the window */
   component: string;
+  /** Whether the window is currently open */
   isOpen: boolean;
+  /** Whether the window is minimized to the taskbar */
   isMinimized: boolean;
+  /** Whether the window is maximized to full screen */
   isMaximized: boolean;
+  /** Current position of the window on screen */
   position: { x: number; y: number };
+  /** Current size dimensions of the window */
   size: { width: number; height: number };
+  /** Z-index for window stacking order */
   zIndex: number;
 }
 
+/**
+ * Represents a file or folder in the virtual file system
+ */
 export interface FileSystemItem {
+  /** Unique identifier for the file/folder */
   id: string;
+  /** Display name of the file/folder */
   name: string;
+  /** Type of the item - file or folder */
   type: 'file' | 'folder';
+  /** Full path to the item */
   path: string;
+  /** Icon identifier for display */
   icon: string;
+  /** File content (only for files) */
   content?: string;
+  /** Child items (only for folders) */
   children?: FileSystemItem[];
+  /** Position on desktop (for desktop items) */
   position?: { x: number; y: number };
 }
 
+/**
+ * State interface for the desktop store
+ */
 interface DesktopState {
+  /** Array of currently open windows */
   windows: WindowState[];
+  /** Virtual file system structure */
   fileSystem: FileSystemItem[];
+  /** Current active directory path */
   currentPath: string;
+  /** Array of currently selected item IDs */
   selectedItems: string[];
+  /** Next available z-index for new windows */
   nextZIndex: number;
+  /** Current theme mode */
   theme: 'light' | 'dark';
+  /** Current wallpaper image path */
   wallpaper: string;
+  /** Whether a drag operation is in progress */
   isDragging: boolean;
+  /** ID of the item currently being dragged */
   draggedItem: string | null;
+  /** Whether the start menu is currently open */
   isStartMenuOpen: boolean;
 }
 
+/**
+ * Actions interface for the desktop store
+ */
 interface DesktopActions {
+  /** Opens a new window with the specified configuration */
   openWindow: (windowConfig: Omit<WindowState, 'id' | 'zIndex' | 'isOpen'>) => void;
+  /** Closes a window by its ID */
   closeWindow: (id: string) => void;
+  /** Minimizes or restores a window by its ID */
   minimizeWindow: (id: string) => void;
+  /** Maximizes or restores a window by its ID */
   maximizeWindow: (id: string) => void;
+  /** Updates the position of a window */
   updateWindowPosition: (id: string, position: { x: number; y: number }) => void;
+  /** Updates the size of a window */
   updateWindowSize: (id: string, size: { width: number; height: number }) => void;
+  /** Brings a window to the front of the z-order */
   bringToFront: (id: string) => void;
+  /** Sets the current active directory path */
   setCurrentPath: (path: string) => void;
+  /** Sets the currently selected items */
   setSelectedItems: (items: string[]) => void;
+  /** Adds an item to the selection */
   addSelectedItem: (item: string) => void;
+  /** Removes an item from the selection */
   removeSelectedItem: (item: string) => void;
+  /** Clears all selected items */
   clearSelection: () => void;
+  /** Sets the desktop theme */
   setTheme: (theme: 'light' | 'dark') => void;
+  /** Sets the desktop wallpaper */
   setWallpaper: (wallpaper: string) => void;
+  /** Initializes the file system with default structure */
   initializeFileSystem: () => void;
+  /** Updates the position of a desktop icon */
   updateIconPosition: (id: string, position: { x: number; y: number }) => void;
+  /** Sets the dragging state and optional dragged item */
   setDragging: (isDragging: boolean, itemId?: string) => void;
+  /** Toggles the start menu open/closed state */
   toggleStartMenu: () => void;
+  /** Closes the start menu */
   closeStartMenu: () => void;
 }
 

@@ -2,7 +2,12 @@ import React, { useEffect, useRef } from 'react';
 import { useDesktopStore } from '../../stores/useDesktopStore';
 import './StartMenu.css';
 
-export const StartMenu: React.FC = () => {
+/**
+ * StartMenu component that displays a Windows-like start menu with pinned applications,
+ * recommended items, and power options. Handles click-outside behavior to close the menu
+ * and provides application launching functionality.
+ */
+export const StartMenu: React.FC = React.memo(() => {
   const { isStartMenuOpen, closeStartMenu, openWindow } = useDesktopStore();
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -34,44 +39,100 @@ export const StartMenu: React.FC = () => {
     closeStartMenu();
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      closeStartMenu();
+    }
+  };
+
   if (!isStartMenuOpen) return null;
 
   return (
-    <div className="start-menu-overlay">
+    <div
+      className="start-menu-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="start-menu-title"
+      onKeyDown={handleKeyDown}
+    >
       <div className="start-menu" ref={menuRef}>
         <div className="start-menu-header">
           <div className="user-profile">
-            <div className="user-avatar">👤</div>
+            <div className="user-avatar" aria-hidden="true">
+              👤
+            </div>
             <span className="user-name">User</span>
           </div>
         </div>
 
         <div className="start-menu-content">
           <div className="pinned-apps">
-            <h3>Pinned</h3>
-            <div className="app-grid">
-              <button className="app-button" onClick={() => handleAppClick('File Explorer', 'explorer')}>
-                <span className="app-icon">📁</span>
+            <h3 id="start-menu-title">Pinned</h3>
+            <div className="app-grid" role="grid" aria-label="Pinned applications">
+              <button
+                className="app-button"
+                onClick={() => handleAppClick('File Explorer', 'explorer')}
+                aria-label="Open File Explorer"
+                type="button"
+              >
+                <span className="app-icon" aria-hidden="true">
+                  📁
+                </span>
                 <span className="app-name">File Explorer</span>
               </button>
-              <button className="app-button" onClick={() => handleAppClick('About Me', 'about')}>
-                <span className="app-icon">📄</span>
+              <button
+                className="app-button"
+                onClick={() => handleAppClick('About Me', 'about')}
+                aria-label="Open About Me"
+                type="button"
+              >
+                <span className="app-icon" aria-hidden="true">
+                  📄
+                </span>
                 <span className="app-name">About Me</span>
               </button>
-              <button className="app-button" onClick={() => handleAppClick('Projects', 'projects')}>
-                <span className="app-icon">💼</span>
+              <button
+                className="app-button"
+                onClick={() => handleAppClick('Projects', 'projects')}
+                aria-label="Open Projects"
+                type="button"
+              >
+                <span className="app-icon" aria-hidden="true">
+                  💼
+                </span>
                 <span className="app-name">Projects</span>
               </button>
-              <button className="app-button" onClick={() => handleAppClick('Contact', 'contact')}>
-                <span className="app-icon">📧</span>
+              <button
+                className="app-button"
+                onClick={() => handleAppClick('Contact', 'contact')}
+                aria-label="Open Contact"
+                type="button"
+              >
+                <span className="app-icon" aria-hidden="true">
+                  📧
+                </span>
                 <span className="app-name">Contact</span>
               </button>
-              <button className="app-button" onClick={() => handleAppClick('Settings', 'settings')}>
-                <span className="app-icon">⚙️</span>
+              <button
+                className="app-button"
+                onClick={() => handleAppClick('Settings', 'settings')}
+                aria-label="Open Settings"
+                type="button"
+              >
+                <span className="app-icon" aria-hidden="true">
+                  ⚙️
+                </span>
                 <span className="app-name">Settings</span>
               </button>
-              <button className="app-button" onClick={() => handleAppClick('Calculator', 'calculator')}>
-                <span className="app-icon">🧮</span>
+              <button
+                className="app-button"
+                onClick={() => handleAppClick('Calculator', 'calculator')}
+                aria-label="Open Calculator"
+                type="button"
+              >
+                <span className="app-icon" aria-hidden="true">
+                  🧮
+                </span>
                 <span className="app-name">Calculator</span>
               </button>
             </div>
@@ -79,16 +140,25 @@ export const StartMenu: React.FC = () => {
 
           <div className="recommended-section">
             <h3>Recommended</h3>
-            <div className="recommended-items">
-              <div className="recommended-item">
-                <span className="recommended-icon">📄</span>
+            <div className="recommended-items" role="list" aria-label="Recommended items">
+              <div className="recommended-item" role="listitem" tabIndex={0} aria-label="Resume.pdf, recently modified">
+                <span className="recommended-icon" aria-hidden="true">
+                  📄
+                </span>
                 <div className="recommended-info">
                   <span className="recommended-name">Resume.pdf</span>
                   <span className="recommended-desc">Recently modified</span>
                 </div>
               </div>
-              <div className="recommended-item">
-                <span className="recommended-icon">💻</span>
+              <div
+                className="recommended-item"
+                role="listitem"
+                tabIndex={0}
+                aria-label="Portfolio Project, recently opened"
+              >
+                <span className="recommended-icon" aria-hidden="true">
+                  💻
+                </span>
                 <div className="recommended-info">
                   <span className="recommended-name">Portfolio Project</span>
                   <span className="recommended-desc">Recently opened</span>
@@ -99,11 +169,15 @@ export const StartMenu: React.FC = () => {
         </div>
 
         <div className="start-menu-footer">
-          <button className="power-button" title="Power options">
-            <span className="power-icon">⏻</span>
+          <button className="power-button" title="Power options" aria-label="Power options" type="button">
+            <span className="power-icon" aria-hidden="true">
+              ⏻
+            </span>
           </button>
         </div>
       </div>
     </div>
   );
-};
+});
+
+StartMenu.displayName = 'StartMenu';

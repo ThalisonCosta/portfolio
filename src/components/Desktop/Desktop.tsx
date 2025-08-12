@@ -5,6 +5,11 @@ import { DesktopIcons } from '../DesktopIcons/DesktopIcons';
 import { useDesktopStore } from '../../stores/useDesktopStore';
 import './Desktop.css';
 
+/**
+ * Desktop component that serves as the main container for the Windows-like desktop environment.
+ * Handles desktop interactions, wallpaper display, and coordinates between child components.
+ * Manages drag and drop operations for desktop icons and window interactions.
+ */
 export const Desktop: React.FC = () => {
   const { wallpaper, theme, updateIconPosition, setDragging } = useDesktopStore();
 

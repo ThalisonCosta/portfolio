@@ -2,7 +2,12 @@ import React from 'react';
 import { useDesktopStore, type FileSystemItem } from '../../stores/useDesktopStore';
 import './DesktopIcons.css';
 
-export const DesktopIcons: React.FC = () => {
+/**
+ * DesktopIcons component that renders draggable icons on the desktop.
+ * Handles icon interactions like double-click to open applications,
+ * drag and drop positioning, and visual feedback for drag operations.
+ */
+export const DesktopIcons: React.FC = React.memo(() => {
   const { fileSystem, openWindow, setDragging, isDragging, draggedItem } = useDesktopStore();
 
   const handleIconDoubleClick = (item: FileSystemItem) => {
@@ -78,9 +83,16 @@ export const DesktopIcons: React.FC = () => {
     setDragging(false);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent, item: FileSystemItem) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleIconDoubleClick(item);
+    }
+  };
+
   return (
-    <div className="desktop-icons">
-      {getDesktopItems().map((item) => (
+    <div className="desktop-icons" role="grid" aria-label="Desktop icons">
+      {getDesktopItems().map((item, _index) => (
         <div
           key={item.id}
           className={`desktop-icon ${isDragging && draggedItem === item.id ? 'dragging' : ''}`}
@@ -92,11 +104,22 @@ export const DesktopIcons: React.FC = () => {
           onDragStart={(e) => handleDragStart(e, item)}
           onDragEnd={handleDragEnd}
           onDoubleClick={() => handleIconDoubleClick(item)}
+          onKeyDown={(e) => handleKeyDown(e, item)}
+          role="gridcell"
+          tabIndex={0}
+          aria-label={`${item.name}, ${item.type === 'folder' ? 'folder' : 'file'}`}
+          aria-describedby={`icon-description-${item.id}`}
         >
-          <div className="icon">{item.type === 'folder' ? '📁' : getIconForFile(item.name)}</div>
-          <div className="icon-label">{item.name}</div>
+          <div className="icon" aria-hidden="true">
+            {item.type === 'folder' ? '📁' : getIconForFile(item.name)}
+          </div>
+          <div className="icon-label" id={`icon-description-${item.id}`}>
+            {item.name}
+          </div>
         </div>
       ))}
     </div>
   );
-};
+});
+
+DesktopIcons.displayName = 'DesktopIcons';

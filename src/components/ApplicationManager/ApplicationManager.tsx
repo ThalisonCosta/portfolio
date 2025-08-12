@@ -1,139 +1,189 @@
-import React from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
+import { ErrorBoundary } from '../ErrorBoundary';
 
+// Lazy load application components for better performance
+const TextEditorApp = lazy(() =>
+  import('../Applications/TextEditorApp').then((module) => ({ default: module.TextEditorApp }))
+);
+const FileExplorerApp = lazy(() =>
+  import('../Applications/FileExplorerApp').then((module) => ({ default: module.FileExplorerApp }))
+);
+const TerminalApp = lazy(() =>
+  import('../Applications/TerminalApp').then((module) => ({ default: module.TerminalApp }))
+);
+const ContactFormApp = lazy(() =>
+  import('../Applications/ContactFormApp').then((module) => ({ default: module.ContactFormApp }))
+);
+const PDFViewerApp = lazy(() =>
+  import('../Applications/PDFViewerApp').then((module) => ({ default: module.PDFViewerApp }))
+);
+const MarkdownViewerApp = lazy(() =>
+  import('../Applications/MarkdownViewerApp').then((module) => ({ default: module.MarkdownViewerApp }))
+);
+const DefaultApp = lazy(() => import('../Applications/DefaultApp').then((module) => ({ default: module.DefaultApp })));
+
+/**
+ * Props for the ApplicationManager component
+ */
 interface ApplicationManagerProps {
+  /** The name of the component/application to render */
   component: string;
+  /** The unique ID of the window containing this application */
   windowId: string;
 }
 
+/**
+ * ApplicationManager component that renders different applications based on the component name.
+ * Acts as a factory for creating application instances within windows.
+ *
+ * @param props - The component props
+ * @param props.component - The name identifier of the application to render
+ * @param props.windowId - The unique ID of the containing window
+ */
 export const ApplicationManager: React.FC<ApplicationManagerProps> = ({ component }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Simulate application loading time
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [component]);
+
   const renderApplication = () => {
-    switch (component) {
-      case 'TextEditor':
-        return <TextEditorApp />;
-      case 'FileExplorer':
-        return <FileExplorerApp />;
-      case 'Terminal':
-        return <TerminalApp />;
-      case 'ContactForm':
-        return <ContactFormApp />;
-      case 'PDFViewer':
-        return <PDFViewerApp />;
-      case 'MarkdownViewer':
-        return <MarkdownViewerApp />;
-      default:
-        return <DefaultApp component={component} />;
+    try {
+      switch (component) {
+        case 'TextEditor':
+          return <TextEditorApp />;
+        case 'FileExplorer':
+          return <FileExplorerApp />;
+        case 'Terminal':
+          return <TerminalApp />;
+        case 'ContactForm':
+          return <ContactFormApp />;
+        case 'PDFViewer':
+          return <PDFViewerApp />;
+        case 'MarkdownViewer':
+          return <MarkdownViewerApp />;
+        default:
+          return <DefaultApp component={component} />;
+      }
+    } catch {
+      setError(`Failed to load application: ${component}`);
+      return null;
     }
   };
 
-  return <div className="application-container">{renderApplication()}</div>;
+  if (isLoading) {
+    return (
+      <div className="application-container">
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+            flexDirection: 'column',
+            gap: '12px',
+          }}
+        >
+          <div
+            style={{
+              width: '32px',
+              height: '32px',
+              border: '3px solid #f3f3f3',
+              borderTop: '3px solid #0078d4',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+            }}
+          />
+          <p>Loading {component}...</p>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="application-container">
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+            flexDirection: 'column',
+            gap: '12px',
+            padding: '20px',
+            textAlign: 'center',
+          }}
+        >
+          <div style={{ fontSize: '48px' }}>⚠️</div>
+          <h3 style={{ margin: 0, color: '#d32f2f' }}>Application Error</h3>
+          <p style={{ margin: 0, color: '#666' }}>{error}</p>
+          <button
+            onClick={() => {
+              setError(null);
+              setIsLoading(true);
+              setTimeout(() => setIsLoading(false), 300);
+            }}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#0078d4',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="application-container">
+      <ErrorBoundary>
+        <Suspense
+          fallback={
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+                flexDirection: 'column',
+                gap: '12px',
+              }}
+            >
+              <div
+                style={{
+                  width: '24px',
+                  height: '24px',
+                  border: '2px solid #f3f3f3',
+                  borderTop: '2px solid #0078d4',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite',
+                }}
+              />
+              <p style={{ margin: 0 }}>Loading application...</p>
+            </div>
+          }
+        >
+          {renderApplication()}
+        </Suspense>
+      </ErrorBoundary>
+    </div>
+  );
 };
-
-const TextEditorApp: React.FC = () => (
-  <div style={{ padding: '16px', height: '100%', overflow: 'auto' }}>
-    <h3>Text Editor</h3>
-    <p>Welcome to my portfolio! I'm a passionate developer with experience in:</p>
-    <ul>
-      <li>React & TypeScript</li>
-      <li>Node.js & Python</li>
-      <li>Modern web technologies</li>
-      <li>UI/UX Design</li>
-    </ul>
-    <p>This desktop environment showcases my skills in creating interactive web applications.</p>
-  </div>
-);
-
-const FileExplorerApp: React.FC = () => (
-  <div style={{ padding: '16px', height: '100%', overflow: 'auto' }}>
-    <h3>File Explorer</h3>
-    <p>File explorer functionality coming soon...</p>
-    <div style={{ marginTop: '20px' }}>
-      <div>📁 Projects</div>
-      <div>📁 Documents</div>
-      <div>📄 Resume.pdf</div>
-      <div>📄 About Me.txt</div>
-    </div>
-  </div>
-);
-
-const TerminalApp: React.FC = () => (
-  <div
-    style={{
-      padding: '16px',
-      height: '100%',
-      backgroundColor: '#000',
-      color: '#00ff00',
-      fontFamily: 'monospace',
-      overflow: 'auto',
-    }}
-  >
-    <div>Windows Desktop Portfolio Terminal v1.0</div>
-    <div>Type 'help' for available commands</div>
-    <div style={{ marginTop: '10px' }}>
-      <span style={{ color: '#00ff00' }}>portfolio@desktop:~$ </span>
-      <span style={{ color: '#ffffff' }}>|</span>
-    </div>
-  </div>
-);
-
-const ContactFormApp: React.FC = () => (
-  <div style={{ padding: '20px', height: '100%', overflow: 'auto' }}>
-    <h3>Contact Me</h3>
-    <form style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      <input type="text" placeholder="Your Name" style={{ padding: '8px' }} />
-      <input type="email" placeholder="Your Email" style={{ padding: '8px' }} />
-      <textarea placeholder="Your Message" rows={5} style={{ padding: '8px', resize: 'vertical' }} />
-      <button
-        type="submit"
-        style={{
-          padding: '10px',
-          backgroundColor: '#0078d4',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-        }}
-      >
-        Send Message
-      </button>
-    </form>
-  </div>
-);
-
-const PDFViewerApp: React.FC = () => (
-  <div style={{ padding: '16px', height: '100%', overflow: 'auto' }}>
-    <h3>PDF Viewer - Resume</h3>
-    <p>PDF viewing functionality would be implemented here.</p>
-    <p>This would display the resume PDF file.</p>
-  </div>
-);
-
-const MarkdownViewerApp: React.FC = () => (
-  <div style={{ padding: '16px', height: '100%', overflow: 'auto' }}>
-    <h3>Skills</h3>
-    <h4>Frontend</h4>
-    <ul>
-      <li>React/TypeScript</li>
-      <li>JavaScript/HTML/CSS</li>
-      <li>Vue.js</li>
-    </ul>
-    <h4>Backend</h4>
-    <ul>
-      <li>Node.js</li>
-      <li>Python</li>
-      <li>Express.js</li>
-    </ul>
-    <h4>Tools</h4>
-    <ul>
-      <li>Git/GitHub</li>
-      <li>Docker</li>
-      <li>AWS</li>
-    </ul>
-  </div>
-);
-
-const DefaultApp: React.FC<{ component: string }> = ({ component }) => (
-  <div style={{ padding: '16px', height: '100%', overflow: 'auto' }}>
-    <h3>{component}</h3>
-    <p>This application is not yet implemented.</p>
-  </div>
-);

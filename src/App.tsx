@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Desktop } from './components/Desktop/Desktop';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { useDesktopStore } from './stores/useDesktopStore';
 import './App.css';
 
@@ -10,7 +11,11 @@ function App() {
     initializeFileSystem();
   }, [initializeFileSystem]);
 
-  return <Desktop />;
+  return (
+    <ErrorBoundary>
+      <Desktop />
+    </ErrorBoundary>
+  );
 }
 
 export default App;

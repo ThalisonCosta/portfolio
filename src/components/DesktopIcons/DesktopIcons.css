@@ -58,3 +58,57 @@
   max-width: 100%;
   line-height: 1.2;
 }
+
+/* Responsive Design for Desktop Icons */
+
+/* Mobile devices (portrait) */
+@media (max-width: 767px) and (orientation: portrait) {
+  .desktop-icon {
+    width: 70px;
+    padding: 6px;
+  }
+
+  .icon {
+    font-size: 28px;
+    margin-bottom: 3px;
+  }
+
+  .icon-label {
+    font-size: 10px;
+    line-height: 1.1;
+  }
+}
+
+/* Mobile devices (landscape) and tablets (portrait) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .desktop-icon {
+    width: 75px;
+    padding: 7px;
+  }
+
+  .icon {
+    font-size: 30px;
+    margin-bottom: 3px;
+  }
+
+  .icon-label {
+    font-size: 10px;
+  }
+}
+
+/* Extra large screens */
+@media (min-width: 1600px) {
+  .desktop-icon {
+    width: 90px;
+    padding: 10px;
+  }
+
+  .icon {
+    font-size: 36px;
+    margin-bottom: 5px;
+  }
+
+  .icon-label {
+    font-size: 12px;
+  }
+}

@@ -3,7 +3,12 @@ import { useDesktopStore } from '../../stores/useDesktopStore';
 import { StartMenu } from '../StartMenu/StartMenu';
 import './Taskbar.css';
 
-export const Taskbar: React.FC = () => {
+/**
+ * Taskbar component that displays the bottom taskbar with running applications,
+ * start button, system clock, and date. Provides window management functionality
+ * similar to Windows taskbar.
+ */
+export const Taskbar: React.FC = React.memo(() => {
   const { windows, minimizeWindow, bringToFront, toggleStartMenu } = useDesktopStore();
 
   const handleTaskbarClick = (windowId: string) => {
@@ -67,4 +72,6 @@ export const Taskbar: React.FC = () => {
       <StartMenu />
     </>
   );
-};
+});
+
+Taskbar.displayName = 'Taskbar';

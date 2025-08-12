@@ -113,3 +113,70 @@
     transparent 70%
   );
 }
+
+/* Responsive Design for Windows */
+
+/* Mobile devices (portrait) */
+@media (max-width: 767px) and (orientation: portrait) {
+  .window {
+    min-width: 280px;
+    min-height: 180px;
+    border-radius: 6px;
+  }
+
+  .window-header {
+    height: 40px;
+    padding: 0 12px;
+  }
+
+  .window-title {
+    font-size: 14px;
+  }
+
+  .window-control {
+    width: 40px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .window-resize-handle {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Mobile devices (landscape) and tablets (portrait) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .window {
+    min-width: 320px;
+    min-height: 200px;
+  }
+
+  .window-header {
+    height: 36px;
+    padding: 0 10px;
+  }
+
+  .window-title {
+    font-size: 14px;
+  }
+
+  .window-control {
+    width: 36px;
+    height: 28px;
+    font-size: 11px;
+  }
+
+  .window-resize-handle {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Tablets (landscape) and small desktops */
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .window {
+    min-width: 300px;
+    min-height: 200px;
+  }
+}

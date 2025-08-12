@@ -382,6 +382,7 @@ export default tseslint.config([
   // Test files configuration
   {
     files: ['**/*.test.{ts,tsx}', '**/tests/**/*', '**/__tests__/**/*.{ts,tsx}', '**/*.spec.{ts,tsx}'],
+    extends: [js.configs.recommended, ...tseslint.configs.strict],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',

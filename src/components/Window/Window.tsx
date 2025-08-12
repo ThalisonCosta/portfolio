@@ -3,11 +3,22 @@ import { useDesktopStore, type WindowState } from '../../stores/useDesktopStore'
 import { ApplicationManager } from '../ApplicationManager/ApplicationManager';
 import './Window.css';
 
+/**
+ * Props for the Window component
+ */
 interface WindowProps {
+  /** The state object containing window configuration and properties */
   windowState: WindowState;
 }
 
-export const Window: React.FC<WindowProps> = ({ windowState }) => {
+/**
+ * Window component that represents a draggable, resizable window in the desktop environment.
+ * Handles window operations like minimizing, maximizing, closing, dragging, and resizing.
+ *
+ * @param props - The component props
+ * @param props.windowState - The current state of the window including position, size, and status
+ */
+export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
   const { closeWindow, minimizeWindow, maximizeWindow, updateWindowPosition, updateWindowSize, bringToFront } =
     useDesktopStore();
 
@@ -112,31 +123,74 @@ export const Window: React.FC<WindowProps> = ({ windowState }) => {
       className={`window ${windowState.isMaximized ? 'maximized' : ''}`}
       style={windowStyle}
       onClick={() => bringToFront(windowState.id)}
+      role="dialog"
+      aria-labelledby={`window-title-${windowState.id}`}
+      aria-modal="false"
+      tabIndex={-1}
     >
-      <div ref={headerRef} className="window-header" onMouseDown={handleMouseDown} onDoubleClick={handleMaximize}>
-        <div className="window-title">{windowState.title}</div>
-        <div className="window-controls">
-          <button className="window-control minimize" onClick={handleMinimize} title="Minimize">
+      <div
+        ref={headerRef}
+        className="window-header"
+        onMouseDown={handleMouseDown}
+        onDoubleClick={handleMaximize}
+        role="banner"
+        aria-label="Window header"
+      >
+        <div id={`window-title-${windowState.id}`} className="window-title">
+          {windowState.title}
+        </div>
+        <div className="window-controls" role="toolbar" aria-label="Window controls">
+          <button
+            className="window-control minimize"
+            onClick={handleMinimize}
+            title="Minimize window"
+            aria-label="Minimize window"
+            type="button"
+          >
             ⎯
           </button>
           <button
             className="window-control maximize"
             onClick={handleMaximize}
-            title={windowState.isMaximized ? 'Restore' : 'Maximize'}
+            title={windowState.isMaximized ? 'Restore window' : 'Maximize window'}
+            aria-label={windowState.isMaximized ? 'Restore window' : 'Maximize window'}
+            type="button"
           >
             {windowState.isMaximized ? '❐' : '□'}
           </button>
-          <button className="window-control close" onClick={handleClose} title="Close">
+          <button
+            className="window-control close"
+            onClick={handleClose}
+            title="Close window"
+            aria-label="Close window"
+            type="button"
+          >
             ✕
           </button>
         </div>
       </div>
 
-      <div className="window-content">
+      <div className="window-content" role="main" aria-label={`${windowState.title} content`}>
         <ApplicationManager component={windowState.component} windowId={windowState.id} />
       </div>
 
-      {!windowState.isMaximized && <div className="window-resize-handle" onMouseDown={handleResizeMouseDown} />}
+      {!windowState.isMaximized && (
+        <div
+          className="window-resize-handle"
+          onMouseDown={handleResizeMouseDown}
+          role="button"
+          aria-label="Resize window"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              // Focus handling for keyboard resize could be implemented here
+            }
+          }}
+        />
+      )}
     </div>
   );
-};
+});
+
+Window.displayName = 'Window';
