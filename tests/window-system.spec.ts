@@ -168,10 +168,10 @@ test.describe('Window System', () => {
 
     // Test maximize (calculator should not allow maximize since it's non-resizable)
     const maximizeButton = calculatorWindow.locator('.window-control.maximize');
-    
+
     // Check that maximize button is disabled
     expect(await maximizeButton.isDisabled()).toBe(true);
-    
+
     // Window should remain the same size (non-resizable)
     const boxAfterMaximize = await calculatorWindow.boundingBox();
     expect(boxAfterMaximize!.width).toBe(320);

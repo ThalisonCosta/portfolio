@@ -81,7 +81,7 @@ describe('Taskbar Component', () => {
     // Should show both minimized and non-minimized windows
     expect(screen.getByText('Text Editor')).toBeInTheDocument();
     expect(screen.getByText('File Explorer')).toBeInTheDocument();
-    
+
     // Check that minimized window has the 'minimized' class
     const minimizedWindow = screen.getByText('File Explorer');
     expect(minimizedWindow).toHaveClass('minimized');
@@ -123,11 +123,11 @@ describe('Taskbar Component', () => {
     // Both windows should be shown in taskbar
     expect(screen.getByText('Text Editor')).toBeInTheDocument();
     expect(screen.getByText('File Explorer')).toBeInTheDocument();
-    
+
     // Click on minimized window
     const minimizedTaskbarItem = screen.getByText('File Explorer');
     fireEvent.click(minimizedTaskbarItem);
-    
+
     // Should call minimizeWindow (toggles) and bringToFront
     expect(mockActions.minimizeWindow).toHaveBeenCalledWith('window-2');
     expect(mockActions.bringToFront).toHaveBeenCalledWith('window-2');

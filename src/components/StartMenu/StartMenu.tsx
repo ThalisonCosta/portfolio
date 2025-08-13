@@ -29,14 +29,14 @@ export const StartMenu: React.FC = React.memo(() => {
 
   const handleAppClick = (appName: string, component: string) => {
     const { windows } = useDesktopStore.getState();
-    
+
     // Calculator gets compact dimensions, others use default
     const isCalculator = component === 'calculator';
-    
+
     // Calculate position offset based on existing windows to prevent overlaps
     const windowCount = windows.length;
     const offset = windowCount * 30; // Stagger windows by 30px
-    
+
     const windowConfig = {
       title: appName,
       component,

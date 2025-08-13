@@ -19,7 +19,7 @@ describe('useDesktopStore', () => {
 
   test('opens a window with correct properties', () => {
     const { openWindow } = useDesktopStore.getState();
-    
+
     openWindow({
       title: 'Test Window',
       component: 'test',
@@ -41,7 +41,7 @@ describe('useDesktopStore', () => {
 
   test('closes a window', () => {
     const { openWindow, closeWindow } = useDesktopStore.getState();
-    
+
     openWindow({
       title: 'Test Window',
       component: 'test',
@@ -60,7 +60,7 @@ describe('useDesktopStore', () => {
 
   test('minimizes and restores a window', () => {
     const { openWindow, minimizeWindow } = useDesktopStore.getState();
-    
+
     openWindow({
       title: 'Test Window',
       component: 'test',
@@ -71,11 +71,11 @@ describe('useDesktopStore', () => {
     });
 
     const windowId = useDesktopStore.getState().windows[0].id;
-    
+
     // Minimize
     minimizeWindow(windowId);
     expect(useDesktopStore.getState().windows[0].isMinimized).toBe(true);
-    
+
     // Restore
     minimizeWindow(windowId);
     expect(useDesktopStore.getState().windows[0].isMinimized).toBe(false);
@@ -83,7 +83,7 @@ describe('useDesktopStore', () => {
 
   test('maximizes and restores a window', () => {
     const { openWindow, maximizeWindow } = useDesktopStore.getState();
-    
+
     openWindow({
       title: 'Test Window',
       component: 'test',
@@ -94,11 +94,11 @@ describe('useDesktopStore', () => {
     });
 
     const windowId = useDesktopStore.getState().windows[0].id;
-    
+
     // Maximize
     maximizeWindow(windowId);
     expect(useDesktopStore.getState().windows[0].isMaximized).toBe(true);
-    
+
     // Restore
     maximizeWindow(windowId);
     expect(useDesktopStore.getState().windows[0].isMaximized).toBe(false);
@@ -106,7 +106,7 @@ describe('useDesktopStore', () => {
 
   test('updates window position', () => {
     const { openWindow, updateWindowPosition } = useDesktopStore.getState();
-    
+
     openWindow({
       title: 'Test Window',
       component: 'test',
@@ -125,7 +125,7 @@ describe('useDesktopStore', () => {
 
   test('updates window size', () => {
     const { openWindow, updateWindowSize } = useDesktopStore.getState();
-    
+
     openWindow({
       title: 'Test Window',
       component: 'test',
@@ -144,7 +144,7 @@ describe('useDesktopStore', () => {
 
   test('brings window to front', () => {
     const { openWindow, bringToFront } = useDesktopStore.getState();
-    
+
     // Open two windows
     openWindow({
       title: 'Window 1',
@@ -154,7 +154,7 @@ describe('useDesktopStore', () => {
       position: { x: 100, y: 100 },
       size: { width: 400, height: 300 },
     });
-    
+
     openWindow({
       title: 'Window 2',
       component: 'test2',
@@ -171,26 +171,26 @@ describe('useDesktopStore', () => {
     bringToFront(window1Id);
 
     const updatedWindows = useDesktopStore.getState().windows;
-    const window1 = updatedWindows.find(w => w.id === window1Id);
-    
+    const window1 = updatedWindows.find((w) => w.id === window1Id);
+
     expect(window1?.zIndex).toBeGreaterThan(initialZIndex);
   });
 
   test('manages selected items', () => {
     const { setSelectedItems, addSelectedItem, removeSelectedItem, clearSelection } = useDesktopStore.getState();
-    
+
     // Set initial selection
     setSelectedItems(['item1', 'item2']);
     expect(useDesktopStore.getState().selectedItems).toEqual(['item1', 'item2']);
-    
+
     // Add item
     addSelectedItem('item3');
     expect(useDesktopStore.getState().selectedItems).toEqual(['item1', 'item2', 'item3']);
-    
+
     // Remove item
     removeSelectedItem('item2');
     expect(useDesktopStore.getState().selectedItems).toEqual(['item1', 'item3']);
-    
+
     // Clear selection
     clearSelection();
     expect(useDesktopStore.getState().selectedItems).toEqual([]);
@@ -198,22 +198,22 @@ describe('useDesktopStore', () => {
 
   test('toggles and closes start menu', () => {
     const { toggleStartMenu, closeStartMenu } = useDesktopStore.getState();
-    
+
     // Initial state should be false
     expect(useDesktopStore.getState().isStartMenuOpen).toBe(false);
-    
+
     // Toggle open
     toggleStartMenu();
     expect(useDesktopStore.getState().isStartMenuOpen).toBe(true);
-    
+
     // Toggle close
     toggleStartMenu();
     expect(useDesktopStore.getState().isStartMenuOpen).toBe(false);
-    
+
     // Toggle open again
     toggleStartMenu();
     expect(useDesktopStore.getState().isStartMenuOpen).toBe(true);
-    
+
     // Close directly
     closeStartMenu();
     expect(useDesktopStore.getState().isStartMenuOpen).toBe(false);
@@ -221,11 +221,11 @@ describe('useDesktopStore', () => {
 
   test('manages theme and wallpaper', () => {
     const { setTheme, setWallpaper } = useDesktopStore.getState();
-    
+
     // Set theme
     setTheme('dark');
     expect(useDesktopStore.getState().theme).toBe('dark');
-    
+
     // Set wallpaper
     setWallpaper('/custom-wallpaper.jpg');
     expect(useDesktopStore.getState().wallpaper).toBe('/custom-wallpaper.jpg');
@@ -233,9 +233,9 @@ describe('useDesktopStore', () => {
 
   test('initializes file system', () => {
     const { initializeFileSystem } = useDesktopStore.getState();
-    
+
     initializeFileSystem();
-    
+
     const { fileSystem } = useDesktopStore.getState();
     expect(fileSystem).toHaveLength(3);
     expect(fileSystem[0].name).toBe('Desktop');
@@ -245,13 +245,13 @@ describe('useDesktopStore', () => {
 
   test('manages dragging state', () => {
     const { setDragging } = useDesktopStore.getState();
-    
+
     // Start dragging
     setDragging(true, 'item1');
     const state = useDesktopStore.getState();
     expect(state.isDragging).toBe(true);
     expect(state.draggedItem).toBe('item1');
-    
+
     // Stop dragging
     setDragging(false);
     const finalState = useDesktopStore.getState();

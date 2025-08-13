@@ -259,12 +259,12 @@ test.describe('Responsive Design', () => {
   });
 
   test.describe('Touch Interaction', () => {
-    test.beforeEach(async ({ page, context }) => {
+    test.beforeEach(async ({ page }) => {
       await page.setViewportSize({ width: 768, height: 1024 });
       await page.goto('/');
     });
 
-    test('should handle touch interactions on calculator buttons', async ({ page, browser }) => {
+    test('should handle touch interactions on calculator buttons', async ({ page }) => {
       // Launch calculator with proper context for touch
       await page.click('.start-button');
       await page.click('button:has-text("Calculator")');
@@ -272,7 +272,7 @@ test.describe('Responsive Design', () => {
 
       // Scope selectors to calculator to avoid conflicts
       const calculator = page.locator('.calculator-app');
-      
+
       // Use click for touch simulation instead of tap to avoid context issues
       await calculator.locator('button:has-text("5")').click();
       await calculator.locator('button:has-text("+")').click();

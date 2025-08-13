@@ -68,11 +68,11 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
       } else if (isResizing && !windowState.isMaximized && windowState.isResizable !== false) {
         const deltaX = e.clientX - resizeStart.x;
         const deltaY = e.clientY - resizeStart.y;
-        
+
         // Apply component-specific minimum sizes
         const minWidth = windowState.component === 'calculator' ? 280 : 300;
         const minHeight = windowState.component === 'calculator' ? 430 : 200;
-        
+
         const newWidth = Math.max(minWidth, resizeStart.width + deltaX);
         const newHeight = Math.max(minHeight, resizeStart.height + deltaY);
         updateWindowSize(windowState.id, { width: newWidth, height: newHeight });
@@ -131,6 +131,11 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
     zIndex: windowState.zIndex,
   };
 
+  function getMaximizeTitle({ isResizable, isMaximized }: WindowState): string {
+    if (!isResizable) return 'Cannot maximize this window';
+    return isMaximized ? 'Restore window' : 'Maximize window';
+  }
+
   return (
     <div
       ref={windowRef}
@@ -167,10 +172,10 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
           <button
             className="window-control maximize"
             onClick={handleMaximize}
-            title={windowState.isResizable === false ? 'Cannot maximize this window' : (windowState.isMaximized ? 'Restore window' : 'Maximize window')}
-            aria-label={windowState.isResizable === false ? 'Cannot maximize this window' : (windowState.isMaximized ? 'Restore window' : 'Maximize window')}
+            title={getMaximizeTitle(windowState)}
+            aria-label={getMaximizeTitle(windowState)}
             type="button"
-            disabled={windowState.isResizable === false}
+            disabled={!windowState.isResizable}
           >
             {windowState.isMaximized ? '❐' : '□'}
           </button>
