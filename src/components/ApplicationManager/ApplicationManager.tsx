@@ -62,10 +62,13 @@ export const ApplicationManager: React.FC<ApplicationManagerProps> = ({ componen
         case 'TextEditor':
           return <TextEditorApp />;
         case 'FileExplorer':
+        case 'explorer':
           return <FileExplorerApp />;
         case 'Terminal':
+        case 'terminal':
           return <TerminalApp />;
         case 'ContactForm':
+        case 'contact':
           return <ContactFormApp />;
         case 'PDFViewer':
           return <PDFViewerApp />;

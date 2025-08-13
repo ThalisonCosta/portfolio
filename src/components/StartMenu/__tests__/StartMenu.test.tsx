@@ -49,7 +49,7 @@ describe('StartMenu Component', () => {
   test('renders all pinned applications', () => {
     render(<StartMenu />);
 
-    const appButtons = ['File Explorer', 'About Me', 'Projects', 'Contact', 'Settings', 'Calculator'];
+    const appButtons = ['File Explorer', 'About Me', 'Projects', 'Contact', 'Settings', 'Calculator', 'Terminal'];
 
     appButtons.forEach((appName) => {
       expect(screen.getByText(appName)).toBeInTheDocument();
@@ -99,6 +99,24 @@ describe('StartMenu Component', () => {
     expect(mockOpenWindow).toHaveBeenCalledWith({
       title: 'File Explorer',
       component: 'explorer',
+      isMinimized: false,
+      isMaximized: false,
+      position: { x: 100, y: 100 },
+      size: { width: 800, height: 600 },
+      isResizable: true,
+    });
+    expect(mockCloseStartMenu).toHaveBeenCalled();
+  });
+
+  test('handles terminal app click', () => {
+    render(<StartMenu />);
+
+    const terminalButton = screen.getByText('Terminal');
+    fireEvent.click(terminalButton);
+
+    expect(mockOpenWindow).toHaveBeenCalledWith({
+      title: 'Terminal',
+      component: 'terminal',
       isMinimized: false,
       isMaximized: false,
       position: { x: 100, y: 100 },
