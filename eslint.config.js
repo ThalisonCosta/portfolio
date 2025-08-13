@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint';
 import prettierConfig from 'eslint-config-prettier';
 
 export default tseslint.config([
-  { ignores: ['dist', 'node_modules', '**/*.d.ts', 'tests/drag-drop.spec.ts'] },
+  { ignores: ['dist', 'node_modules', '**/*.d.ts', 'tests/drag-drop.spec.ts', 'coverage/**/*'] },
   {
     files: ['**/*.{ts,tsx}'],
     ignores: ['**/*.test.{ts,tsx}', '**/tests/**/*.{ts,tsx}'],
@@ -406,6 +406,14 @@ export default tseslint.config([
     rules: {
       // Relax rules for test files
       '@typescript-eslint/no-non-null-assertion': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^(_|React)$', // Allow unused React import in tests
+          ignoreRestSiblings: true,
+        },
+      ],
       'no-undef': 'off', // Jest globals are handled by globals.jest
       'max-len': 'off', // Allow longer lines in tests
     },

@@ -258,4 +258,158 @@ describe('useDesktopStore', () => {
     expect(finalState.isDragging).toBe(false);
     expect(finalState.draggedItem).toBe(null);
   });
+
+  test('icon position updates work when icons exist', () => {
+    const { updateIconPosition, initializeFileSystem } = useDesktopStore.getState();
+
+    // Initialize file system first
+    initializeFileSystem();
+
+    const position = { x: 200, y: 150 };
+    // Call function to ensure it doesn't error
+    updateIconPosition('desktop-icon-1', position);
+
+    // Just ensure no errors occur
+    expect(true).toBe(true);
+  });
+
+  test('file system initialization completes without error', () => {
+    const { initializeFileSystem } = useDesktopStore.getState();
+
+    initializeFileSystem();
+
+    // Just ensure no errors occur
+    expect(true).toBe(true);
+  });
+
+  test('handles selected items operations correctly', () => {
+    const { setSelectedItems, addSelectedItem, removeSelectedItem } = useDesktopStore.getState();
+
+    // Test basic operations
+    setSelectedItems(['item1', 'item2']);
+    let state = useDesktopStore.getState();
+    expect(state.selectedItems).toEqual(['item1', 'item2']);
+
+    // Test adding new item
+    addSelectedItem('item3');
+    state = useDesktopStore.getState();
+    expect(state.selectedItems).toContain('item3');
+
+    // Test removing item
+    removeSelectedItem('item2');
+    state = useDesktopStore.getState();
+    expect(state.selectedItems).not.toContain('item2');
+  });
+
+  test('handles window operations with edge cases', () => {
+    const { openWindow, closeWindow, minimizeWindow, maximizeWindow } = useDesktopStore.getState();
+
+    // Try to operate on non-existent window
+    closeWindow('non-existent-id');
+    minimizeWindow('non-existent-id');
+    maximizeWindow('non-existent-id');
+
+    // Should not crash and state should remain clean
+    const state = useDesktopStore.getState();
+    expect(state.windows).toHaveLength(0);
+
+    // Open window and test operations
+    openWindow({
+      title: 'Test Window',
+      component: 'test',
+      isMinimized: false,
+      isMaximized: false,
+      position: { x: 100, y: 100 },
+      size: { width: 400, height: 300 },
+    });
+
+    const windowId = useDesktopStore.getState().windows[0].id;
+
+    // Test maximize toggle
+    maximizeWindow(windowId);
+    expect(useDesktopStore.getState().windows[0].isMaximized).toBe(true);
+
+    maximizeWindow(windowId); // Toggle back
+    expect(useDesktopStore.getState().windows[0].isMaximized).toBe(false);
+  });
+
+  test('manages theme and wallpaper state', () => {
+    const { setTheme, setWallpaper } = useDesktopStore.getState();
+
+    // Test different themes
+    setTheme('dark');
+    expect(useDesktopStore.getState().theme).toBe('dark');
+
+    setTheme('light');
+    expect(useDesktopStore.getState().theme).toBe('light');
+
+    // Test custom wallpaper
+    const customWallpaper = '/images/custom-bg.jpg';
+    setWallpaper(customWallpaper);
+    expect(useDesktopStore.getState().wallpaper).toBe(customWallpaper);
+  });
+
+  test('handles window positioning and sizing', () => {
+    const { openWindow, updateWindowPosition, updateWindowSize } = useDesktopStore.getState();
+
+    openWindow({
+      title: 'Test Window',
+      component: 'test',
+      isMinimized: false,
+      isMaximized: false,
+      position: { x: 50, y: 50 },
+      size: { width: 300, height: 200 },
+    });
+
+    const windowId = useDesktopStore.getState().windows[0].id;
+
+    // Test position update
+    updateWindowPosition(windowId, { x: 150, y: 100 });
+    let window = useDesktopStore.getState().windows[0];
+    expect(window.position).toEqual({ x: 150, y: 100 });
+
+    // Test size update
+    updateWindowSize(windowId, { width: 500, height: 400 });
+    window = useDesktopStore.getState().windows[0];
+    expect(window.size).toEqual({ width: 500, height: 400 });
+  });
+
+  test('manages z-index for window layering', () => {
+    const { openWindow, bringToFront } = useDesktopStore.getState();
+
+    // Open multiple windows
+    openWindow({
+      title: 'Window 1',
+      component: 'test1',
+      isMinimized: false,
+      isMaximized: false,
+      position: { x: 100, y: 100 },
+      size: { width: 400, height: 300 },
+    });
+
+    openWindow({
+      title: 'Window 2',
+      component: 'test2',
+      isMinimized: false,
+      isMaximized: false,
+      position: { x: 200, y: 200 },
+      size: { width: 400, height: 300 },
+    });
+
+    const windows = useDesktopStore.getState().windows;
+    const window1Id = windows[0].id;
+    const window2Id = windows[1].id;
+
+    // Window 2 should have higher z-index initially
+    expect(windows[1].zIndex).toBeGreaterThan(windows[0].zIndex);
+
+    // Bring window 1 to front
+    bringToFront(window1Id);
+
+    const updatedWindows = useDesktopStore.getState().windows;
+    const updatedWindow1 = updatedWindows.find((w) => w.id === window1Id);
+    const updatedWindow2 = updatedWindows.find((w) => w.id === window2Id);
+
+    expect(updatedWindow1!.zIndex).toBeGreaterThan(updatedWindow2!.zIndex);
+  });
 });

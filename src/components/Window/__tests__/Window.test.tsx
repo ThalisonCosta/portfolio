@@ -30,6 +30,7 @@ const createMockWindowState = (overrides = {}) => ({
   isOpen: true,
   isMinimized: false,
   isMaximized: false,
+  isResizable: true,
   position: { x: 100, y: 100 },
   size: { width: 600, height: 400 },
   zIndex: 1000,
@@ -155,5 +156,35 @@ describe('Window Component', () => {
       expect(windowElement.style.width).toBe('100vw');
       expect(windowElement.style.height).toBe('calc(100vh - 48px)');
     }
+  });
+
+  test('non-resizable window disables maximize button', () => {
+    const windowState = createMockWindowState({ isResizable: false });
+    render(<Window windowState={windowState} />);
+
+    const maximizeButton = screen.getByTitle('Cannot maximize this window');
+    expect(maximizeButton).toBeDisabled();
+
+    fireEvent.click(maximizeButton);
+    expect(mockActions.maximizeWindow).not.toHaveBeenCalled();
+  });
+
+  test('resizable window shows maximize functionality correctly', () => {
+    const windowState = createMockWindowState({ isResizable: true, isMaximized: false });
+    render(<Window windowState={windowState} />);
+
+    const maximizeButton = screen.getByTitle('Maximize window');
+    expect(maximizeButton).not.toBeDisabled();
+
+    fireEvent.click(maximizeButton);
+    expect(mockActions.maximizeWindow).toHaveBeenCalledWith('test-window-1');
+  });
+
+  test('maximized resizable window shows restore functionality', () => {
+    const windowState = createMockWindowState({ isResizable: true, isMaximized: true });
+    render(<Window windowState={windowState} />);
+
+    const restoreButton = screen.getByTitle('Restore window');
+    expect(restoreButton).not.toBeDisabled();
   });
 });
