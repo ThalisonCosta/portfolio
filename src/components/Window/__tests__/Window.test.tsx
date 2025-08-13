@@ -158,19 +158,19 @@ describe('Window Component', () => {
     }
   });
 
-  test('non-resizable window disables maximize button', () => {
-    const windowState = createMockWindowState({ isResizable: false });
+  test('calculator window disables maximize button', () => {
+    const windowState = createMockWindowState({ component: 'calculator' });
     render(<Window windowState={windowState} />);
 
-    const maximizeButton = screen.getByTitle('Cannot maximize this window');
+    const maximizeButton = screen.getByTitle('Cannot maximize calculator');
     expect(maximizeButton).toBeDisabled();
 
     fireEvent.click(maximizeButton);
     expect(mockActions.maximizeWindow).not.toHaveBeenCalled();
   });
 
-  test('resizable window shows maximize functionality correctly', () => {
-    const windowState = createMockWindowState({ isResizable: true, isMaximized: false });
+  test('non-calculator window shows maximize functionality correctly', () => {
+    const windowState = createMockWindowState({ component: 'TestApp', isMaximized: false });
     render(<Window windowState={windowState} />);
 
     const maximizeButton = screen.getByTitle('Maximize window');
@@ -180,11 +180,20 @@ describe('Window Component', () => {
     expect(mockActions.maximizeWindow).toHaveBeenCalledWith('test-window-1');
   });
 
-  test('maximized resizable window shows restore functionality', () => {
-    const windowState = createMockWindowState({ isResizable: true, isMaximized: true });
+  test('maximized non-calculator window shows restore functionality', () => {
+    const windowState = createMockWindowState({ component: 'TestApp', isMaximized: true });
     render(<Window windowState={windowState} />);
 
     const restoreButton = screen.getByTitle('Restore window');
     expect(restoreButton).not.toBeDisabled();
+  });
+
+  test('double-clicking calculator header does not maximize window', () => {
+    const windowState = createMockWindowState({ component: 'calculator' });
+    render(<Window windowState={windowState} />);
+
+    const header = screen.getByText('Test Window').closest('.window-header');
+    if (header) fireEvent.doubleClick(header);
+    expect(mockActions.maximizeWindow).not.toHaveBeenCalled();
   });
 });

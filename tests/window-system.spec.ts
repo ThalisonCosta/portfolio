@@ -58,19 +58,19 @@ test.describe('Window System', () => {
     expect(windowStyles.borderRadius).toBe('6px');
   });
 
-  test('should handle non-resizable windows', async ({ page }) => {
-    // Launch calculator (non-resizable)
+  test('should handle resizable windows', async ({ page }) => {
+    // Launch calculator (resizable)
     await page.click('.start-button');
     await page.click('button:has-text("Calculator")');
 
     const calculatorWindow = page.locator('.window[data-component="calculator"]');
     await expect(calculatorWindow).toBeVisible();
 
-    // Resize handle should not be visible
+    // Resize handle should be visible
     const resizeHandle = calculatorWindow.locator('.window-resize-handle');
-    await expect(resizeHandle).not.toBeVisible();
+    await expect(resizeHandle).toBeVisible();
 
-    // Launch resizable window for comparison
+    // Launch another resizable window for comparison
     await page.click('.start-button');
     await page.click('button:has-text("File Explorer")');
 

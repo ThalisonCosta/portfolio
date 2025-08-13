@@ -24,9 +24,9 @@ test.describe('Calculator Application', () => {
     expect(windowBox!.width).toBe(320);
     expect(windowBox!.height).toBe(460);
 
-    // Verify calculator is non-resizable
+    // Verify calculator is resizable
     const resizeHandle = calculatorWindow.locator('.window-resize-handle');
-    await expect(resizeHandle).not.toBeVisible();
+    await expect(resizeHandle).toBeVisible();
   });
 
   test('should display all calculator buttons correctly', async ({ page }) => {

@@ -44,7 +44,7 @@ export const StartMenu: React.FC = React.memo(() => {
       isMaximized: false,
       position: { x: 100 + offset, y: 100 + offset },
       size: isCalculator ? { width: 320, height: 460 } : { width: 800, height: 600 },
-      isResizable: !isCalculator, // Calculator is non-resizable
+      isResizable: true, // All apps are now resizable, maximize behavior handled specifically for calculator
     };
 
     openWindow(windowConfig);

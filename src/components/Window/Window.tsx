@@ -112,8 +112,8 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
   const handleClose = () => closeWindow(windowState.id);
   const handleMinimize = () => minimizeWindow(windowState.id);
   const handleMaximize = () => {
-    // Don't allow maximizing non-resizable windows
-    if (windowState.isResizable !== false) {
+    // Don't allow maximizing calculator specifically
+    if (windowState.component !== 'calculator') {
       maximizeWindow(windowState.id);
     }
   };
@@ -131,8 +131,8 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
     zIndex: windowState.zIndex,
   };
 
-  function getMaximizeTitle({ isResizable, isMaximized }: WindowState): string {
-    if (!isResizable) return 'Cannot maximize this window';
+  function getMaximizeTitle({ component, isMaximized }: WindowState): string {
+    if (component === 'calculator') return 'Cannot maximize calculator';
     return isMaximized ? 'Restore window' : 'Maximize window';
   }
 
@@ -175,7 +175,7 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
             title={getMaximizeTitle(windowState)}
             aria-label={getMaximizeTitle(windowState)}
             type="button"
-            disabled={!windowState.isResizable}
+            disabled={windowState.component === 'calculator'}
           >
             {windowState.isMaximized ? '❐' : '□'}
           </button>

@@ -85,7 +85,7 @@ describe('StartMenu Component', () => {
       isMaximized: false,
       position: { x: 100, y: 100 },
       size: { width: 320, height: 460 },
-      isResizable: false,
+      isResizable: true,
     });
     expect(mockCloseStartMenu).toHaveBeenCalled();
   });
