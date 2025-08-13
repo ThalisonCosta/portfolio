@@ -1,6 +1,7 @@
 import React, { memo, useEffect, useRef } from 'react';
-import type { TerminalOutputLine, TerminalTheme } from '../types';
+import type { TerminalOutputLine, TerminalTheme, OSType } from '../types';
 import { TerminalLine } from './TerminalLine';
+import { TerminalInput } from './TerminalInput';
 
 /**
  * Props for TerminalOutput component
@@ -14,6 +15,19 @@ interface TerminalOutputProps {
   autoScroll?: boolean;
   /** Maximum number of lines to keep */
   maxLines?: number;
+  /** Input integration props */
+  currentInput?: string;
+  onInputChange?: (value: string, cursorPosition?: number) => void;
+  onKeyDown?: (event: KeyboardEvent) => void;
+  currentDirectory?: string;
+  osType?: OSType;
+  username?: string;
+  hostname?: string;
+  isExecuting?: boolean;
+  cursorPosition?: number;
+  suggestions?: string[];
+  selectedSuggestion?: number;
+  showSuggestions?: boolean;
 }
 
 /**
@@ -21,7 +35,25 @@ interface TerminalOutputProps {
  * Renders all terminal output lines with virtual scrolling for performance
  */
 export const TerminalOutput: React.FC<TerminalOutputProps> = memo(
-  ({ output, theme, autoScroll = true, maxLines = 1000 }) => {
+  ({
+    output,
+    theme,
+    autoScroll = true,
+    maxLines = 1000,
+    // Input props
+    currentInput,
+    onInputChange,
+    onKeyDown,
+    currentDirectory,
+    osType,
+    username,
+    hostname,
+    isExecuting,
+    cursorPosition,
+    suggestions,
+    selectedSuggestion,
+    showSuggestions,
+  }) => {
     const outputRef = useRef<HTMLDivElement>(null);
     const isUserScrollingRef = useRef(false);
     const scrollTimeoutRef = useRef<number | undefined>(undefined);
@@ -66,14 +98,25 @@ export const TerminalOutput: React.FC<TerminalOutputProps> = memo(
 
     const outputStyle: React.CSSProperties = {
       flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
       overflowY: 'auto',
       overflowX: 'hidden',
-      padding: '8px 16px',
       backgroundColor: theme.background,
       scrollBehavior: 'smooth',
       // Custom scrollbar styling
       scrollbarWidth: 'thin',
       scrollbarColor: `${theme.comment} ${theme.background}`,
+    };
+
+    const contentStyle: React.CSSProperties = {
+      flex: 1,
+      padding: '8px 16px',
+    };
+
+    const inputContainerStyle: React.CSSProperties = {
+      padding: '0',
+      minHeight: 'auto',
     };
 
     const scrollbarStyle = `
@@ -93,6 +136,9 @@ export const TerminalOutput: React.FC<TerminalOutputProps> = memo(
     }
   `;
 
+    const hasInputProps =
+      currentInput !== undefined && onInputChange && onKeyDown && currentDirectory && osType && username && hostname;
+
     return (
       <>
         <style>{scrollbarStyle}</style>
@@ -105,21 +151,44 @@ export const TerminalOutput: React.FC<TerminalOutputProps> = memo(
           aria-live="polite"
           aria-label="Terminal output"
         >
-          {displayedOutput.length === 0 ? (
-            <div
-              style={{
-                color: theme.comment,
-                fontStyle: 'italic',
-                padding: '20px 0',
-                textAlign: 'center',
-              }}
-            >
-              Terminal ready - type a command to get started
+          <div style={contentStyle}>
+            {displayedOutput.length === 0 ? (
+              <div
+                style={{
+                  color: theme.comment,
+                  fontStyle: 'italic',
+                  padding: '20px 0',
+                  textAlign: 'center',
+                }}
+              >
+                Terminal ready - type a command to get started
+              </div>
+            ) : (
+              displayedOutput.map((line, index) => (
+                <TerminalLine key={line.id} line={line} theme={theme} isLast={index === displayedOutput.length - 1} />
+              ))
+            )}
+          </div>
+
+          {/* Integrated input at the bottom */}
+          {hasInputProps && (
+            <div style={inputContainerStyle}>
+              <TerminalInput
+                value={currentInput}
+                onChange={onInputChange}
+                onKeyDown={onKeyDown}
+                currentDirectory={currentDirectory}
+                osType={osType}
+                username={username}
+                hostname={hostname}
+                theme={theme}
+                isExecuting={isExecuting || false}
+                cursorPosition={cursorPosition || 0}
+                suggestions={suggestions || []}
+                selectedSuggestion={selectedSuggestion || -1}
+                showSuggestions={showSuggestions || false}
+              />
             </div>
-          ) : (
-            displayedOutput.map((line, index) => (
-              <TerminalLine key={line.id} line={line} theme={theme} isLast={index === displayedOutput.length - 1} />
-            ))
           )}
         </div>
       </>

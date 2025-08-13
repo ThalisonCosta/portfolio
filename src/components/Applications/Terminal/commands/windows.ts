@@ -78,7 +78,8 @@ export const dirCommand: CommandDefinition = {
       type: 'output',
     };
   },
-  autocomplete: (partial, _, context) => FileSystemUtils.getPathCompletions(context.fileSystem, context.currentDirectory, partial),
+  autocomplete: (partial, _, context) =>
+    FileSystemUtils.getPathCompletions(context.fileSystem, context.currentDirectory, partial),
 };
 
 /**
@@ -126,11 +127,10 @@ export const cdWindowsCommand: CommandDefinition = {
       type: 'success',
     };
   },
-  autocomplete: (partial, _, context) => 
-     FileSystemUtils.getPathCompletions(context.fileSystem, context.currentDirectory, partial).filter((path) =>
+  autocomplete: (partial, _, context) =>
+    FileSystemUtils.getPathCompletions(context.fileSystem, context.currentDirectory, partial).filter((path) =>
       path.endsWith('/')
-    ) // Only directories
-  ,
+    ), // Only directories
 };
 
 /**
@@ -319,20 +319,18 @@ export const typeCommand: CommandDefinition = {
         output: content,
         type: 'output',
       };
-    } 
-      return {
-        success: false,
-        output: '',
-        error: `Access is denied.`,
-        type: 'error',
-      };
-    
+    }
+    return {
+      success: false,
+      output: '',
+      error: `Access is denied.`,
+      type: 'error',
+    };
   },
-  autocomplete: (partial, _, context) => 
-     FileSystemUtils.getPathCompletions(context.fileSystem, context.currentDirectory, partial).filter(
+  autocomplete: (partial, _, context) =>
+    FileSystemUtils.getPathCompletions(context.fileSystem, context.currentDirectory, partial).filter(
       (path) => !path.endsWith('/')
-    ) // Only files
-  ,
+    ), // Only files
 };
 
 /**

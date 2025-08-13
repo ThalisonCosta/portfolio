@@ -21,6 +21,6 @@ describe('FileExplorerApp Component', () => {
     expect(screen.getByText('📁 Projects')).toBeInTheDocument();
     expect(screen.getByText('📁 Documents')).toBeInTheDocument();
     expect(screen.getByText('📄 Resume.pdf')).toBeInTheDocument();
-    expect(screen.getByText('📄 About Me.txt')).toBeInTheDocument();
+    expect(screen.getByText('📄 About.txt')).toBeInTheDocument();
   });
 });

@@ -194,7 +194,8 @@ export function useAutocomplete(
       if (result.completions.length === 1) {
         // Single completion - apply it
         return applyCompletion(input, cursorPosition, result.completions[0]);
-      } if (result.completions.length > 1 && result.commonPrefix) {
+      }
+      if (result.completions.length > 1 && result.commonPrefix) {
         // Multiple completions with common prefix - complete to common prefix
         const words = input.split(/\s+/);
         const beforeCursor = input.substring(0, cursorPosition);

@@ -11,7 +11,7 @@ export const FileExplorerApp: React.FC = () => (
       <div>📁 Projects</div>
       <div>📁 Documents</div>
       <div>📄 Resume.pdf</div>
-      <div>📄 About Me.txt</div>
+      <div>📄 About.txt</div>
     </div>
   </div>
 );

@@ -3,33 +3,43 @@ import { useState, useCallback, useEffect } from 'react';
 /**
  * Hook for managing command history with persistent storage
  */
-export function useCommandHistory(maxHistorySize: number = 1000) {
+export function useCommandHistory(osType: 'linux' | 'windows', maxHistorySize: number = 1000) {
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
 
-  // Load history from localStorage on mount
+  // Generate OS-specific localStorage key
+  const getStorageKey = (os: 'linux' | 'windows') => `terminal-command-history-${os}`;
+
+  // Load history from localStorage on mount or when OS changes
   useEffect(() => {
     try {
-      const savedHistory = localStorage.getItem('terminal-command-history');
+      const storageKey = getStorageKey(osType);
+      const savedHistory = localStorage.getItem(storageKey);
       if (savedHistory) {
         const parsedHistory = JSON.parse(savedHistory);
         if (Array.isArray(parsedHistory)) {
           setHistory(parsedHistory.slice(-maxHistorySize));
         }
+      } else {
+        // Reset history when switching to OS with no saved history
+        setHistory([]);
       }
+      // Reset history index when switching OS
+      setHistoryIndex(-1);
     } catch (error) {
       console.warn('Failed to load command history from localStorage:', error);
     }
-  }, [maxHistorySize]);
+  }, [maxHistorySize, osType]);
 
   // Save history to localStorage whenever it changes
   useEffect(() => {
     try {
-      localStorage.setItem('terminal-command-history', JSON.stringify(history));
+      const storageKey = getStorageKey(osType);
+      localStorage.setItem(storageKey, JSON.stringify(history));
     } catch (error) {
       console.warn('Failed to save command history to localStorage:', error);
     }
-  }, [history]);
+  }, [history, osType]);
 
   /**
    * Add a command to history
@@ -112,19 +122,17 @@ export function useCommandHistory(maxHistorySize: number = 1000) {
     setHistory([]);
     setHistoryIndex(-1);
     try {
-      localStorage.removeItem('terminal-command-history');
+      const storageKey = getStorageKey(osType);
+      localStorage.removeItem(storageKey);
     } catch (error) {
       console.warn('Failed to clear command history from localStorage:', error);
     }
-  }, []);
+  }, [osType]);
 
   /**
    * Get a specific number of recent commands
    */
-  const getRecentCommands = useCallback(
-    (count: number = 10): string[] => history.slice(-count),
-    [history]
-  );
+  const getRecentCommands = useCallback((count: number = 10): string[] => history.slice(-count), [history]);
 
   /**
    * Check if there's history to navigate

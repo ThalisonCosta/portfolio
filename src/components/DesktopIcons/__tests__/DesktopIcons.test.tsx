@@ -18,11 +18,11 @@ const mockFileSystem = [
     children: [
       {
         id: 'about-me',
-        name: 'About Me.txt',
+        name: 'About.txt',
         type: 'file',
-        path: '/Desktop/About Me.txt',
+        path: '/Desktop/About.txt',
         icon: 'text',
-        content: 'About me content...',
+        content: 'About content...',
         position: { x: 100, y: 100 },
       },
       {
@@ -62,7 +62,7 @@ describe('DesktopIcons Component', () => {
   test('renders desktop icons from file system', () => {
     render(<DesktopIcons />);
 
-    expect(screen.getByText('About Me.txt')).toBeInTheDocument();
+    expect(screen.getByText('About.txt')).toBeInTheDocument();
     expect(screen.getByText('Resume.pdf')).toBeInTheDocument();
     expect(screen.getByText('Projects')).toBeInTheDocument();
   });
@@ -84,7 +84,7 @@ describe('DesktopIcons Component', () => {
   test('positions icons correctly based on position data', () => {
     render(<DesktopIcons />);
 
-    const aboutMeIcon = screen.getByText('About Me.txt').closest('.desktop-icon') as HTMLElement;
+    const aboutMeIcon = screen.getByText('About.txt').closest('.desktop-icon') as HTMLElement;
     if (aboutMeIcon) {
       expect(aboutMeIcon.style.left).toBe('100px');
       expect(aboutMeIcon.style.top).toBe('100px');
@@ -100,11 +100,11 @@ describe('DesktopIcons Component', () => {
   test('double-clicking file icon opens appropriate application', () => {
     render(<DesktopIcons />);
 
-    const textFileIcon = screen.getByText('About Me.txt').closest('.desktop-icon');
+    const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
     if (textFileIcon) fireEvent.doubleClick(textFileIcon);
 
     expect(mockActions.openWindow).toHaveBeenCalledWith({
-      title: 'About Me.txt',
+      title: 'About.txt',
       component: 'TextEditor',
       isMinimized: false,
       isMaximized: false,
@@ -148,7 +148,7 @@ describe('DesktopIcons Component', () => {
   test('drag start sets dragging state', () => {
     render(<DesktopIcons />);
 
-    const icon = screen.getByText('About Me.txt').closest('.desktop-icon');
+    const icon = screen.getByText('About.txt').closest('.desktop-icon');
 
     // Create a mock drag event
     const dragEvent = new Event('dragstart', { bubbles: true });
@@ -167,7 +167,7 @@ describe('DesktopIcons Component', () => {
   test('has drag end handler for clearing state', () => {
     render(<DesktopIcons />);
 
-    const icon = screen.getByText('About Me.txt').closest('.desktop-icon');
+    const icon = screen.getByText('About.txt').closest('.desktop-icon');
     expect(icon).toBeInTheDocument();
     expect(icon).toHaveClass('desktop-icon');
   });
@@ -181,7 +181,7 @@ describe('DesktopIcons Component', () => {
 
     // Test that all icons have the desktop-icon class and inline positioning
     const icons = screen
-      .getAllByText(/About Me\.txt|Resume\.pdf|Projects/)
+      .getAllByText(/About\.txt|Resume\.pdf|Projects/)
       .map((text) => text.closest('.desktop-icon'));
 
     icons.forEach((icon) => {
@@ -197,11 +197,11 @@ describe('DesktopIcons Component', () => {
     render(<DesktopIcons />);
 
     // Test text file (.txt)
-    const textFileIcon = screen.getByText('About Me.txt').closest('.desktop-icon');
+    const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
     if (textFileIcon) fireEvent.doubleClick(textFileIcon);
 
     expect(mockActions.openWindow).toHaveBeenCalledWith({
-      title: 'About Me.txt',
+      title: 'About.txt',
       component: 'TextEditor',
       isMinimized: false,
       isMaximized: false,

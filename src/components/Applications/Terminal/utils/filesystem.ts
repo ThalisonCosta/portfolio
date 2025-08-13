@@ -34,7 +34,7 @@ export class FileSystemUtils {
     if (targetPath === '..') {
       const parts = currentPath.split('/').filter(Boolean);
       parts.pop();
-      return `/${  parts.join('/')}`;
+      return `/${parts.join('/')}`;
     }
 
     if (targetPath.startsWith('./')) {
@@ -53,10 +53,10 @@ export class FileSystemUtils {
         }
       }
 
-      return `/${  parts.join('/')}`;
+      return `/${parts.join('/')}`;
     }
 
-    return this.normalizePath(`${currentPath  }/${  targetPath}`);
+    return this.normalizePath(`${currentPath}/${targetPath}`);
   }
 
   /**
@@ -77,7 +77,7 @@ export class FileSystemUtils {
       }
     }
 
-    return `/${  normalized.join('/')}`;
+    return `/${normalized.join('/')}`;
   }
 
   /**
@@ -86,7 +86,7 @@ export class FileSystemUtils {
   static getParentDirectory(path: string): string {
     const parts = path.split('/').filter(Boolean);
     parts.pop();
-    return `/${  parts.join('/')}`;
+    return `/${parts.join('/')}`;
   }
 
   /**
@@ -108,7 +108,7 @@ export class FileSystemUtils {
       return false;
     }
 
-    return normalizedChild.startsWith(`${normalizedParent  }/`);
+    return normalizedChild.startsWith(`${normalizedParent}/`);
   }
 
   /**
@@ -122,7 +122,7 @@ export class FileSystemUtils {
         if (item.path === normalizedPath) {
           return item;
         }
-        if (item.children && normalizedPath.startsWith(`${item.path  }/`)) {
+        if (item.children && normalizedPath.startsWith(`${item.path}/`)) {
           const found = findRecursive(item.children);
           if (found) return found;
         }
@@ -178,7 +178,7 @@ export class FileSystemUtils {
     const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))  } ${  sizes[i]}`;
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
   }
 
   /**
@@ -231,17 +231,17 @@ export class FileSystemUtils {
     return items
       .filter((item) => item.name.toLowerCase().startsWith(searchPattern.toLowerCase()))
       .map((item) => {
-        const fullName = item.isDirectory ? `${item.name  }/` : item.name;
+        const fullName = item.isDirectory ? `${item.name}/` : item.name;
 
         // Return appropriate path format
         if (partial.startsWith('/')) {
-          return searchPath === '/' ? `/${  fullName}` : `${searchPath  }/${  fullName}`;
-        } if (partial.includes('/')) {
+          return searchPath === '/' ? `/${fullName}` : `${searchPath}/${fullName}`;
+        }
+        if (partial.includes('/')) {
           const lastSlash = partial.lastIndexOf('/');
           return partial.substring(0, lastSlash + 1) + fullName;
-        } 
-          return fullName;
-        
+        }
+        return fullName;
       })
       .sort((a, b) => {
         // Directories first, then files

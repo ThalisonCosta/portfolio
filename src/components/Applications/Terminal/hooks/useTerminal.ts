@@ -40,7 +40,9 @@ export function useTerminal() {
   const commandRegistry = commandRegistryRef.current;
 
   // Command history hook
-  const { addToHistory, navigateHistory, searchHistory, resetHistoryIndex, clearHistory } = useCommandHistory();
+  const { addToHistory, navigateHistory, searchHistory, resetHistoryIndex, clearHistory } = useCommandHistory(
+    state.osType
+  );
 
   // Autocomplete hook
   const {
@@ -340,10 +342,9 @@ export function useTerminal() {
   const getCurrentPrompt = useCallback(() => {
     if (state.osType === 'windows') {
       return `C:\\${state.currentDirectory.replace(/\//g, '\\')}> `;
-    } 
-      const dir = state.currentDirectory === '/Desktop' ? '~' : state.currentDirectory;
-      return `${state.username}@${state.hostname}:${dir}$ `;
-    
+    }
+    const dir = state.currentDirectory === '/Desktop' ? '~' : state.currentDirectory;
+    return `${state.username}@${state.hostname}:${dir}$ `;
   }, [state.osType, state.currentDirectory, state.username, state.hostname]);
 
   /**

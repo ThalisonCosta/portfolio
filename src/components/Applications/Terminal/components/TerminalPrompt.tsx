@@ -32,21 +32,20 @@ export const TerminalPrompt: React.FC<TerminalPromptProps> = memo(
       if (osType === 'windows') {
         const windowsPath = `C:\\${currentDirectory.replace(/\//g, '\\')}`;
         return <span style={{ color: theme.prompt }}>{windowsPath}&gt; </span>;
-      } 
-        // Linux/Unix style prompt with colors
-        const displayDir = currentDirectory === '/Desktop' ? '~' : currentDirectory;
+      }
+      // Linux/Unix style prompt with colors
+      const displayDir = currentDirectory === '/Desktop' ? '~' : currentDirectory;
 
-        return (
-          <>
-            <span style={{ color: theme.success, fontWeight: 'bold' }}>{username}</span>
-            <span style={{ color: theme.foreground }}>@</span>
-            <span style={{ color: theme.directory, fontWeight: 'bold' }}>{hostname}</span>
-            <span style={{ color: theme.foreground }}>:</span>
-            <span style={{ color: theme.directory, fontWeight: 'bold' }}>{displayDir}</span>
-            <span style={{ color: theme.prompt, fontWeight: 'bold' }}>$ </span>
-          </>
-        );
-      
+      return (
+        <>
+          <span style={{ color: theme.success, fontWeight: 'bold' }}>{username}</span>
+          <span style={{ color: theme.foreground }}>@</span>
+          <span style={{ color: theme.directory, fontWeight: 'bold' }}>{hostname}</span>
+          <span style={{ color: theme.foreground }}>:</span>
+          <span style={{ color: theme.directory, fontWeight: 'bold' }}>{displayDir}</span>
+          <span style={{ color: theme.prompt, fontWeight: 'bold' }}>$ </span>
+        </>
+      );
     };
 
     const promptStyle: React.CSSProperties = {

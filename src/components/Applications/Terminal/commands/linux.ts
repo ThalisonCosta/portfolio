@@ -78,7 +78,8 @@ export const lsCommand: CommandDefinition = {
       type: 'output',
     };
   },
-  autocomplete: (partial, _, context) => FileSystemUtils.getPathCompletions(context.fileSystem, context.currentDirectory, partial),
+  autocomplete: (partial, _, context) =>
+    FileSystemUtils.getPathCompletions(context.fileSystem, context.currentDirectory, partial),
 };
 
 /**
@@ -124,11 +125,10 @@ export const cdCommand: CommandDefinition = {
       type: 'success',
     };
   },
-  autocomplete: (partial, _, context) => 
-     FileSystemUtils.getPathCompletions(context.fileSystem, context.currentDirectory, partial).filter((path) =>
+  autocomplete: (partial, _, context) =>
+    FileSystemUtils.getPathCompletions(context.fileSystem, context.currentDirectory, partial).filter((path) =>
       path.endsWith('/')
-    ) // Only directories
-  ,
+    ), // Only directories
 };
 
 /**
@@ -361,11 +361,10 @@ export const catCommand: CommandDefinition = {
       type: 'output',
     };
   },
-  autocomplete: (partial, _, context) => 
-     FileSystemUtils.getPathCompletions(context.fileSystem, context.currentDirectory, partial).filter(
+  autocomplete: (partial, _, context) =>
+    FileSystemUtils.getPathCompletions(context.fileSystem, context.currentDirectory, partial).filter(
       (path) => !path.endsWith('/')
-    ) // Only files
-  ,
+    ), // Only files
 };
 
 /**

@@ -170,7 +170,7 @@ test.describe('Responsive Design', () => {
       await page.click('button:has-text("File Explorer")');
 
       await page.click('.start-button');
-      await page.click('button:has-text("About Me")');
+      await page.click('button:has-text("About")');
 
       // All windows should be visible and manageable
       const windows = page.locator('.window');
@@ -213,7 +213,7 @@ test.describe('Responsive Design', () => {
 
     test('should support many simultaneous windows', async ({ page }) => {
       // Launch multiple instances
-      const apps = ['Calculator', 'File Explorer', 'About Me', 'Projects', 'Contact'];
+      const apps = ['Calculator', 'File Explorer', 'About', 'Projects', 'Contact'];
 
       for (const app of apps) {
         await page.click('.start-button');

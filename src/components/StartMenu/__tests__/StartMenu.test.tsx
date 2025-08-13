@@ -49,7 +49,7 @@ describe('StartMenu Component', () => {
   test('renders all pinned applications', () => {
     render(<StartMenu />);
 
-    const appButtons = ['File Explorer', 'About Me', 'Projects', 'Contact', 'Settings', 'Calculator', 'Terminal'];
+    const appButtons = ['File Explorer', 'About', 'Projects', 'Contact', 'Settings', 'Calculator', 'Terminal'];
 
     appButtons.forEach((appName) => {
       expect(screen.getByText(appName)).toBeInTheDocument();
@@ -133,11 +133,11 @@ describe('StartMenu Component', () => {
 
     render(<StartMenu />);
 
-    const aboutButton = screen.getByText('About Me');
+    const aboutButton = screen.getByText('About');
     fireEvent.click(aboutButton);
 
     expect(mockOpenWindow).toHaveBeenCalledWith({
-      title: 'About Me',
+      title: 'About',
       component: 'about',
       isMinimized: false,
       isMaximized: false,

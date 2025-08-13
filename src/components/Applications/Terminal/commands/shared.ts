@@ -21,14 +21,13 @@ const simulatePing = async (host: string): Promise<NetworkResult> => {
       data: `PING ${host}: 64 bytes from ${host}: icmp_seq=1 ttl=64 time=${responseTime} ms`,
       responseTime,
     };
-  } 
-    return {
-      success: false,
-      data: `ping: cannot resolve ${host}: Unknown host`,
-      responseTime: 0,
-      error: 'Host unreachable',
-    };
-  
+  }
+  return {
+    success: false,
+    data: `ping: cannot resolve ${host}: Unknown host`,
+    responseTime: 0,
+    error: 'Host unreachable',
+  };
 };
 
 /**
@@ -219,14 +218,13 @@ export const curlCommand: CommandDefinition = {
         output: `HTTP/1.1 200 OK\nContent-Type: text/html\n\n<!DOCTYPE html>\n<html>\n<head><title>Example</title></head>\n<body><h1>Hello World!</h1></body>\n</html>`,
         type: 'output',
       };
-    } 
-      return {
-        success: false,
-        output: '',
-        error: `curl: (6) Could not resolve host: ${url}`,
-        type: 'error',
-      };
-    
+    }
+    return {
+      success: false,
+      output: '',
+      error: `curl: (6) Could not resolve host: ${url}`,
+      type: 'error',
+    };
   },
 };
 

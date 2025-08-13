@@ -129,9 +129,9 @@ const defaultFileSystem: FileSystemItem[] = [
     children: [
       {
         id: 'about-me',
-        name: 'About Me.txt',
+        name: 'About.txt',
         type: 'file',
-        path: '/Desktop/About Me.txt',
+        path: '/Desktop/About.txt',
         icon: 'text',
         content: "Welcome to my portfolio! I'm a passionate developer...",
         position: { x: 100, y: 100 },

@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { TerminalOutput } from './components/TerminalOutput';
-import { TerminalInput } from './components/TerminalInput';
 import { useTerminal } from './hooks/useTerminal';
 import type { OSType } from './types';
 
@@ -172,14 +171,14 @@ export const TerminalApp: React.FC<TerminalAppProps> = ({ initialOS = 'linux', s
     >
       {/* Header with OS switcher and status */}
       <div style={headerStyle} className="terminal-header">
-        <div style={titleStyle}>
+        {/* <div style={titleStyle}>
           <span>📟</span>
           <span>Terminal</span>
-        </div>
+        </div> */}
 
         <div style={statusStyle}>
-          <span>{getCurrentPrompt().trim()}</span>
-          <span>|</span>
+          {/* <span>{getCurrentPrompt().trim()}</span> */}
+          {/* <span>|</span> */}
           <span>{osType === 'linux' ? '🐧 Linux' : '🪟 Windows'}</span>
           {isExecuting && (
             <>
@@ -212,19 +211,20 @@ export const TerminalApp: React.FC<TerminalAppProps> = ({ initialOS = 'linux', s
         )}
       </div>
 
-      {/* Terminal Output */}
-      <TerminalOutput output={output} theme={theme} autoScroll={true} maxLines={1000} />
-
-      {/* Terminal Input */}
-      <TerminalInput
-        value={currentInput}
-        onChange={updateInput}
+      {/* Terminal Output with integrated input */}
+      <TerminalOutput
+        output={output}
+        theme={theme}
+        autoScroll={true}
+        maxLines={1000}
+        // Pass input props for integrated display
+        currentInput={currentInput}
+        onInputChange={updateInput}
         onKeyDown={handleKeyDown}
         currentDirectory={currentDirectory}
         osType={osType}
         username={username}
         hostname={hostname}
-        theme={theme}
         isExecuting={isExecuting}
         cursorPosition={cursorPosition}
         suggestions={suggestions}

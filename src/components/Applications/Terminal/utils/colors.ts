@@ -131,12 +131,12 @@ export class AnsiColorizer {
     return files
       .map((file) => {
         if (file.isDirectory) {
-          return this.colorize(`${file.name  }/`, 'directory');
-        } if (file.isExecutable) {
+          return this.colorize(`${file.name}/`, 'directory');
+        }
+        if (file.isExecutable) {
           return this.colorize(file.name, 'executable');
-        } 
-          return this.colorize(file.name, 'file');
-        
+        }
+        return this.colorize(file.name, 'file');
       })
       .join('  ');
   }

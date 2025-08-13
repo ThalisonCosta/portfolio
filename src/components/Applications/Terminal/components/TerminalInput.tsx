@@ -1,4 +1,4 @@
-import React, { memo, useRef, useEffect, useState, useCallback } from 'react';
+import React, { memo, useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import type { TerminalTheme, OSType } from '../types';
 import { TerminalPrompt } from './TerminalPrompt';
 import { SyntaxHighlighter } from '../utils/colors';
@@ -55,7 +55,6 @@ export const TerminalInput: React.FC<TerminalInputProps> = memo(
     showSuggestions,
   }) => {
     const inputRef = useRef<HTMLInputElement>(null);
-    const overlayRef = useRef<HTMLDivElement>(null);
     const suggestionsRef = useRef<HTMLDivElement>(null);
     const [, setIsFocused] = useState(false);
 
@@ -69,7 +68,7 @@ export const TerminalInput: React.FC<TerminalInputProps> = memo(
     }, [isExecuting]);
 
     /**
-     * Handle input changes
+     * Handle input changes - optimized
      */
     const handleInputChange = useCallback(
       (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,46 +80,16 @@ export const TerminalInput: React.FC<TerminalInputProps> = memo(
     );
 
     /**
-     * Handle key down events
+     * Handle key down events - simplified
      */
     const handleKeyDown = useCallback(
       (event: React.KeyboardEvent<HTMLInputElement>) => {
         // Convert React event to native event for the handler
-        const {nativeEvent} = event;
+        const { nativeEvent } = event;
         onKeyDown(nativeEvent);
-
-        // Update cursor position after key events
-        setTimeout(() => {
-          if (inputRef.current) {
-            const cursorPos = inputRef.current.selectionStart || 0;
-            if (cursorPos !== cursorPosition) {
-              onChange(value, cursorPos);
-            }
-          }
-        }, 0);
       },
-      [onKeyDown, value, cursorPosition, onChange]
+      [onKeyDown]
     );
-
-    /**
-     * Handle input selection/cursor changes
-     */
-    const handleSelectionChange = useCallback(() => {
-      if (inputRef.current) {
-        const newCursorPosition = inputRef.current.selectionStart || 0;
-        if (newCursorPosition !== cursorPosition) {
-          onChange(value, newCursorPosition);
-        }
-      }
-    }, [value, cursorPosition, onChange]);
-
-    /**
-     * Get syntax-highlighted input
-     */
-    const getHighlightedInput = useCallback((): string => {
-      if (!value) return '';
-      return SyntaxHighlighter.highlight(value, osType);
-    }, [value, osType]);
 
     /**
      * Handle suggestion clicks
@@ -145,76 +114,74 @@ export const TerminalInput: React.FC<TerminalInputProps> = memo(
       [value, cursorPosition, onChange]
     );
 
-    const containerStyle: React.CSSProperties = {
-      position: 'relative',
-      display: 'flex',
-      alignItems: 'center',
-      padding: '8px 16px',
-      borderTop: `1px solid ${theme.selection}`,
-      backgroundColor: theme.background,
-      minHeight: '40px',
-    };
+    // Memoize styles for better performance
+    const containerStyle: React.CSSProperties = useMemo(
+      () => ({
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '8px 16px',
+        backgroundColor: theme.background,
+        minHeight: '40px',
+      }),
+      [theme.background]
+    );
 
-    const inputContainerStyle: React.CSSProperties = {
-      position: 'relative',
-      flex: 1,
-      display: 'flex',
-      alignItems: 'center',
-    };
+    const inputContainerStyle: React.CSSProperties = useMemo(
+      () => ({
+        position: 'relative',
+        flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+      }),
+      []
+    );
 
-    const inputStyle: React.CSSProperties = {
-      background: 'transparent',
-      border: 'none',
-      outline: 'none',
-      color: 'transparent', // Hide actual text, show highlighted overlay
-      caretColor: theme.cursor,
-      fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "Courier New", monospace',
-      fontSize: '14px',
-      lineHeight: '1.4',
-      width: '100%',
-      position: 'relative',
-      zIndex: 2,
-    };
+    const inputStyle: React.CSSProperties = useMemo(
+      () => ({
+        background: 'transparent',
+        border: 'none',
+        outline: 'none',
+        color: theme.foreground, // Show actual text for better performance
+        caretColor: theme.cursor,
+        fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "Courier New", monospace',
+        fontSize: '14px',
+        lineHeight: '1.4',
+        width: '100%',
+        position: 'relative',
+      }),
+      [theme.foreground, theme.cursor]
+    );
 
-    const overlayStyle: React.CSSProperties = {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      pointerEvents: 'none',
-      fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "Courier New", monospace',
-      fontSize: '14px',
-      lineHeight: '1.4',
-      color: theme.foreground,
-      whiteSpace: 'pre',
-      overflow: 'hidden',
-      zIndex: 1,
-    };
+    const suggestionsStyle: React.CSSProperties = useMemo(
+      () => ({
+        position: 'absolute',
+        bottom: '100%',
+        left: 0,
+        right: 0,
+        maxHeight: '200px',
+        overflowY: 'auto',
+        backgroundColor: theme.background,
+        border: `1px solid ${theme.selection}`,
+        borderRadius: '4px',
+        zIndex: 1000,
+        boxShadow: `0 4px 12px rgba(0, 0, 0, 0.3)`,
+      }),
+      [theme.background, theme.selection]
+    );
 
-    const suggestionsStyle: React.CSSProperties = {
-      position: 'absolute',
-      bottom: '100%',
-      left: 0,
-      right: 0,
-      maxHeight: '200px',
-      overflowY: 'auto',
-      backgroundColor: theme.background,
-      border: `1px solid ${theme.selection}`,
-      borderRadius: '4px',
-      zIndex: 1000,
-      boxShadow: `0 4px 12px rgba(0, 0, 0, 0.3)`,
-    };
-
-    const suggestionStyle = (index: number): React.CSSProperties => ({
-      padding: '8px 12px',
-      fontSize: '14px',
-      fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "Courier New", monospace',
-      cursor: 'pointer',
-      backgroundColor: index === selectedSuggestion ? theme.selection : 'transparent',
-      color: index === selectedSuggestion ? theme.foreground : theme.comment,
-      borderBottom: index < suggestions.length - 1 ? `1px solid ${theme.selection}` : 'none',
-    });
+    const getSuggestionStyle = useCallback(
+      (index: number): React.CSSProperties => ({
+        padding: '8px 12px',
+        fontSize: '14px',
+        fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "Courier New", monospace',
+        cursor: 'pointer',
+        backgroundColor: index === selectedSuggestion ? theme.selection : 'transparent',
+        color: index === selectedSuggestion ? theme.foreground : theme.comment,
+        borderBottom: index < suggestions.length - 1 ? `1px solid ${theme.selection}` : 'none',
+      }),
+      [selectedSuggestion, suggestions.length, theme.selection, theme.foreground, theme.comment]
+    );
 
     return (
       <div style={containerStyle} className="terminal-input-container">
@@ -228,17 +195,13 @@ export const TerminalInput: React.FC<TerminalInputProps> = memo(
         />
 
         <div style={inputContainerStyle}>
-          {/* Syntax highlighting overlay */}
-          <div ref={overlayRef} style={overlayStyle} dangerouslySetInnerHTML={{ __html: getHighlightedInput() }} />
-
-          {/* Actual input (transparent) */}
+          {/* Simplified input without overlay for better performance */}
           <input
             ref={inputRef}
             type="text"
             value={value}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            onSelect={handleSelectionChange}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             style={inputStyle}
@@ -257,7 +220,7 @@ export const TerminalInput: React.FC<TerminalInputProps> = memo(
               {suggestions.map((suggestion, index) => (
                 <div
                   key={index}
-                  style={suggestionStyle(index)}
+                  style={getSuggestionStyle(index)}
                   onClick={() => handleSuggestionClick(suggestion)}
                   className="terminal-suggestion"
                 >
