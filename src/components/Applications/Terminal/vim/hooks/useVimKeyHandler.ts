@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import type { VimState, Position } from '../types';
 import { normalModeKeymap } from '../modes/normalMode';
 import { insertModeKeymap } from '../modes/insertMode';
@@ -28,6 +28,33 @@ interface VimActions {
  * Routes keyboard events to the appropriate mode handler based on current vim mode.
  */
 export function useVimKeyHandler(state: VimState, actions: VimActions) {
+  // Memoize the state and actions to prevent unnecessary re-renders
+  const memoizedState = useMemo(() => state, [
+    state.mode, 
+    state.cursor.line, 
+    state.cursor.column, 
+    state.buffer.length, 
+    state.commandInput,
+    state.selection?.start.line,
+    state.selection?.start.column,
+    state.selection?.end.line,
+    state.selection?.end.column
+  ]);
+
+  const memoizedActions = useMemo(() => actions, [
+    actions.executeCommand,
+    actions.enterInsertMode,
+    actions.enterVisualMode,
+    actions.enterNormalMode,
+    actions.enterCommandMode,
+    actions.updateBuffer,
+    actions.moveCursor,
+    actions.undo,
+    actions.redo,
+    actions.setMessage,
+    actions.handleCommandInputChange
+  ]);
+
   /**
    * Main keyboard event handler
    */
@@ -39,28 +66,28 @@ export function useVimKeyHandler(state: VimState, actions: VimActions) {
     }
 
     try {
-      switch (state.mode) {
+      switch (memoizedState.mode) {
         case 'normal':
-          normalModeKeymap(event, state, actions);
+          normalModeKeymap(event, memoizedState, memoizedActions);
           break;
         case 'insert':
-          insertModeKeymap(event, state, actions);
+          insertModeKeymap(event, memoizedState, memoizedActions);
           break;
         case 'visual':
-          visualModeKeymap(event, state, actions);
+          visualModeKeymap(event, memoizedState, memoizedActions);
           break;
         case 'command':
-          commandModeKeymap(event, state, actions);
+          commandModeKeymap(event, memoizedState, memoizedActions);
           break;
         default:
-          console.warn(`Unknown vim mode: ${state.mode}`);
+          console.warn(`Unknown vim mode: ${memoizedState.mode}`);
           break;
       }
     } catch (error) {
       console.error('Vim key handler error:', error);
-      actions.setMessage(`Key handler error: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
+      memoizedActions.setMessage(`Key handler error: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
     }
-  }, [state, actions]);
+  }, [memoizedState, memoizedActions]);
 
   return { handleKeyDown };
 }

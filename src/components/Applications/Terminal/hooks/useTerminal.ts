@@ -6,6 +6,7 @@ import { ohMyZshTheme, windowsTheme } from '../utils/colors';
 import { useDesktopStore } from '../../../../stores/useDesktopStore';
 import { useCommandHistory } from './useCommandHistory';
 import { useAutocomplete } from './useAutocomplete';
+import { terminalLinePool, PoolManager } from '../utils/objectPools';
 
 /**
  * Main terminal state management hook
@@ -69,30 +70,51 @@ export function useTerminal() {
   }, [state.osType]);
 
   /**
-   * Add a new output line
+   * Add a new output line using object pooling
    */
   const addOutputLine = useCallback((content: string, type: TerminalOutputLine['type'] = 'output') => {
-    const newLine: TerminalOutputLine = {
-      id: `line-${Date.now()}-${Math.random()}`,
-      content,
-      type,
-      timestamp: new Date(),
-    };
+    // Get line from pool instead of creating new object
+    const newLine = terminalLinePool.acquire();
+    
+    // Initialize the pooled line
+    newLine.id = `line-${Date.now()}-${Math.random()}`;
+    newLine.content = content;
+    newLine.type = type;
+    newLine.timestamp = new Date();
+    newLine.className = '';
 
-    setState((prev) => ({
-      ...prev,
-      output: [...prev.output, newLine],
-    }));
+    setState((prev) => {
+      const newOutput = [...prev.output, newLine];
+      
+      // Memory management: limit output to 1000 lines to prevent memory growth
+      let limitedOutput = newOutput;
+      if (newOutput.length > 1000) {
+        // Return old lines to pool before removing them
+        const linesToRemove = newOutput.slice(0, newOutput.length - 1000);
+        linesToRemove.forEach(line => terminalLinePool.release(line));
+        limitedOutput = newOutput.slice(-1000);
+      }
+      
+      return {
+        ...prev,
+        output: limitedOutput,
+      };
+    });
   }, []);
 
   /**
-   * Clear terminal output
+   * Clear terminal output and return lines to pool
    */
   const clearOutput = useCallback(() => {
-    setState((prev) => ({
-      ...prev,
-      output: [],
-    }));
+    setState((prev) => {
+      // Return all lines to pool before clearing
+      prev.output.forEach(line => terminalLinePool.release(line));
+      
+      return {
+        ...prev,
+        output: [],
+      };
+    });
   }, []);
 
   /**
@@ -434,7 +456,40 @@ export function useTerminal() {
 
     welcomeMessages.forEach((msg) => addOutputLine(msg, 'info'));
     welcomeShown.current = true;
-  }, [addOutputLine, state.osType]); // Include proper dependencies
+  }, []); // Run only once on mount
+
+  /**
+   * Periodic cleanup and garbage collection
+   */
+  useEffect(() => {
+    const cleanupInterval = setInterval(() => {
+      // Force garbage collection if available
+      PoolManager.forceGC();
+      
+      // Log pool statistics for debugging
+      const stats = PoolManager.getAllStats();
+      if (stats.terminalLines.poolSize > 150) {
+        console.log('Terminal: Pool statistics', stats);
+      }
+    }, 30000); // Every 30 seconds
+
+    return () => {
+      clearInterval(cleanupInterval);
+    };
+  }, []);
+
+  /**
+   * Cleanup on unmount
+   */
+  useEffect(() => {
+    return () => {
+      // Return all current terminal lines to pool
+      state.output.forEach(line => terminalLinePool.release(line));
+      
+      // Clear all pools
+      PoolManager.clearAll();
+    };
+  }, [state.output]);
 
   return {
     // State

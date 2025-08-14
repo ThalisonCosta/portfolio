@@ -88,9 +88,9 @@ export function useVimState(filename?: string, context?: VimEditorContext) {
   }, []);
 
   /**
-   * Save changes to undo stack (memory-efficient with diffs)
+   * Create undo change for given state (memory-efficient with diffs)
    */
-  const saveToUndoStack = useCallback((changeType: 'buffer' | 'cursor' | 'selection' | 'mode', oldState: VimState, newBuffer?: string[]) => {
+  const createUndoChange = useCallback((changeType: 'buffer' | 'cursor' | 'selection' | 'mode', oldState: VimState, newBuffer?: string[]): VimChange | null => {
     const change: VimChange = {
       type: changeType,
       data: {},
@@ -106,7 +106,7 @@ export function useVimState(filename?: string, context?: VimEditorContext) {
         change.data.cursor = { ...oldState.cursor };
         change.data.isModified = oldState.isModified;
       } else {
-        return; // No changes, don't add to undo stack
+        return null; // No changes, don't create change
       }
     } else if (changeType === 'selection') {
       change.data.cursor = { ...oldState.cursor };
@@ -118,11 +118,7 @@ export function useVimState(filename?: string, context?: VimEditorContext) {
       change.data.selection = oldState.selection ? { ...oldState.selection } : undefined;
     }
 
-    setState(prev => ({
-      ...prev,
-      undoStack: [...prev.undoStack.slice(-19), change], // Keep last 20 changes only (reduced)
-      redoStack: [], // Clear redo stack on new action
-    }));
+    return change;
   }, [calculateBufferDiffs]);
 
   // Timeout refs for cleanup
@@ -209,15 +205,34 @@ export function useVimState(filename?: string, context?: VimEditorContext) {
    */
   const updateBuffer = useCallback((newBuffer: string[]) => {
     setState(prev => {
+      // Only update if buffer actually changed
+      const hasChanges = prev.buffer.length !== newBuffer.length || 
+        prev.buffer.some((line, index) => line !== newBuffer[index]);
+      
+      if (!hasChanges) {
+        return prev; // No changes, prevent unnecessary render
+      }
+
       // Save current state to undo stack before making changes
-      saveToUndoStack('buffer', prev, newBuffer);
+      const change: VimChange = {
+        type: 'buffer',
+        data: {
+          bufferDiffs: calculateBufferDiffs(prev.buffer, newBuffer),
+          cursor: { ...prev.cursor },
+          isModified: prev.isModified,
+        },
+        timestamp: Date.now(),
+      };
+
       return {
         ...prev,
         buffer: newBuffer,
         isModified: true,
+        undoStack: [...prev.undoStack.slice(-19), change], // Keep last 20 changes only
+        redoStack: [], // Clear redo stack on new action
       };
     });
-  }, [saveToUndoStack]);
+  }, [calculateBufferDiffs]);
 
   /**
    * Move cursor to a new position
@@ -231,6 +246,16 @@ export function useVimState(filename?: string, context?: VimEditorContext) {
       const column = Math.max(0, Math.min(newPosition.column, maxColumn));
 
       const validPosition = { line, column };
+
+      // Check if cursor actually moved to prevent unnecessary renders
+      if (prev.cursor.line === validPosition.line && prev.cursor.column === validPosition.column) {
+        // Check if selection also needs to be updated
+        if (prev.mode === 'visual' && prev.selection && 
+            prev.selection.end.line === validPosition.line && 
+            prev.selection.end.column === validPosition.column) {
+          return prev; // No changes
+        }
+      }
 
       // Update selection end if in visual mode
       if (prev.mode === 'visual' && prev.selection) {

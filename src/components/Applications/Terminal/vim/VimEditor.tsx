@@ -78,6 +78,33 @@ export const VimEditor: React.FC<VimEditorProps> = ({
     handleCommandInputChange,
   } = useVimState(filename, context);
 
+  // Memoize actions object to prevent useVimKeyHandler from recreating
+  const vimActions = useMemo(() => ({
+    executeCommand,
+    enterInsertMode,
+    enterVisualMode,
+    enterNormalMode,
+    enterCommandMode,
+    updateBuffer,
+    moveCursor,
+    undo,
+    redo,
+    setMessage,
+    handleCommandInputChange,
+  }), [
+    executeCommand,
+    enterInsertMode,
+    enterVisualMode,
+    enterNormalMode,
+    enterCommandMode,
+    updateBuffer,
+    moveCursor,
+    undo,
+    redo,
+    setMessage,
+    handleCommandInputChange,
+  ]);
+
   // Stable callback for memory warnings (prevent memory monitor restart)
   const onMemoryWarning = useCallback((stats: any) => {
     console.warn('Vim Editor: Memory usage warning', stats);
@@ -139,32 +166,15 @@ export const VimEditor: React.FC<VimEditorProps> = ({
   }
 
   // Handle keyboard events
-  const { handleKeyDown } = useVimKeyHandler(state, {
-    executeCommand,
-    enterInsertMode,
-    enterVisualMode,
-    enterNormalMode,
-    enterCommandMode,
-    updateBuffer,
-    moveCursor,
-    undo,
-    redo,
-    setMessage,
-    handleCommandInputChange,
-  });
+  const { handleKeyDown } = useVimKeyHandler(state, vimActions);
 
-  // Focus editor when mounted
-  useEffect(() => {
-    const element = editorRef.current;
-    if (element) {
-      element.focus();
-    }
-  }, []);
-
-  // Global keyboard event handler with cleanup
+  // Consolidated effect for focus and keyboard handling
   useEffect(() => {
     const element = editorRef.current;
     if (!element) return;
+
+    // Focus on mount
+    element.focus();
 
     const handleGlobalKeyDown = (event: KeyboardEvent) => {
       // Performance guard: prevent processing if element is not visible
@@ -191,8 +201,8 @@ export const VimEditor: React.FC<VimEditorProps> = ({
     };
   }, [handleKeyDown]);
 
-  // Convert terminal theme to vim theme
-  const vimTheme = {
+  // Convert terminal theme to vim theme (memoized)
+  const vimTheme = useMemo(() => ({
     background: theme.background,
     foreground: theme.foreground,
     currentLineBackground: theme.selection,
@@ -212,9 +222,10 @@ export const VimEditor: React.FC<VimEditorProps> = ({
       identifier: theme.foreground,
       type: theme.success,
     },
-  };
+  }), [theme]);
 
-  const containerStyle: React.CSSProperties = {
+  // Memoize style objects to prevent recreation
+  const containerStyle = useMemo((): React.CSSProperties => ({
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
@@ -225,22 +236,22 @@ export const VimEditor: React.FC<VimEditorProps> = ({
     fontSize: '14px',
     overflow: 'hidden',
     position: 'relative',
-  };
+  }), [vimTheme.background, vimTheme.foreground]);
 
-  const editorAreaStyle: React.CSSProperties = {
+  const editorAreaStyle = useMemo((): React.CSSProperties => ({
     display: 'flex',
     flex: 1,
     overflow: 'hidden',
-  };
+  }), []);
 
-  const lineNumbersStyle: React.CSSProperties = {
+  const lineNumbersStyle = useMemo((): React.CSSProperties => ({
     flexShrink: 0,
-  };
+  }), []);
 
-  const textAreaStyle: React.CSSProperties = {
+  const textAreaStyle = useMemo((): React.CSSProperties => ({
     flex: 1,
     overflow: 'hidden',
-  };
+  }), []);
 
   const handleVimError = (error: Error) => {
     console.error('Vim Editor crashed:', error);

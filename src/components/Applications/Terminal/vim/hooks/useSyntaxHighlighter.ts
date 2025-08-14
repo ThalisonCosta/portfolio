@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { HighlightedLine, SyntaxToken } from '../types';
+import { syntaxTokenPool } from '../../utils/objectPools';
 
 /**
  * TypeScript/JavaScript keywords
@@ -63,7 +64,18 @@ function getLanguage(filename?: string): string {
 }
 
 /**
- * Tokenize a line of TypeScript/JavaScript code
+ * Helper function to create token from pool
+ */
+function createToken(start: number, end: number, type: string): SyntaxToken {
+  const token = syntaxTokenPool.acquire();
+  token.start = start;
+  token.end = end;
+  token.type = type;
+  return token;
+}
+
+/**
+ * Tokenize a line of TypeScript/JavaScript code using object pooling
  */
 function tokenizeTypeScript(line: string): SyntaxToken[] {
   const tokens: SyntaxToken[] = [];
@@ -90,13 +102,13 @@ function tokenizeTypeScript(line: string): SyntaxToken[] {
       }
       if (i < line.length) i++; // Skip closing quote
       
-      tokens.push({ start, end: i, type: 'string' });
+      tokens.push(createToken(start, i, 'string'));
       continue;
     }
     
     // Single-line comments
     if (char === '/' && line[i + 1] === '/') {
-      tokens.push({ start: i, end: line.length, type: 'comment' });
+      tokens.push(createToken(i, line.length, 'comment'));
       break;
     }
     
@@ -108,7 +120,7 @@ function tokenizeTypeScript(line: string): SyntaxToken[] {
         i++;
       }
       if (i < line.length - 1) i += 2; // Skip closing */
-      tokens.push({ start, end: i, type: 'comment' });
+      tokens.push(createToken(start, i, 'comment'));
       continue;
     }
     
@@ -118,7 +130,7 @@ function tokenizeTypeScript(line: string): SyntaxToken[] {
       while (i < line.length && /[\d.]/.test(line[i])) {
         i++;
       }
-      tokens.push({ start, end: i, type: 'number' });
+      tokens.push(createToken(start, i, 'number'));
       continue;
     }
     
@@ -138,7 +150,7 @@ function tokenizeTypeScript(line: string): SyntaxToken[] {
         type = 'type';
       }
       
-      tokens.push({ start, end: i, type });
+      tokens.push(createToken(start, i, type));
       continue;
     }
     
@@ -155,7 +167,7 @@ function tokenizeTypeScript(line: string): SyntaxToken[] {
         i++;
       }
       
-      tokens.push({ start, end: i, type: 'operator' });
+      tokens.push(createToken(start, i, 'operator'));
       continue;
     }
     
@@ -174,13 +186,13 @@ function tokenizeMarkdown(line: string): SyntaxToken[] {
   
   // Headers
   if (line.startsWith('#')) {
-    tokens.push({ start: 0, end: line.length, type: 'keyword' });
+    tokens.push(createToken(0, line.length, 'keyword'));
     return tokens;
   }
   
   // Code blocks
   if (line.startsWith('```')) {
-    tokens.push({ start: 0, end: line.length, type: 'string' });
+    tokens.push(createToken(0, line.length, 'string'));
     return tokens;
   }
   
@@ -194,7 +206,7 @@ function tokenizeMarkdown(line: string): SyntaxToken[] {
         i++;
       }
       if (i < line.length) i++;
-      tokens.push({ start, end: i, type: 'string' });
+      tokens.push(createToken(start, i, 'string'));
     } else {
       i++;
     }
@@ -230,7 +242,7 @@ function tokenizeJson(line: string): SyntaxToken[] {
       }
       if (i < line.length) i++; // Skip closing quote
       
-      tokens.push({ start, end: i, type: 'string' });
+      tokens.push(createToken(start, i, 'string'));
       continue;
     }
     
@@ -241,7 +253,7 @@ function tokenizeJson(line: string): SyntaxToken[] {
       while (i < line.length && /[\d.]/.test(line[i])) {
         i++;
       }
-      tokens.push({ start, end: i, type: 'number' });
+      tokens.push(createToken(start, i, 'number'));
       continue;
     }
     
@@ -254,7 +266,7 @@ function tokenizeJson(line: string): SyntaxToken[] {
       
       const word = line.slice(start, i);
       if (['true', 'false', 'null'].includes(word)) {
-        tokens.push({ start, end: i, type: 'keyword' });
+        tokens.push(createToken(start, i, 'keyword'));
       }
       continue;
     }
@@ -355,6 +367,12 @@ export function useSyntaxHighlighter() {
   // Clear cache method for memory management
   const clearCache = useCallback(() => {
     console.log(`Vim Syntax: Clearing cache with ${cacheRef.current.size} entries`);
+    
+    // Return tokens from cache to pool before clearing
+    cacheRef.current.forEach(line => {
+      line.tokens.forEach(token => syntaxTokenPool.release(token));
+    });
+    
     cacheRef.current.clear();
     languageCache.clear();
   }, [languageCache]);

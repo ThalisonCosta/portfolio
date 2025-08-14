@@ -1,8 +1,9 @@
-import React, { memo, useRef, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { memo, useRef, useEffect, useState, useCallback, useMemo, useLayoutEffect } from 'react';
 import type { TerminalTheme, OSType } from '../types';
 import { TerminalPrompt } from './TerminalPrompt';
 import { SyntaxHighlighter } from '../utils/colors';
 import type { CommandRegistry } from '../commands';
+import { StyleObjectPool } from '../utils/objectPools';
 
 /**
  * Props for TerminalInput component
@@ -39,28 +40,39 @@ interface TerminalInputProps {
 }
 
 /**
- * Terminal input component with syntax highlighting and autocomplete
+ * Terminal input component with optimized syntax highlighting and autocomplete
  */
-export const TerminalInput: React.FC<TerminalInputProps> = memo(
-  ({
-    value,
-    onChange,
-    onKeyDown,
-    currentDirectory,
-    osType,
-    username,
-    hostname,
-    theme,
-    isExecuting,
-    cursorPosition,
-    suggestions,
-    selectedSuggestion,
-    showSuggestions,
-    commandRegistry,
-  }) => {
+const TerminalInputComponent: React.FC<TerminalInputProps> = ({
+  value,
+  onChange,
+  onKeyDown,
+  currentDirectory,
+  osType,
+  username,
+  hostname,
+  theme,
+  isExecuting,
+  cursorPosition,
+  suggestions,
+  selectedSuggestion,
+  showSuggestions,
+  commandRegistry,
+}) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const suggestionsRef = useRef<HTMLDivElement>(null);
+    const promptRef = useRef<HTMLSpanElement>(null);
     const [, setIsFocused] = useState(false);
+    const [promptWidth, setPromptWidth] = useState(0);
+
+    /**
+     * Measure prompt width for proper alignment
+     */
+    useLayoutEffect(() => {
+      if (promptRef.current) {
+        const width = promptRef.current.getBoundingClientRect().width;
+        setPromptWidth(width);
+      }
+    }, [currentDirectory, osType, username, hostname, theme]);
 
     /**
      * Focus input on mount and when not executing
@@ -118,89 +130,94 @@ export const TerminalInput: React.FC<TerminalInputProps> = memo(
       [value, cursorPosition, onChange]
     );
 
-    // Memoize styles for better performance
-    const containerStyle: React.CSSProperties = useMemo(
-      () => ({
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
+    // Memoized styles using object pool for better performance
+    const containerStyle = useMemo(() => {
+      const styleKey = `container-${theme.background}`;
+      return StyleObjectPool.get(styleKey, () => ({
+        position: 'relative' as const,
+        display: 'flex' as const,
+        alignItems: 'center' as const,
         padding: '8px 16px',
         backgroundColor: theme.background,
         minHeight: '40px',
-      }),
-      [theme.background]
-    );
+      }));
+    }, [theme.background]);
 
-    const inputContainerStyle: React.CSSProperties = useMemo(
-      () => ({
-        position: 'relative',
+    const inputContainerStyle = useMemo(() => {
+      return StyleObjectPool.get('input-container', () => ({
+        position: 'relative' as const,
         flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-      }),
-      []
-    );
+        display: 'flex' as const,
+        alignItems: 'center' as const,
+      }));
+    }, []);
 
-    const inputStyle: React.CSSProperties = useMemo(
-      () => ({
+    const inputStyle = useMemo(() => {
+      const styleKey = `input-${theme.foreground}-${theme.cursor}-${promptWidth}`;
+      return StyleObjectPool.get(styleKey, () => ({
         background: 'transparent',
         border: 'none',
         outline: 'none',
-        color: theme.foreground, // Show actual text for better performance
+        color: theme.foreground,
         caretColor: theme.cursor,
         fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "Courier New", monospace',
         fontSize: '14px',
         lineHeight: '1.4',
         width: '100%',
-        position: 'relative',
-      }),
-      [theme.foreground, theme.cursor]
-    );
+        position: 'relative' as const,
+        overflowWrap: 'anywhere' as const,
+        wordBreak: 'break-word' as const,
+        minHeight: '20px',
+        paddingLeft: `${promptWidth}px`,
+        marginLeft: `-${promptWidth}px`,
+      }));
+    }, [theme.foreground, theme.cursor, promptWidth]);
 
-    const suggestionsStyle: React.CSSProperties = useMemo(
-      () => ({
-        position: 'absolute',
+    const suggestionsStyle = useMemo(() => {
+      const styleKey = `suggestions-${theme.background}-${theme.selection}`;
+      return StyleObjectPool.get(styleKey, () => ({
+        position: 'absolute' as const,
         bottom: '100%',
         left: 0,
         right: 0,
         maxHeight: '200px',
-        overflowY: 'auto',
+        overflowY: 'auto' as const,
         backgroundColor: theme.background,
         border: `1px solid ${theme.selection}`,
         borderRadius: '4px',
         zIndex: 1000,
         boxShadow: `0 4px 12px rgba(0, 0, 0, 0.3)`,
-      }),
-      [theme.background, theme.selection]
-    );
+      }));
+    }, [theme.background, theme.selection]);
 
-    const getSuggestionStyle = useCallback(
-      (index: number): React.CSSProperties => ({
+    const getSuggestionStyle = useCallback((index: number): React.CSSProperties => {
+      const styleKey = `suggestion-${index}-${selectedSuggestion}-${theme.selection}-${theme.foreground}-${theme.comment}`;
+      return StyleObjectPool.get(styleKey, () => ({
         padding: '8px 12px',
         fontSize: '14px',
         fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "Courier New", monospace',
-        cursor: 'pointer',
+        cursor: 'pointer' as const,
         backgroundColor: index === selectedSuggestion ? theme.selection : 'transparent',
         color: index === selectedSuggestion ? theme.foreground : theme.comment,
         borderBottom: index < suggestions.length - 1 ? `1px solid ${theme.selection}` : 'none',
-      }),
-      [selectedSuggestion, suggestions.length, theme.selection, theme.foreground, theme.comment]
-    );
+      }));
+    }, [selectedSuggestion, suggestions.length, theme.selection, theme.foreground, theme.comment]);
 
-    // Memoize syntax highlighted content
+    // Memoize syntax highlighted content with debouncing for performance
     const highlightedContent = useMemo(() => {
-      if (!value || !commandRegistry) return '';
+      if (!value || !commandRegistry || value.length > 1000) return ''; // Skip highlighting for very long input
       return SyntaxHighlighter.highlight(value, commandRegistry);
     }, [value, commandRegistry]);
 
-    const highlightOverlayStyle: React.CSSProperties = useMemo(
-      () => ({
-        position: 'absolute',
+    const highlightOverlayStyle = useMemo(() => {
+      const styleKey = `highlight-overlay-${promptWidth}`;
+      return StyleObjectPool.get(styleKey, () => ({
+        position: 'absolute' as const,
         top: 0,
-        left: 0,
+        left: `${promptWidth}px`,
         right: 0,
         bottom: 0,
-        pointerEvents: 'none',
+        pointerEvents: 'none' as const,
         fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "Courier New", monospace',
         fontSize: '14px',
         lineHeight: '1.4',
@@ -210,22 +227,24 @@ export const TerminalInput: React.FC<TerminalInputProps> = memo(
         outline: 'none',
         padding: 0,
         margin: 0,
-        whiteSpace: 'pre',
-        overflow: 'hidden',
-      }),
-      []
-    );
+        whiteSpace: 'pre' as const,
+        overflowWrap: 'anywhere' as const,
+        overflow: 'hidden' as const,
+      }));
+    }, [promptWidth]);
 
     return (
       <div style={containerStyle} className="terminal-input-container">
-        <TerminalPrompt
-          currentDirectory={currentDirectory}
-          osType={osType}
-          username={username}
-          hostname={hostname}
-          theme={theme}
-          isExecuting={isExecuting}
-        />
+        <span ref={promptRef}>
+          <TerminalPrompt
+            currentDirectory={currentDirectory}
+            osType={osType}
+            username={username}
+            hostname={hostname}
+            theme={theme}
+            isExecuting={isExecuting}
+          />
+        </span>
 
         <div style={inputContainerStyle}>
           {/* Syntax highlighting overlay */}
@@ -309,7 +328,26 @@ export const TerminalInput: React.FC<TerminalInputProps> = memo(
       `}</style>
       </div>
     );
-  }
-);
+};
+
+/**
+ * Memoized terminal input with custom comparison function
+ */
+export const TerminalInput = memo(TerminalInputComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.value === nextProps.value &&
+    prevProps.cursorPosition === nextProps.cursorPosition &&
+    prevProps.isExecuting === nextProps.isExecuting &&
+    prevProps.showSuggestions === nextProps.showSuggestions &&
+    prevProps.selectedSuggestion === nextProps.selectedSuggestion &&
+    prevProps.suggestions === nextProps.suggestions &&
+    prevProps.theme === nextProps.theme &&
+    prevProps.currentDirectory === nextProps.currentDirectory &&
+    prevProps.osType === nextProps.osType &&
+    prevProps.username === nextProps.username &&
+    prevProps.hostname === nextProps.hostname &&
+    prevProps.commandRegistry === nextProps.commandRegistry
+  );
+});
 
 TerminalInput.displayName = 'TerminalInput';

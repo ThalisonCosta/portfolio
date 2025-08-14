@@ -28,6 +28,7 @@ interface TerminalAppProps {
 export const TerminalApp: React.FC<TerminalAppProps> = ({ initialOS = 'linux', showOSSwitcher = true }) => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const handleKeyDownRef = useRef<((event: KeyboardEvent) => void) | null>(null);
 
   const {
     // State
@@ -63,6 +64,9 @@ export const TerminalApp: React.FC<TerminalAppProps> = ({ initialOS = 'linux', s
     commandRegistry,
   } = useTerminal();
 
+  // Update ref with current handleKeyDown
+  handleKeyDownRef.current = handleKeyDown;
+
   /**
    * Set up global keyboard event listeners
    */
@@ -78,15 +82,15 @@ export const TerminalApp: React.FC<TerminalAppProps> = ({ initialOS = 'linux', s
       }
     };
 
-    // Global keyboard handler
+    // Global keyboard handler - use ref to get current handleKeyDown
     const handleGlobalKeyDown = (event: KeyboardEvent) => {
       // Only handle if terminal is focused or if it's a global shortcut
       const isTerminalFocused = element.contains(document.activeElement);
       const isInputFocused = document.activeElement?.classList.contains('terminal-input');
 
-      // Handle global shortcuts regardless of focus
-      if (event.ctrlKey) {
-        handleKeyDown(event);
+      // Handle global shortcuts only when input is not focused to prevent double execution
+      if (event.ctrlKey && !isInputFocused && handleKeyDownRef.current) {
+        handleKeyDownRef.current(event);
         return;
       }
 
@@ -97,8 +101,8 @@ export const TerminalApp: React.FC<TerminalAppProps> = ({ initialOS = 'linux', s
       }
 
       // Handle other keys only when terminal is focused but input is not
-      if (isTerminalFocused) {
-        handleKeyDown(event);
+      if (isTerminalFocused && handleKeyDownRef.current) {
+        handleKeyDownRef.current(event);
       }
     };
 
@@ -109,7 +113,7 @@ export const TerminalApp: React.FC<TerminalAppProps> = ({ initialOS = 'linux', s
       element.removeEventListener('click', handleClick);
       document.removeEventListener('keydown', handleGlobalKeyDown);
     };
-  }, [handleKeyDown]);
+  }, []); // Remove handleKeyDown dependency
 
   /**
    * Initialize with the specified OS type

@@ -46,11 +46,16 @@ export const TextBuffer: React.FC<TextBufferProps> = ({
     const startLine = Math.floor(scrollTop / lineHeight);
     const endLine = Math.min(
       state.buffer.length,
-      startLine + Math.ceil(viewportHeight / lineHeight) + 5 // Buffer for smooth scrolling
+      startLine + Math.ceil(viewportHeight / lineHeight) + 10 // Increased buffer for new lines
     );
     
-    return [Math.max(0, startLine - 5), endLine]; // Buffer before for smooth scrolling
-  }, [state.buffer.length]);
+    // Ensure cursor line is always included in visible range
+    const cursorLine = state.cursor.line;
+    const adjustedStartLine = Math.max(0, Math.min(startLine - 5, cursorLine - 5));
+    const adjustedEndLine = Math.max(endLine, cursorLine + 10);
+    
+    return [adjustedStartLine, Math.min(adjustedEndLine, state.buffer.length)];
+  }, [state.buffer.length, state.cursor.line]);
 
   // Update visible range after DOM changes (not during render)
   useLayoutEffect(() => {
@@ -58,36 +63,63 @@ export const TextBuffer: React.FC<TextBufferProps> = ({
     setVisibleRange(newRange);
   }, [calculateVisibleRange, state.buffer.length]);
 
-  // Handle scroll events to update visible range
+  // Immediate scroll adjustment for new lines (fixes Enter key visibility)
+  useLayoutEffect(() => {
+    const element = bufferRef.current;
+    if (!element) return;
+
+    const lineHeight = 20;
+    const cursorTop = state.cursor.line * lineHeight;
+    const viewportTop = element.scrollTop;
+    const viewportBottom = viewportTop + element.clientHeight;
+
+    // If cursor is outside viewport, scroll immediately (no delay)
+    if (cursorTop < viewportTop || cursorTop > viewportBottom - lineHeight) {
+      element.scrollTop = Math.max(0, cursorTop - element.clientHeight / 2);
+      
+      // Update visible range immediately after scroll
+      const newRange = calculateVisibleRange();
+      setVisibleRange(newRange);
+    }
+  }, [state.cursor.line, state.cursor.column, calculateVisibleRange]);
+
+  // Consolidated effect for scroll handling and memory management
   useEffect(() => {
     const element = bufferRef.current;
     if (!element) return;
 
-    const handleScroll = () => {
-      const newRange = calculateVisibleRange();
-      setVisibleRange(newRange);
-    };
-
-    // Debounce scroll updates
     let scrollTimeout: NodeJS.Timeout;
-    const debouncedHandleScroll = () => {
+    let cursorScrollTimeout: NodeJS.Timeout;
+
+    const handleScroll = () => {
       clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(handleScroll, 16); // ~60fps
+      scrollTimeout = setTimeout(() => {
+        const newRange = calculateVisibleRange();
+        setVisibleRange(newRange);
+      }, 16);
     };
 
-    element.addEventListener('scroll', debouncedHandleScroll, { passive: true });
-    
-    return () => {
-      element.removeEventListener('scroll', debouncedHandleScroll);
-      clearTimeout(scrollTimeout);
+    const handleCursorScroll = () => {
+      clearTimeout(cursorScrollTimeout);
+      // Reduced delay for better responsiveness, especially for Enter key
+      cursorScrollTimeout = setTimeout(() => {
+        const lineHeight = 20;
+        const cursorTop = state.cursor.line * lineHeight;
+        const viewportTop = element.scrollTop;
+        const viewportBottom = viewportTop + element.clientHeight;
+
+        if (cursorTop < viewportTop || cursorTop > viewportBottom - lineHeight) {
+          element.scrollTop = Math.max(0, cursorTop - element.clientHeight / 2);
+          
+          // Update visible range after programmatic scroll
+          const newRange = calculateVisibleRange();
+          setVisibleRange(newRange);
+        }
+      }, 8); // Reduced from 16ms to 8ms for more responsive cursor following
     };
-  }, [calculateVisibleRange]);
-  
-  // Clear syntax cache on large buffer changes to prevent memory leaks
-  useEffect(() => {
+
+    // Memory management for large buffers
     const bufferSize = state.buffer.reduce((total, line) => total + line.length, 0);
-    
-    // Clear cache if buffer becomes very large (>500KB)
     if (bufferSize > 500000) {
       const stats = getCacheStats();
       if (stats.syntaxCacheSize > 500) {
@@ -95,28 +127,16 @@ export const TextBuffer: React.FC<TextBufferProps> = ({
         clearCache();
       }
     }
-  }, [state.buffer, clearCache, getCacheStats]);
 
-  // Auto-scroll to cursor when it moves (debounced for performance)
-  useEffect(() => {
-    const element = bufferRef.current;
-    if (!element) return;
-
-    // Debounce scrolling to prevent excessive DOM updates
-    const timeoutId = setTimeout(() => {
-      const lineHeight = 20; // Approximate line height
-      const cursorTop = state.cursor.line * lineHeight;
-      const viewportTop = element.scrollTop;
-      const viewportBottom = viewportTop + element.clientHeight;
-
-      // Scroll if cursor is outside viewport
-      if (cursorTop < viewportTop || cursorTop > viewportBottom - lineHeight) {
-        element.scrollTop = Math.max(0, cursorTop - element.clientHeight / 2);
-      }
-    }, 16); // ~60fps debouncing
-
-    return () => clearTimeout(timeoutId);
-  }, [state.cursor]);
+    element.addEventListener('scroll', handleScroll, { passive: true });
+    handleCursorScroll(); // Handle cursor scroll immediately
+    
+    return () => {
+      element.removeEventListener('scroll', handleScroll);
+      clearTimeout(scrollTimeout);
+      clearTimeout(cursorScrollTimeout);
+    };
+  }, [calculateVisibleRange, state.cursor, state.buffer, clearCache, getCacheStats]);
 
 
   // Stabilize cursor and mode values to reduce re-renders
@@ -221,7 +241,8 @@ export const TextBuffer: React.FC<TextBufferProps> = ({
     lineHeight: '20px',
     fontFamily: 'inherit',
     fontSize: 'inherit',
-    whiteSpace: 'pre',
+    whiteSpace: 'pre-wrap',
+    overflowWrap: 'anywhere',
     position: 'relative',
   };
 

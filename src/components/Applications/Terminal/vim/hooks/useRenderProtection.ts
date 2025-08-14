@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, useState } from 'react';
 
 interface RenderProtectionOptions {
   maxRendersPerSecond?: number;
@@ -9,7 +9,7 @@ interface RenderProtectionOptions {
 
 /**
  * Hook to protect against render loops and excessive re-renders
- * Forces component unmount if render thresholds are exceeded
+ * Uses useEffect to prevent the hook itself from causing re-renders
  */
 export function useRenderProtection(options: RenderProtectionOptions = {}) {
   const {
@@ -24,6 +24,7 @@ export function useRenderProtection(options: RenderProtectionOptions = {}) {
   const lastResetRef = useRef(Date.now());
   const consecutiveRendersRef = useRef(0);
   const isThrottledRef = useRef(false);
+  const [isThreatDetected, setIsThreatDetected] = useState(false);
 
   const resetCounters = useCallback(() => {
     renderCountRef.current = 0;
@@ -31,6 +32,7 @@ export function useRenderProtection(options: RenderProtectionOptions = {}) {
     consecutiveRendersRef.current = 0;
     lastResetRef.current = Date.now();
     isThrottledRef.current = false;
+    setIsThreatDetected(false);
   }, []);
 
   const checkRenderHealth = useCallback(() => {
@@ -49,6 +51,7 @@ export function useRenderProtection(options: RenderProtectionOptions = {}) {
         onThreatDetected();
       }
       isThrottledRef.current = true;
+      setIsThreatDetected(true);
       return true; // Threat detected
     }
 
@@ -59,6 +62,7 @@ export function useRenderProtection(options: RenderProtectionOptions = {}) {
         onThreatDetected();
       }
       isThrottledRef.current = true;
+      setIsThreatDetected(true);
       return true; // Threat detected
     }
 
@@ -71,8 +75,12 @@ export function useRenderProtection(options: RenderProtectionOptions = {}) {
     return false; // No threat
   }, [maxRendersPerSecond, maxConsecutiveRenders, onThreatDetected, componentName]);
 
-  // Check render health on every render
-  const isThreatDetected = checkRenderHealth();
+  // Track renders using useEffect instead of during render
+  useEffect(() => {
+    if (!isThrottledRef.current) {
+      checkRenderHealth();
+    }
+  });
 
   // Auto-reset protection after cooldown period
   useEffect(() => {
