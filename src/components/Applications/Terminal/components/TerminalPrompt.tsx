@@ -26,6 +26,19 @@ interface TerminalPromptProps {
 export const TerminalPrompt: React.FC<TerminalPromptProps> = memo(
   ({ currentDirectory, osType, username, hostname, theme, isExecuting = false }) => {
     /**
+     * Generate the plain text prompt for accessibility and testing
+     */
+    const getPlainTextPrompt = (): string => {
+      if (osType === 'windows') {
+        const windowsPath = `C:\\${currentDirectory.replace(/\//g, '\\')}`;
+        return `${windowsPath}> `;
+      }
+      // Linux/Unix style prompt
+      const displayDir = currentDirectory === '/Desktop' ? '~' : currentDirectory;
+      return `${username}@${hostname}:${displayDir}$ `;
+    };
+
+    /**
      * Generate the prompt string based on OS type
      */
     const getPromptString = (): React.ReactNode => {
@@ -59,8 +72,10 @@ export const TerminalPrompt: React.FC<TerminalPromptProps> = memo(
     };
 
     return (
-      <span style={promptStyle} className="terminal-prompt">
+      <span style={promptStyle} className="terminal-prompt" aria-label={getPlainTextPrompt()}>
         {getPromptString()}
+        {/* Hidden text for testing - accessible to screen readers and tests */}
+        <span style={{ position: 'absolute', left: '-9999px' }}>{getPlainTextPrompt()}</span>
       </span>
     );
   }

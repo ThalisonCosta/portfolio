@@ -165,7 +165,11 @@ export class FileSystemUtils {
    */
   static getFileContent(fileSystem: FileSystemItem[], path: string): string | null {
     const item = this.findItemByPath(fileSystem, path);
-    return item?.content || null;
+    if (!item || item.type !== 'file') {
+      return null;
+    }
+    // Return empty string for files with no content, null only for missing files
+    return item.content ?? '';
   }
 
   /**

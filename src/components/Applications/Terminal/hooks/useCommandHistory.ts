@@ -1,9 +1,11 @@
 import { useState, useCallback, useEffect } from 'react';
 
+const MAX_HISTORY_SIZE = 15; // Default maximum history size
+
 /**
  * Hook for managing command history with persistent storage
  */
-export function useCommandHistory(osType: 'linux' | 'windows', maxHistorySize: number = 1000) {
+export function useCommandHistory(osType: 'linux' | 'windows', maxHistorySize: number = MAX_HISTORY_SIZE) {
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
 
@@ -50,11 +52,10 @@ export function useCommandHistory(osType: 'linux' | 'windows', maxHistorySize: n
       if (!trimmedCommand) return;
 
       setHistory((prev) => {
-        // Remove any existing instance of this command
-        const filtered = prev.filter((cmd) => cmd !== trimmedCommand);
+        // Add command to end of history (chronological order)
+        const newHistory = [...prev, trimmedCommand];
 
-        // Add to end and limit size
-        const newHistory = [...filtered, trimmedCommand];
+        // Implement FIFO: keep only the last maxHistorySize commands
         return newHistory.slice(-maxHistorySize);
       });
 
@@ -74,9 +75,30 @@ export function useCommandHistory(osType: 'linux' | 'windows', maxHistorySize: n
       let newIndex: number;
 
       if (direction === 'up') {
-        newIndex = historyIndex === -1 ? history.length - 1 : Math.max(0, historyIndex - 1);
+        // Up arrow: go backwards in history (towards older commands)
+        if (historyIndex === -1) {
+          // Start from the most recent command
+          newIndex = history.length - 1;
+        } else if (historyIndex > 0) {
+          // Move to previous command
+          newIndex = historyIndex - 1;
+        } else {
+          // Already at the oldest command, stay there
+          newIndex = 0;
+        }
       } else {
-        newIndex = historyIndex === -1 ? -1 : Math.min(history.length - 1, historyIndex + 1);
+        // Down arrow: go forwards in history (towards newer commands)
+        if (historyIndex === -1) {
+          // Already at newest position, stay there
+          return null;
+        }
+        if (historyIndex < history.length - 1) {
+          // Move to next command
+          newIndex = historyIndex + 1;
+        } else {
+          // Reached the end, go back to current input (empty)
+          newIndex = -1;
+        }
       }
 
       setHistoryIndex(newIndex);

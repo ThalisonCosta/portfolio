@@ -294,7 +294,7 @@ export const unameCommand: CommandDefinition = {
       arch: 'x86_64',
       uptime: '2 days',
       user: 'portfolio',
-      hostname: 'desktop',
+      hostname: 'thalison',
       datetime: new Date().toISOString(),
     };
 

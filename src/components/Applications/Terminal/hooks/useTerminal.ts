@@ -11,7 +11,7 @@ import { useAutocomplete } from './useAutocomplete';
  * Main terminal state management hook
  */
 export function useTerminal() {
-  const { fileSystem } = useDesktopStore();
+  const { fileSystem, createFile, createFolder, removeFileSystemItem } = useDesktopStore();
 
   const [state, setState] = useState<TerminalState>({
     output: [],
@@ -23,7 +23,7 @@ export function useTerminal() {
     isExecuting: false,
     theme: ohMyZshTheme,
     username: 'portfolio',
-    hostname: 'desktop',
+    hostname: 'thalison',
     env: {
       PATH: '/usr/local/bin:/usr/bin:/bin',
       HOME: '/Desktop',
@@ -38,6 +38,9 @@ export function useTerminal() {
   // Command registry
   const commandRegistryRef = useRef<CommandRegistry>(createCommandRegistry(state.osType));
   const commandRegistry = commandRegistryRef.current;
+
+  // Track if welcome messages have been shown to prevent duplication
+  const welcomeShown = useRef(false);
 
   // Command history hook
   const { addToHistory, navigateHistory, searchHistory, resetHistoryIndex, clearHistory } = useCommandHistory(
@@ -96,14 +99,17 @@ export function useTerminal() {
    * Update current input
    */
   const updateInput = useCallback(
-    (input: string, cursorPosition?: number) => {
+    (input: string, cursorPosition?: number, fromHistory?: boolean) => {
       setState((prev) => ({
         ...prev,
         currentInput: input,
         cursorPosition: cursorPosition ?? input.length,
       }));
 
-      resetHistoryIndex();
+      // Only reset history index if not navigating through history
+      if (!fromHistory) {
+        resetHistoryIndex();
+      }
 
       // Update autocomplete suggestions
       if (input.trim()) {
@@ -116,20 +122,46 @@ export function useTerminal() {
   );
 
   /**
+   * Generate colored prompt for output
+   */
+  const getColoredPrompt = useCallback((): string => {
+    if (state.osType === 'windows') {
+      const windowsPath = `C:\\${state.currentDirectory.replace(/\//g, '\\')}`;
+      return `<span style="color: ${state.theme.prompt}; font-weight: bold;">${windowsPath}></span> `;
+    }
+
+    // Linux/Unix style prompt with colors
+    const displayDir = state.currentDirectory === '/Desktop' ? '~' : state.currentDirectory;
+    return (
+      `<span style="color: ${state.theme.success}; font-weight: bold;">${state.username}</span>` +
+      `<span style="color: ${state.theme.foreground};">@</span>` +
+      `<span style="color: ${state.theme.directory}; font-weight: bold;">${state.hostname}</span>` +
+      `<span style="color: ${state.theme.foreground};">:</span>` +
+      `<span style="color: ${state.theme.directory}; font-weight: bold;">${displayDir}</span>` +
+      `<span style="color: ${state.theme.prompt}; font-weight: bold;">$</span> `
+    );
+  }, [state.osType, state.currentDirectory, state.username, state.hostname, state.theme]);
+
+  /**
    * Execute a command
    */
   const executeCommand = useCallback(
     async (input: string) => {
       const trimmedInput = input.trim();
-      if (!trimmedInput) return;
 
-      // Add input to output
-      const prompt =
-        state.osType === 'windows'
-          ? `C:\\${state.currentDirectory.replace(/\//g, '\\')}>`
-          : `${state.username}@${state.hostname}:${state.currentDirectory === '/Desktop' ? '~' : state.currentDirectory}$`;
+      // Add input to output with colored prompt
+      const coloredPrompt = getColoredPrompt();
+      addOutputLine(`${coloredPrompt}${input}`, 'input');
 
-      addOutputLine(`${prompt} ${trimmedInput}`, 'input');
+      // If empty command, just add a blank line and return
+      if (!trimmedInput) {
+        setState((prev) => ({
+          ...prev,
+          currentInput: '',
+          cursorPosition: 0,
+        }));
+        return;
+      }
 
       // Add to history
       addToHistory(trimmedInput);
@@ -169,6 +201,9 @@ export function useTerminal() {
           fileSystem,
           username: state.username,
           hostname: state.hostname,
+          createFile,
+          createFolder,
+          removeFileSystemItem,
         };
 
         // Execute command
@@ -222,6 +257,10 @@ export function useTerminal() {
       fileSystem,
       clearOutput,
       hideSuggestions,
+      getColoredPrompt,
+      createFile,
+      createFolder,
+      removeFileSystemItem,
     ]
   );
 
@@ -248,7 +287,7 @@ export function useTerminal() {
           } else {
             const historyCommand = navigateHistory('up');
             if (historyCommand !== null) {
-              updateInput(historyCommand);
+              updateInput(historyCommand, undefined, true); // fromHistory = true
             }
           }
           break;
@@ -263,7 +302,7 @@ export function useTerminal() {
           } else {
             const historyCommand = navigateHistory('down');
             if (historyCommand !== null) {
-              updateInput(historyCommand);
+              updateInput(historyCommand, undefined, true); // fromHistory = true
             }
           }
           break;
@@ -282,7 +321,8 @@ export function useTerminal() {
         case 'c':
           if (event.ctrlKey) {
             event.preventDefault();
-            addOutputLine(`${state.currentInput}^C`, 'input');
+            const coloredPrompt = getColoredPrompt();
+            addOutputLine(`${coloredPrompt}${state.currentInput}^C`, 'input');
             updateInput('');
             hideSuggestions();
           }
@@ -317,6 +357,7 @@ export function useTerminal() {
       hideSuggestions,
       addOutputLine,
       clearOutput,
+      getColoredPrompt,
     ]
   );
 
@@ -351,6 +392,9 @@ export function useTerminal() {
    * Initialize terminal with welcome message
    */
   useEffect(() => {
+    // Prevent welcome message duplication
+    if (welcomeShown.current) return;
+
     const welcomeMessages = [
       'Portfolio Desktop Terminal v1.0.0',
       `Running in ${state.osType === 'linux' ? 'Linux' : 'Windows'} mode`,
@@ -360,7 +404,8 @@ export function useTerminal() {
     ];
 
     welcomeMessages.forEach((msg) => addOutputLine(msg, 'info'));
-  }, []); // Only run once on mount
+    welcomeShown.current = true;
+  }, [addOutputLine, state.osType]); // Include proper dependencies
 
   return {
     // State
@@ -390,5 +435,8 @@ export function useTerminal() {
     // History
     clearHistory,
     searchHistory,
+
+    // Command registry for syntax highlighting
+    commandRegistry,
   };
 }

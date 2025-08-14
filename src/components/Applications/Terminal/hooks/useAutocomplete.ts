@@ -79,9 +79,24 @@ export function useAutocomplete(
     (input: string, cursorPosition: number) => {
       const result = generateSuggestions(input, cursorPosition);
 
+      // Get the current word being typed
+      const trimmedInput = input.trim();
+      const words = trimmedInput.split(/\s+/);
+      const currentWordIndex = Math.max(0, trimmedInput.substring(0, cursorPosition).split(/\s+/).length - 1);
+      const currentWord = words[currentWordIndex] || '';
+
+      // Hide suggestions if:
+      // 1. No completions found
+      // 2. Current word exactly matches a completion (word is complete)
+      // 3. Current word is longer than any available completion
+      const shouldHide =
+        result.completions.length === 0 ||
+        (currentWord && result.completions.includes(currentWord)) ||
+        (currentWord && result.completions.every((completion) => currentWord.length >= completion.length));
+
       setSuggestions(result.completions);
       setSelectedIndex(-1);
-      setIsVisible(result.completions.length > 0);
+      setIsVisible(!shouldHide && result.completions.length > 0);
 
       return result;
     },

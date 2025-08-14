@@ -2,6 +2,7 @@ import React, { memo, useRef, useEffect, useState, useCallback, useMemo } from '
 import type { TerminalTheme, OSType } from '../types';
 import { TerminalPrompt } from './TerminalPrompt';
 import { SyntaxHighlighter } from '../utils/colors';
+import type { CommandRegistry } from '../commands';
 
 /**
  * Props for TerminalInput component
@@ -33,6 +34,8 @@ interface TerminalInputProps {
   selectedSuggestion: number;
   /** Whether to show suggestions */
   showSuggestions: boolean;
+  /** Command registry for syntax highlighting */
+  commandRegistry?: CommandRegistry;
 }
 
 /**
@@ -53,6 +56,7 @@ export const TerminalInput: React.FC<TerminalInputProps> = memo(
     suggestions,
     selectedSuggestion,
     showSuggestions,
+    commandRegistry,
   }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const suggestionsRef = useRef<HTMLDivElement>(null);
@@ -183,6 +187,35 @@ export const TerminalInput: React.FC<TerminalInputProps> = memo(
       [selectedSuggestion, suggestions.length, theme.selection, theme.foreground, theme.comment]
     );
 
+    // Memoize syntax highlighted content
+    const highlightedContent = useMemo(() => {
+      if (!value || !commandRegistry) return '';
+      return SyntaxHighlighter.highlight(value, commandRegistry);
+    }, [value, commandRegistry]);
+
+    const highlightOverlayStyle: React.CSSProperties = useMemo(
+      () => ({
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        pointerEvents: 'none',
+        fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "Courier New", monospace',
+        fontSize: '14px',
+        lineHeight: '1.4',
+        color: 'transparent',
+        backgroundColor: 'transparent',
+        border: 'none',
+        outline: 'none',
+        padding: 0,
+        margin: 0,
+        whiteSpace: 'pre',
+        overflow: 'hidden',
+      }),
+      []
+    );
+
     return (
       <div style={containerStyle} className="terminal-input-container">
         <TerminalPrompt
@@ -195,7 +228,16 @@ export const TerminalInput: React.FC<TerminalInputProps> = memo(
         />
 
         <div style={inputContainerStyle}>
-          {/* Simplified input without overlay for better performance */}
+          {/* Syntax highlighting overlay */}
+          {highlightedContent && (
+            <div
+              style={highlightOverlayStyle}
+              dangerouslySetInnerHTML={{ __html: highlightedContent }}
+              aria-hidden="true"
+            />
+          )}
+
+          {/* Input field with transparent text to show overlay highlighting */}
           <input
             ref={inputRef}
             type="text"
@@ -204,7 +246,11 @@ export const TerminalInput: React.FC<TerminalInputProps> = memo(
             onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            style={inputStyle}
+            style={{
+              ...inputStyle,
+              color: highlightedContent ? 'transparent' : theme.foreground,
+              backgroundColor: 'transparent',
+            }}
             disabled={isExecuting}
             autoComplete="off"
             autoCorrect="off"

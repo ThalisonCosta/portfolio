@@ -2,6 +2,7 @@ import React, { memo, useEffect, useRef } from 'react';
 import type { TerminalOutputLine, TerminalTheme, OSType } from '../types';
 import { TerminalLine } from './TerminalLine';
 import { TerminalInput } from './TerminalInput';
+import type { CommandRegistry } from '../commands';
 
 /**
  * Props for TerminalOutput component
@@ -28,6 +29,8 @@ interface TerminalOutputProps {
   suggestions?: string[];
   selectedSuggestion?: number;
   showSuggestions?: boolean;
+  /** Command registry for syntax highlighting */
+  commandRegistry?: CommandRegistry;
 }
 
 /**
@@ -53,6 +56,7 @@ export const TerminalOutput: React.FC<TerminalOutputProps> = memo(
     suggestions,
     selectedSuggestion,
     showSuggestions,
+    commandRegistry,
   }) => {
     const outputRef = useRef<HTMLDivElement>(null);
     const isUserScrollingRef = useRef(false);
@@ -187,6 +191,7 @@ export const TerminalOutput: React.FC<TerminalOutputProps> = memo(
                 suggestions={suggestions || []}
                 selectedSuggestion={selectedSuggestion || -1}
                 showSuggestions={showSuggestions || false}
+                commandRegistry={commandRegistry}
               />
             </div>
           )}

@@ -141,7 +141,7 @@ export const mdCommand: CommandDefinition = {
   aliases: ['mkdir'],
   description: 'Create directories',
   usage: 'md directory',
-  execute: (args): CommandResult => {
+  execute: (args, context): CommandResult => {
     if (args.length === 0) {
       return {
         success: false,
@@ -151,10 +151,37 @@ export const mdCommand: CommandDefinition = {
       };
     }
 
+    const created: string[] = [];
+    const failed: string[] = [];
+
+    for (const dir of args) {
+      if (context.createFolder) {
+        const success = context.createFolder(context.currentDirectory, dir);
+        if (success) {
+          created.push(dir);
+        } else {
+          failed.push(dir);
+        }
+      } else {
+        failed.push(dir);
+      }
+    }
+
+    let output = '';
+    if (created.length > 0) {
+      output += created.map((dir) => `Directory created: ${dir}`).join('\n');
+    }
+
+    let error = '';
+    if (failed.length > 0) {
+      error = `A subdirectory or file ${failed.join(', ')} already exists.`;
+    }
+
     return {
-      success: true,
-      output: `Directory created: ${args[0]}`,
-      type: 'success',
+      success: created.length > 0,
+      output,
+      error: failed.length > 0 ? error : undefined,
+      type: created.length > 0 ? 'success' : 'error',
     };
   },
 };

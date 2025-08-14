@@ -146,94 +146,16 @@ export class AnsiColorizer {
  * Syntax highlighting for command input
  */
 export class SyntaxHighlighter {
-  private static readonly LINUX_COMMANDS = [
-    'ls',
-    'cd',
-    'pwd',
-    'mkdir',
-    'rmdir',
-    'rm',
-    'cp',
-    'mv',
-    'touch',
-    'cat',
-    'grep',
-    'find',
-    'sort',
-    'wc',
-    'head',
-    'tail',
-    'chmod',
-    'chown',
-    'ps',
-    'kill',
-    'top',
-    'df',
-    'du',
-    'tar',
-    'gzip',
-    'gunzip',
-    'wget',
-    'curl',
-    'ping',
-    'ssh',
-    'scp',
-    'sudo',
-    'su',
-    'man',
-    'which',
-    'whereis',
-    'whoami',
-    'id',
-    'date',
-    'uptime',
-    'uname',
-    'clear',
-    'exit',
-  ];
-
-  private static readonly WINDOWS_COMMANDS = [
-    'dir',
-    'cd',
-    'md',
-    'mkdir',
-    'rd',
-    'rmdir',
-    'del',
-    'copy',
-    'move',
-    'type',
-    'echo',
-    'cls',
-    'exit',
-    'ver',
-    'time',
-    'date',
-    'ping',
-    'ipconfig',
-    'nslookup',
-    'tracert',
-    'attrib',
-    'find',
-    'findstr',
-    'sort',
-    'more',
-    'tree',
-    'tasklist',
-    'taskkill',
-  ];
-
   /**
-   * Highlight command syntax
+   * Highlight command syntax using CommandRegistry for validation
    */
-  static highlight(input: string, osType: 'linux' | 'windows'): string {
-    const commands = osType === 'linux' ? this.LINUX_COMMANDS : this.WINDOWS_COMMANDS;
+  static highlight(input: string, commandRegistry: any): string {
     const parts = input.split(' ');
 
     if (parts.length === 0) return input;
 
     const command = parts[0];
-    const isValidCommand = commands.includes(command);
+    const isValidCommand = commandRegistry?.hasCommand(command) || false;
 
     let result = isValidCommand
       ? `<span style="color: #98c379; font-weight: bold;">${command}</span>`
@@ -248,10 +170,9 @@ export class SyntaxHighlighter {
   }
 
   /**
-   * Check if a command is valid
+   * Check if a command is valid using CommandRegistry
    */
-  static isValidCommand(command: string, osType: 'linux' | 'windows'): boolean {
-    const commands = osType === 'linux' ? this.LINUX_COMMANDS : this.WINDOWS_COMMANDS;
-    return commands.includes(command);
+  static isValidCommand(command: string, commandRegistry: any): boolean {
+    return commandRegistry?.hasCommand(command) || false;
   }
 }

@@ -180,9 +180,7 @@ describe('DesktopIcons Component', () => {
     render(<DesktopIcons />);
 
     // Test that all icons have the desktop-icon class and inline positioning
-    const icons = screen
-      .getAllByText(/About\.txt|Resume\.pdf|Projects/)
-      .map((text) => text.closest('.desktop-icon'));
+    const icons = screen.getAllByText(/About\.txt|Resume\.pdf|Projects/).map((text) => text.closest('.desktop-icon'));
 
     icons.forEach((icon) => {
       expect(icon).toHaveClass('desktop-icon');

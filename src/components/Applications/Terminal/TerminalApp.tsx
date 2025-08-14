@@ -50,8 +50,10 @@ export const TerminalApp: React.FC<TerminalAppProps> = ({ initialOS = 'linux', s
     clearOutput,
     switchOS,
     handleKeyDown,
-    getCurrentPrompt,
     clearHistory,
+
+    // Command registry for syntax highlighting
+    commandRegistry,
   } = useTerminal();
 
   /**
@@ -73,8 +75,22 @@ export const TerminalApp: React.FC<TerminalAppProps> = ({ initialOS = 'linux', s
     const handleGlobalKeyDown = (event: KeyboardEvent) => {
       // Only handle if terminal is focused or if it's a global shortcut
       const isTerminalFocused = element.contains(document.activeElement);
+      const isInputFocused = document.activeElement?.classList.contains('terminal-input');
 
-      if (isTerminalFocused || event.ctrlKey) {
+      // Handle global shortcuts regardless of focus
+      if (event.ctrlKey) {
+        handleKeyDown(event);
+        return;
+      }
+
+      // If the terminal input is focused, let it handle all key events
+      // to prevent double execution of commands
+      if (isInputFocused) {
+        return;
+      }
+
+      // Handle other keys only when terminal is focused but input is not
+      if (isTerminalFocused) {
         handleKeyDown(event);
       }
     };
@@ -129,12 +145,6 @@ export const TerminalApp: React.FC<TerminalAppProps> = ({ initialOS = 'linux', s
     color: theme.comment,
   };
 
-  const titleStyle: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-  };
-
   const switcherStyle: React.CSSProperties = {
     display: 'flex',
     gap: '8px',
@@ -152,6 +162,14 @@ export const TerminalApp: React.FC<TerminalAppProps> = ({ initialOS = 'linux', s
     fontFamily: 'inherit',
     transition: 'all 0.2s ease',
   });
+
+  const titleStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    fontSize: '11px',
+    fontWeight: 'bold',
+  };
 
   const statusStyle: React.CSSProperties = {
     display: 'flex',
@@ -171,10 +189,10 @@ export const TerminalApp: React.FC<TerminalAppProps> = ({ initialOS = 'linux', s
     >
       {/* Header with OS switcher and status */}
       <div style={headerStyle} className="terminal-header">
-        {/* <div style={titleStyle}>
+        <div style={titleStyle}>
           <span>📟</span>
           <span>Terminal</span>
-        </div> */}
+        </div>
 
         <div style={statusStyle}>
           {/* <span>{getCurrentPrompt().trim()}</span> */}
@@ -230,6 +248,7 @@ export const TerminalApp: React.FC<TerminalAppProps> = ({ initialOS = 'linux', s
         suggestions={suggestions}
         selectedSuggestion={selectedIndex}
         showSuggestions={showSuggestions}
+        commandRegistry={commandRegistry}
       />
 
       {/* Hidden commands for accessibility */}

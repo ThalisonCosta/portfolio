@@ -63,6 +63,12 @@ export interface CommandContext {
   username: string;
   /** Hostname for the prompt */
   hostname: string;
+  /** Function to create a file in the desktop store */
+  createFile?: (path: string, name: string, content?: string) => boolean;
+  /** Function to create a folder in the desktop store */
+  createFolder?: (path: string, name: string) => boolean;
+  /** Function to remove a file or folder from the desktop store */
+  removeFileSystemItem?: (path: string) => boolean;
 }
 
 /** Result of command execution */

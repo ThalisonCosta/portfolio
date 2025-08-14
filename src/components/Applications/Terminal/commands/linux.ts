@@ -154,7 +154,7 @@ export const mkdirCommand: CommandDefinition = {
   aliases: [],
   description: 'Create directories',
   usage: 'mkdir [options] directory...',
-  execute: (args, _): CommandResult => {
+  execute: (args, context): CommandResult => {
     if (args.length === 0) {
       return {
         success: false,
@@ -164,14 +164,105 @@ export const mkdirCommand: CommandDefinition = {
       };
     }
 
-    // In a real implementation, this would create directories
-    // For the portfolio, we'll simulate the command
-    const created = args.filter((arg) => !arg.startsWith('-'));
+    // Helper function to validate directory name
+    const validateDirectoryName = (name: string): string | null => {
+      if (!name || name.trim() === '') {
+        return 'Empty name not allowed';
+      }
+
+      // Check for illegal characters
+      const illegalChars = /[<>:"|?*\x00-\x1f]/;
+      if (illegalChars.test(name)) {
+        return 'Name contains illegal characters';
+      }
+
+      // Check for reserved names
+      const reservedNames = [
+        'CON',
+        'PRN',
+        'AUX',
+        'NUL',
+        'COM1',
+        'COM2',
+        'COM3',
+        'COM4',
+        'COM5',
+        'COM6',
+        'COM7',
+        'COM8',
+        'COM9',
+        'LPT1',
+        'LPT2',
+        'LPT3',
+        'LPT4',
+        'LPT5',
+        'LPT6',
+        'LPT7',
+        'LPT8',
+        'LPT9',
+      ];
+      if (reservedNames.includes(name.toUpperCase())) {
+        return 'Reserved name not allowed';
+      }
+
+      // Check for names that start or end with dots or spaces
+      if (name.startsWith('.') || name.endsWith('.') || name.startsWith(' ') || name.endsWith(' ')) {
+        return 'Name cannot start or end with dots or spaces';
+      }
+
+      return null;
+    };
+
+    const directories = args.filter((arg) => !arg.startsWith('-'));
+    const created: string[] = [];
+    const failed: string[] = [];
+
+    for (const dir of directories) {
+      // Validate directory name
+      const validationError = validateDirectoryName(dir);
+      if (validationError) {
+        failed.push(`mkdir: cannot create directory '${dir}': ${validationError}`);
+        continue;
+      }
+
+      // Resolve path to handle nested directories
+      const targetPath = FileSystemUtils.resolvePath(context.currentDirectory, dir);
+      const parentPath = FileSystemUtils.getParentDirectory(targetPath);
+      const dirName = FileSystemUtils.getFilename(targetPath);
+
+      // Check if parent directory exists
+      if (!FileSystemUtils.pathExists(context.fileSystem, parentPath)) {
+        failed.push(`mkdir: cannot create directory '${dir}': No such file or directory`);
+        continue;
+      }
+
+      if (context.createFolder) {
+        const success = context.createFolder(parentPath, dirName);
+        if (success) {
+          created.push(dir);
+        } else {
+          failed.push(`mkdir: cannot create directory '${dir}': File exists or permission denied`);
+        }
+      } else {
+        failed.push(`mkdir: cannot create directory '${dir}': Operation not supported`);
+      }
+    }
+
+    let output = '';
+    if (created.length > 0) {
+      output += `Created ${created.length} director${created.length === 1 ? 'y' : 'ies'}: ${created.join(', ')}`;
+    }
+
+    let error = '';
+    if (failed.length > 0) {
+      error = failed.join('\n');
+    }
 
     return {
-      success: true,
-      output: `Created ${created.length} director${created.length === 1 ? 'y' : 'ies'}: ${created.join(', ')}`,
-      type: 'success',
+      success: created.length > 0,
+      output,
+      error: failed.length > 0 ? error : undefined,
+      type: created.length > 0 ? 'success' : 'error',
     };
   },
 };
@@ -184,7 +275,7 @@ export const rmdirCommand: CommandDefinition = {
   aliases: [],
   description: 'Remove empty directories',
   usage: 'rmdir directory...',
-  execute: (args): CommandResult => {
+  execute: (args, context): CommandResult => {
     if (args.length === 0) {
       return {
         success: false,
@@ -194,10 +285,60 @@ export const rmdirCommand: CommandDefinition = {
       };
     }
 
+    const removed: string[] = [];
+    const failed: string[] = [];
+
+    for (const dir of args) {
+      const dirPath = FileSystemUtils.resolvePath(context.currentDirectory, dir);
+
+      // Check if directory exists
+      if (!FileSystemUtils.pathExists(context.fileSystem, dirPath)) {
+        failed.push(`rmdir: failed to remove '${dir}': No such file or directory`);
+        continue;
+      }
+
+      // Check if it's actually a directory
+      if (!FileSystemUtils.isDirectory(context.fileSystem, dirPath)) {
+        failed.push(`rmdir: failed to remove '${dir}': Not a directory`);
+        continue;
+      }
+
+      // Check if directory is empty
+      const contents = FileSystemUtils.getDirectoryContents(context.fileSystem, dirPath);
+      if (contents.length > 0) {
+        failed.push(`rmdir: failed to remove '${dir}': Directory not empty`);
+        continue;
+      }
+
+      // Actually remove the directory using the desktop store
+      if (context.removeFileSystemItem) {
+        const success = context.removeFileSystemItem(dirPath);
+        if (success) {
+          removed.push(dir);
+        } else {
+          failed.push(`rmdir: failed to remove '${dir}': Permission denied`);
+        }
+      } else {
+        failed.push(`rmdir: failed to remove '${dir}': Operation not supported`);
+      }
+    }
+
+    let output = '';
+    let error = '';
+
+    if (removed.length > 0) {
+      output = `Removed ${removed.length} director${removed.length === 1 ? 'y' : 'ies'}: ${removed.join(', ')}`;
+    }
+
+    if (failed.length > 0) {
+      error = failed.join('\n');
+    }
+
     return {
-      success: true,
-      output: `Removed ${args.length} director${args.length === 1 ? 'y' : 'ies'}: ${args.join(', ')}`,
-      type: 'success',
+      success: removed.length > 0,
+      output,
+      error: failed.length > 0 ? error : undefined,
+      type: removed.length > 0 ? 'success' : 'error',
     };
   },
 };
@@ -210,7 +351,7 @@ export const touchCommand: CommandDefinition = {
   aliases: [],
   description: 'Create empty files or update timestamps',
   usage: 'touch file...',
-  execute: (args): CommandResult => {
+  execute: (args, context): CommandResult => {
     if (args.length === 0) {
       return {
         success: false,
@@ -220,10 +361,105 @@ export const touchCommand: CommandDefinition = {
       };
     }
 
+    // Helper function to validate file name
+    const validateFileName = (name: string): string | null => {
+      if (!name || name.trim() === '') {
+        return 'Empty name not allowed';
+      }
+
+      // Check for illegal characters
+      const illegalChars = /[<>:"|?*\x00-\x1f]/;
+      if (illegalChars.test(name)) {
+        return 'Name contains illegal characters';
+      }
+
+      // Check for reserved names
+      const reservedNames = [
+        'CON',
+        'PRN',
+        'AUX',
+        'NUL',
+        'COM1',
+        'COM2',
+        'COM3',
+        'COM4',
+        'COM5',
+        'COM6',
+        'COM7',
+        'COM8',
+        'COM9',
+        'LPT1',
+        'LPT2',
+        'LPT3',
+        'LPT4',
+        'LPT5',
+        'LPT6',
+        'LPT7',
+        'LPT8',
+        'LPT9',
+      ];
+      const nameWithoutExt = name.split('.')[0];
+      if (reservedNames.includes(nameWithoutExt.toUpperCase())) {
+        return 'Reserved name not allowed';
+      }
+
+      // Check for names that start or end with spaces
+      if (name.startsWith(' ') || name.endsWith(' ')) {
+        return 'Name cannot start or end with spaces';
+      }
+
+      return null;
+    };
+
+    const created: string[] = [];
+    const failed: string[] = [];
+
+    for (const fileName of args) {
+      // Validate file name
+      const validationError = validateFileName(fileName);
+      if (validationError) {
+        failed.push(`touch: cannot create file '${fileName}': ${validationError}`);
+        continue;
+      }
+
+      // Resolve path to handle nested files
+      const targetPath = FileSystemUtils.resolvePath(context.currentDirectory, fileName);
+      const parentPath = FileSystemUtils.getParentDirectory(targetPath);
+      const actualFileName = FileSystemUtils.getFilename(targetPath);
+
+      // Check if parent directory exists
+      if (!FileSystemUtils.pathExists(context.fileSystem, parentPath)) {
+        failed.push(`touch: cannot create file '${fileName}': No such file or directory`);
+        continue;
+      }
+
+      if (context.createFile) {
+        const success = context.createFile(parentPath, actualFileName, '');
+        if (success) {
+          created.push(fileName);
+        } else {
+          failed.push(`touch: cannot create file '${fileName}': File exists or permission denied`);
+        }
+      } else {
+        failed.push(`touch: cannot create file '${fileName}': Operation not supported`);
+      }
+    }
+
+    let output = '';
+    if (created.length > 0) {
+      output += `Created/updated ${created.length} file${created.length === 1 ? '' : 's'}: ${created.join(', ')}`;
+    }
+
+    let error = '';
+    if (failed.length > 0) {
+      error = failed.join('\n');
+    }
+
     return {
-      success: true,
-      output: `Created/updated ${args.length} file${args.length === 1 ? '' : 's'}: ${args.join(', ')}`,
-      type: 'success',
+      success: created.length > 0,
+      output,
+      error: failed.length > 0 ? error : undefined,
+      type: created.length > 0 ? 'success' : 'error',
     };
   },
 };
@@ -236,7 +472,7 @@ export const rmCommand: CommandDefinition = {
   aliases: [],
   description: 'Remove files and directories',
   usage: 'rm [options] file...',
-  execute: (args): CommandResult => {
+  execute: (args, context): CommandResult => {
     if (args.length === 0) {
       return {
         success: false,
@@ -246,12 +482,73 @@ export const rmCommand: CommandDefinition = {
       };
     }
 
+    const flags = parseFlags(args);
     const files = args.filter((arg) => !arg.startsWith('-'));
+    const removed: string[] = [];
+    const failed: string[] = [];
+
+    for (const file of files) {
+      const filePath = FileSystemUtils.resolvePath(context.currentDirectory, file);
+
+      if (!FileSystemUtils.pathExists(context.fileSystem, filePath)) {
+        if (!flags.f && !flags.force) {
+          failed.push(`rm: cannot remove '${file}': No such file or directory`);
+        }
+        // With -f flag, silently ignore missing files
+        continue;
+      }
+
+      // Check if it's a directory and we don't have -r flag
+      if (FileSystemUtils.isDirectory(context.fileSystem, filePath) && !flags.r && !flags.recursive) {
+        if (!flags.f && !flags.force) {
+          failed.push(`rm: cannot remove '${file}': Is a directory`);
+        }
+        continue;
+      }
+
+      // Check if directory is not empty and we have -r but need to handle recursion
+      if (FileSystemUtils.isDirectory(context.fileSystem, filePath) && (flags.r || flags.recursive)) {
+        const contents = FileSystemUtils.getDirectoryContents(context.fileSystem, filePath);
+        if (contents.length > 0 && !flags.f && !flags.force) {
+          // For -r without -f, we still remove directories with contents
+          // This is the expected Unix behavior
+        }
+      }
+
+      // Actually remove the file/directory using the desktop store
+      if (context.removeFileSystemItem) {
+        const success = context.removeFileSystemItem(filePath);
+        if (success) {
+          removed.push(file);
+        } else {
+          if (!flags.f && !flags.force) {
+            failed.push(`rm: cannot remove '${file}': Permission denied`);
+          }
+          // With -f flag, silently ignore permission errors
+        }
+      } else {
+        if (!flags.f && !flags.force) {
+          failed.push(`rm: cannot remove '${file}': Operation not supported`);
+        }
+      }
+    }
+
+    let output = '';
+    let error = '';
+
+    if (removed.length > 0) {
+      output = `Removed ${removed.length} item${removed.length === 1 ? '' : 's'}: ${removed.join(', ')}`;
+    }
+
+    if (failed.length > 0) {
+      error = failed.join('\n');
+    }
 
     return {
-      success: true,
-      output: `Removed ${files.length} item${files.length === 1 ? '' : 's'}: ${files.join(', ')}`,
-      type: 'success',
+      success: removed.length > 0,
+      output,
+      error: failed.length > 0 ? error : undefined,
+      type: removed.length > 0 ? 'success' : 'error',
     };
   },
 };
@@ -264,7 +561,7 @@ export const cpCommand: CommandDefinition = {
   aliases: [],
   description: 'Copy files or directories',
   usage: 'cp [options] source destination',
-  execute: (args): CommandResult => {
+  execute: (args, context): CommandResult => {
     if (args.length < 2) {
       return {
         success: false,
@@ -277,10 +574,95 @@ export const cpCommand: CommandDefinition = {
     const source = args[args.length - 2];
     const dest = args[args.length - 1];
 
+    const sourcePath = FileSystemUtils.resolvePath(context.currentDirectory, source);
+
+    // Check if source exists
+    if (!FileSystemUtils.pathExists(context.fileSystem, sourcePath)) {
+      return {
+        success: false,
+        output: '',
+        error: `cp: cannot stat '${source}': No such file or directory`,
+        type: 'error',
+      };
+    }
+
+    // Check if source is a directory (basic cp doesn't handle directories without -r)
+    if (FileSystemUtils.isDirectory(context.fileSystem, sourcePath)) {
+      return {
+        success: false,
+        output: '',
+        error: `cp: -r not specified; omitting directory '${source}'`,
+        type: 'error',
+      };
+    }
+
+    // Get source file content
+    const content = FileSystemUtils.getFileContent(context.fileSystem, sourcePath);
+    if (content === null) {
+      return {
+        success: false,
+        output: '',
+        error: `cp: cannot open '${source}' for reading: Permission denied`,
+        type: 'error',
+      };
+    }
+
+    // Determine destination path and filename
+    let destPath: string;
+    let destName: string;
+
+    if (dest.includes('/') || dest === '.') {
+      // Destination is a path
+      destPath = FileSystemUtils.resolvePath(context.currentDirectory, dest);
+
+      // If destination is a directory, use source filename
+      if (
+        FileSystemUtils.pathExists(context.fileSystem, destPath) &&
+        FileSystemUtils.isDirectory(context.fileSystem, destPath)
+      ) {
+        destName = FileSystemUtils.getFilename(sourcePath);
+      } else {
+        destName = FileSystemUtils.getFilename(destPath);
+        destPath = FileSystemUtils.getParentDirectory(destPath);
+      }
+    } else {
+      // Destination is just a filename in current directory
+      destPath = context.currentDirectory;
+      destName = dest;
+    }
+
+    // Check if destination parent directory exists
+    if (!FileSystemUtils.pathExists(context.fileSystem, destPath)) {
+      return {
+        success: false,
+        output: '',
+        error: `cp: cannot create regular file '${dest}': No such file or directory`,
+        type: 'error',
+      };
+    }
+
+    // Create the copied file
+    if (context.createFile) {
+      const success = context.createFile(destPath, destName, content);
+      if (success) {
+        return {
+          success: true,
+          output: `Copied '${source}' to '${dest}'`,
+          type: 'success',
+        };
+      }
+      return {
+        success: false,
+        output: '',
+        error: `cp: cannot create regular file '${dest}': File exists or permission denied`,
+        type: 'error',
+      };
+    }
     return {
-      success: true,
-      output: `Copied '${source}' to '${dest}'`,
-      type: 'success',
+      success: false,
+      output: '',
+      error: 'cp: Operation not supported',
+      type: 'error',
     };
   },
 };
@@ -293,7 +675,7 @@ export const mvCommand: CommandDefinition = {
   aliases: [],
   description: 'Move/rename files or directories',
   usage: 'mv source destination',
-  execute: (args): CommandResult => {
+  execute: (args, context): CommandResult => {
     if (args.length < 2) {
       return {
         success: false,
@@ -305,6 +687,115 @@ export const mvCommand: CommandDefinition = {
 
     const source = args[0];
     const dest = args[1];
+
+    const sourcePath = FileSystemUtils.resolvePath(context.currentDirectory, source);
+
+    // Check if source exists
+    if (!FileSystemUtils.pathExists(context.fileSystem, sourcePath)) {
+      return {
+        success: false,
+        output: '',
+        error: `mv: cannot stat '${source}': No such file or directory`,
+        type: 'error',
+      };
+    }
+
+    // Get source file content (only for files, not directories)
+    let content = '';
+    const isSourceDir = FileSystemUtils.isDirectory(context.fileSystem, sourcePath);
+
+    if (!isSourceDir) {
+      const fileContent = FileSystemUtils.getFileContent(context.fileSystem, sourcePath);
+      if (fileContent === null) {
+        return {
+          success: false,
+          output: '',
+          error: `mv: cannot open '${source}' for reading: Permission denied`,
+          type: 'error',
+        };
+      }
+      content = fileContent;
+    }
+
+    // Determine destination path and filename
+    let destPath: string;
+    let destName: string;
+
+    if (dest.includes('/') || dest === '.') {
+      // Destination is a path
+      destPath = FileSystemUtils.resolvePath(context.currentDirectory, dest);
+
+      // If destination is a directory, use source filename
+      if (
+        FileSystemUtils.pathExists(context.fileSystem, destPath) &&
+        FileSystemUtils.isDirectory(context.fileSystem, destPath)
+      ) {
+        destName = FileSystemUtils.getFilename(sourcePath);
+      } else {
+        destName = FileSystemUtils.getFilename(destPath);
+        destPath = FileSystemUtils.getParentDirectory(destPath);
+      }
+    } else {
+      // Destination is just a filename in current directory
+      destPath = context.currentDirectory;
+      destName = dest;
+    }
+
+    // Check if destination parent directory exists
+    if (!FileSystemUtils.pathExists(context.fileSystem, destPath)) {
+      return {
+        success: false,
+        output: '',
+        error: `mv: cannot move '${source}' to '${dest}': No such file or directory`,
+        type: 'error',
+      };
+    }
+
+    // For move operation: first create the file/folder at destination, then remove source
+    let createSuccess = false;
+
+    if (isSourceDir) {
+      // Moving a directory
+      if (context.createFolder) {
+        createSuccess = context.createFolder(destPath, destName);
+      }
+    } else {
+      // Moving a file
+      if (context.createFile) {
+        createSuccess = context.createFile(destPath, destName, content);
+      }
+    }
+
+    if (!createSuccess) {
+      return {
+        success: false,
+        output: '',
+        error: `mv: cannot create '${dest}': File exists or permission denied`,
+        type: 'error',
+      };
+    }
+
+    // Remove the source file/directory
+    if (context.removeFileSystemItem) {
+      const removeSuccess = context.removeFileSystemItem(sourcePath);
+      if (!removeSuccess) {
+        // If we can't remove source, we should probably remove the destination we just created
+        // But for simplicity, we'll just report the error
+        return {
+          success: false,
+          output: '',
+          error: `mv: cannot remove '${source}': Permission denied`,
+          type: 'error',
+        };
+      }
+    } else {
+      return {
+        success: false,
+        output: '',
+        error: 'mv: Operation not supported',
+        type: 'error',
+      };
+    }
 
     return {
       success: true,

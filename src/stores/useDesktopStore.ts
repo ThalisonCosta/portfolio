@@ -117,6 +117,12 @@ interface DesktopActions {
   toggleStartMenu: () => void;
   /** Closes the start menu */
   closeStartMenu: () => void;
+  /** Creates a new file in the file system */
+  createFile: (path: string, name: string, content?: string) => boolean;
+  /** Creates a new folder in the file system */
+  createFolder: (path: string, name: string) => boolean;
+  /** Removes a file or folder from the file system */
+  removeFileSystemItem: (path: string) => boolean;
 }
 
 const defaultFileSystem: FileSystemItem[] = [
@@ -384,6 +390,226 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
 
       closeStartMenu: () => {
         set({ isStartMenuOpen: false });
+      },
+
+      createFile: (path, name, content = '') => {
+        // Normalize path by removing trailing slashes
+        const normalizedPath = path.replace(/\/+$/, '') || '/';
+
+        // Helper function to find next available desktop position
+        const findNextDesktopPosition = (existingItems: FileSystemItem[]): { x: number; y: number } => {
+          const ICON_SIZE = 80;
+          const MARGIN = 20;
+          const START_X = 100;
+          const START_Y = 100;
+          const MAX_COLUMNS = 8;
+
+          const usedPositions = existingItems.filter((item) => item.position).map((item) => item.position!);
+
+          for (let row = 0; row < 10; row++) {
+            for (let col = 0; col < MAX_COLUMNS; col++) {
+              const x = START_X + col * (ICON_SIZE + MARGIN);
+              const y = START_Y + row * (ICON_SIZE + MARGIN);
+
+              const isOccupied = usedPositions.some(
+                (pos) => Math.abs(pos.x - x) < ICON_SIZE && Math.abs(pos.y - y) < ICON_SIZE
+              );
+
+              if (!isOccupied) {
+                return { x, y };
+              }
+            }
+          }
+
+          return { x: START_X, y: START_Y };
+        };
+
+        // Helper function to get file icon based on extension
+        const getFileIcon = (fileName: string): string => {
+          const ext = fileName.split('.').pop()?.toLowerCase();
+          switch (ext) {
+            case 'txt':
+              return 'text';
+            case 'pdf':
+              return 'pdf';
+            case 'md':
+              return 'markdown';
+            case 'js':
+            case 'ts':
+              return 'code';
+            case 'html':
+            case 'css':
+              return 'web';
+            case 'png':
+            case 'jpg':
+            case 'jpeg':
+            case 'gif':
+              return 'image';
+            default:
+              return 'file';
+          }
+        };
+
+        // Helper function to find folder recursively by path
+        const findFolderByPath = (items: FileSystemItem[], targetPath: string): FileSystemItem | null => {
+          for (const item of items) {
+            if (item.path === targetPath && item.type === 'folder') {
+              return item;
+            }
+            if (item.children && targetPath.startsWith(`${item.path}/`)) {
+              const found = findFolderByPath(item.children, targetPath);
+              if (found) return found;
+            }
+          }
+          return null;
+        };
+
+        // Helper function to update file system recursively
+        const updateFileSystemRecursively = (items: FileSystemItem[], targetPath: string): FileSystemItem[] =>
+          items.map((item) => {
+            if (item.path === targetPath && item.type === 'folder') {
+              // Check if file already exists
+              const fileExists = item.children?.some((child) => child.name === name);
+              if (fileExists) {
+                return item;
+              }
+
+              const newFile: FileSystemItem = {
+                id: `file-${Date.now()}-${Math.random()}`,
+                name,
+                type: 'file',
+                path: `${targetPath}/${name}`,
+                icon: getFileIcon(name),
+                content,
+                position: targetPath === '/Desktop' ? findNextDesktopPosition(item.children || []) : undefined,
+              };
+
+              success = true;
+              return {
+                ...item,
+                children: [...(item.children || []), newFile],
+              };
+            }
+
+            if (item.children && targetPath.startsWith(`${item.path}/`)) {
+              return {
+                ...item,
+                children: updateFileSystemRecursively(item.children, targetPath),
+              };
+            }
+
+            return item;
+          });
+
+        let success = false;
+
+        set((state) => ({
+          fileSystem: updateFileSystemRecursively(state.fileSystem, normalizedPath),
+        }));
+
+        return success;
+      },
+
+      createFolder: (path, name) => {
+        // Normalize path by removing trailing slashes
+        const normalizedPath = path.replace(/\/+$/, '') || '/';
+
+        // Helper function to find next available desktop position
+        const findNextDesktopPosition = (existingItems: FileSystemItem[]): { x: number; y: number } => {
+          const ICON_SIZE = 80;
+          const MARGIN = 20;
+          const START_X = 100;
+          const START_Y = 100;
+          const MAX_COLUMNS = 8;
+
+          const usedPositions = existingItems.filter((item) => item.position).map((item) => item.position!);
+
+          for (let row = 0; row < 10; row++) {
+            for (let col = 0; col < MAX_COLUMNS; col++) {
+              const x = START_X + col * (ICON_SIZE + MARGIN);
+              const y = START_Y + row * (ICON_SIZE + MARGIN);
+
+              const isOccupied = usedPositions.some(
+                (pos) => Math.abs(pos.x - x) < ICON_SIZE && Math.abs(pos.y - y) < ICON_SIZE
+              );
+
+              if (!isOccupied) {
+                return { x, y };
+              }
+            }
+          }
+
+          return { x: START_X, y: START_Y };
+        };
+
+        // Helper function to update file system recursively
+        const updateFileSystemRecursively = (items: FileSystemItem[], targetPath: string): FileSystemItem[] =>
+          items.map((item) => {
+            if (item.path === targetPath && item.type === 'folder') {
+              // Check if folder already exists
+              const folderExists = item.children?.some((child) => child.name === name);
+              if (folderExists) {
+                return item;
+              }
+
+              const newFolder: FileSystemItem = {
+                id: `folder-${Date.now()}-${Math.random()}`,
+                name,
+                type: 'folder',
+                path: `${targetPath}/${name}`,
+                icon: 'folder',
+                children: [],
+                position: targetPath === '/Desktop' ? findNextDesktopPosition(item.children || []) : undefined,
+              };
+
+              success = true;
+              return {
+                ...item,
+                children: [...(item.children || []), newFolder],
+              };
+            }
+
+            if (item.children && targetPath.startsWith(`${item.path}/`)) {
+              return {
+                ...item,
+                children: updateFileSystemRecursively(item.children, targetPath),
+              };
+            }
+
+            return item;
+          });
+
+        let success = false;
+
+        set((state) => ({
+          fileSystem: updateFileSystemRecursively(state.fileSystem, normalizedPath),
+        }));
+
+        return success;
+      },
+
+      removeFileSystemItem: (path) => {
+        let success = false;
+
+        set((state) => {
+          const removeFromFolder = (items: FileSystemItem[]): FileSystemItem[] =>
+            items.filter((item) => {
+              if (item.path === path) {
+                success = true;
+                return false;
+              }
+              if (item.children) {
+                item.children = removeFromFolder(item.children);
+              }
+              return true;
+            });
+
+          return {
+            fileSystem: removeFromFolder(state.fileSystem),
+          };
+        });
+
+        return success;
       },
     }),
     {

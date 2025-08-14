@@ -82,8 +82,15 @@ export const TerminalLine: React.FC<TerminalLineProps> = memo(({ line, theme, is
     }
   };
 
-  // Convert ANSI color codes to HTML if present
-  const processedContent = line.content.includes('\x1b[') ? AnsiColorizer.ansiToHtml(line.content) : line.content;
+  /**
+   * Check if content contains HTML tags or ANSI codes that need to be rendered
+   */
+  const hasHtmlContent = line.content.includes('<span') || line.content.includes('</span>');
+  const hasAnsiCodes = line.content.includes('\x1b[');
+  const needsHtmlRendering = hasHtmlContent || hasAnsiCodes;
+
+  // Convert ANSI color codes to HTML if present, otherwise use content as-is
+  const processedContent = hasAnsiCodes ? AnsiColorizer.ansiToHtml(line.content) : line.content;
 
   return (
     <div
@@ -101,11 +108,7 @@ export const TerminalLine: React.FC<TerminalLineProps> = memo(({ line, theme, is
           : undefined
       }
     >
-      {line.content.includes('\x1b[') ? (
-        <span dangerouslySetInnerHTML={{ __html: processedContent }} />
-      ) : (
-        processedContent
-      )}
+      {needsHtmlRendering ? <span dangerouslySetInnerHTML={{ __html: processedContent }} /> : processedContent}
     </div>
   );
 });
