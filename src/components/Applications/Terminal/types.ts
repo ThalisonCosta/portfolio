@@ -86,7 +86,12 @@ export interface CommandResult {
   /** Exit the terminal (for exit command) */
   exit?: boolean;
   /** Type of output for styling */
-  type?: 'output' | 'error' | 'success' | 'warning' | 'info';
+  type?: 'output' | 'error' | 'success' | 'warning' | 'info' | 'vim';
+  /** Vim-specific data when entering vim mode */
+  vimData?: {
+    filename?: string;
+    currentDirectory: string;
+  };
 }
 
 /** Command definition */
@@ -137,6 +142,13 @@ export interface TerminalState {
   selectedSuggestion: number;
   /** Cursor position in input */
   cursorPosition: number;
+  /** Whether vim mode is active */
+  isVimMode?: boolean;
+  /** Vim editor data when in vim mode */
+  vimData?: {
+    filename?: string;
+    currentDirectory: string;
+  };
 }
 
 /** Autocomplete result */

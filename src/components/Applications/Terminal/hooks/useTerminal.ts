@@ -209,11 +209,24 @@ export function useTerminal() {
         // Execute command
         const result: CommandResult = await command.execute(parsed.args, context);
 
+        // Handle vim mode entry
+        if ((result as any).type === 'vim' && (result as any).vimData) {
+          setState((prev) => ({
+            ...prev,
+            isVimMode: true,
+            vimData: (result as any).vimData,
+            isExecuting: false,
+            currentInput: '',
+            cursorPosition: 0,
+          }));
+          return;
+        }
+
         // Handle result
         if (result.clear) {
           clearOutput();
         } else if (result.output) {
-          addOutputLine(result.output, result.type || 'output');
+          addOutputLine(result.output, (result.type === 'vim' ? 'output' : result.type) || 'output');
         }
 
         if (result.error) {
@@ -383,6 +396,17 @@ export function useTerminal() {
   );
 
   /**
+   * Exit vim mode and return to terminal
+   */
+  const exitVimMode = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      isVimMode: false,
+      vimData: undefined,
+    }));
+  }, []);
+
+  /**
    * Get current prompt string
    */
   const getCurrentPrompt = useCallback(() => {
@@ -423,6 +447,8 @@ export function useTerminal() {
     username: state.username,
     hostname: state.hostname,
     cursorPosition: state.cursorPosition,
+    isVimMode: state.isVimMode,
+    vimData: state.vimData,
 
     // Autocomplete
     suggestions,
@@ -436,6 +462,7 @@ export function useTerminal() {
     switchOS,
     handleKeyDown,
     getCurrentPrompt,
+    exitVimMode,
 
     // History
     clearHistory,
@@ -443,5 +470,11 @@ export function useTerminal() {
 
     // Command registry for syntax highlighting
     commandRegistry,
+
+    // File system operations for vim
+    fileSystem,
+    createFile,
+    createFolder,
+    removeFileSystemItem,
   };
 }

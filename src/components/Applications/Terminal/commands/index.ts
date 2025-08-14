@@ -14,6 +14,7 @@ import {
   uptimeCommand,
   unameCommand,
 } from './shared';
+import { vimCommand } from '../vim/vimCommand';
 
 /**
  * Command Registry - Central management of all terminal commands
@@ -49,7 +50,7 @@ export class CommandRegistry {
       osType === 'linux' ? [...linuxCommands, curlCommand, psCommand, uptimeCommand, unameCommand] : windowsCommands;
 
     // Register all commands
-    [...sharedCommands, ...osCommands].forEach((cmd) => {
+    [...sharedCommands, ...osCommands, vimCommand].forEach((cmd) => {
       this.commands.set(cmd.name, cmd);
 
       // Register aliases
@@ -184,4 +185,5 @@ export {
   psCommand,
   uptimeCommand,
   unameCommand,
+  vimCommand,
 };
