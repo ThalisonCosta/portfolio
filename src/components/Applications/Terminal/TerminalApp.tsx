@@ -108,8 +108,10 @@ export const TerminalApp: React.FC<TerminalAppProps> = ({ initialOS = 'linux', s
    * Initialize with the specified OS type
    */
   useEffect(() => {
-    if (!isInitialized && initialOS !== osType) {
-      switchOS(initialOS);
+    if (!isInitialized) {
+      if (initialOS !== osType) {
+        switchOS(initialOS);
+      }
       setIsInitialized(true);
     }
   }, [initialOS, osType, switchOS, isInitialized]);
@@ -151,16 +153,17 @@ export const TerminalApp: React.FC<TerminalAppProps> = ({ initialOS = 'linux', s
     alignItems: 'center',
   };
 
-  const buttonStyle = (active: boolean): React.CSSProperties => ({
+  const buttonStyle = (active: boolean, disabled: boolean = false): React.CSSProperties => ({
     padding: '4px 8px',
     border: 'none',
     backgroundColor: active ? theme.foreground : 'transparent',
     color: active ? theme.background : theme.comment,
     fontSize: '11px',
     borderRadius: '3px',
-    cursor: 'pointer',
+    cursor: disabled ? 'not-allowed' : 'pointer',
     fontFamily: 'inherit',
     transition: 'all 0.2s ease',
+    opacity: disabled && !active ? 0.5 : 1,
   });
 
   const titleStyle: React.CSSProperties = {
@@ -210,18 +213,18 @@ export const TerminalApp: React.FC<TerminalAppProps> = ({ initialOS = 'linux', s
           <div style={switcherStyle}>
             <span style={{ fontSize: '11px', color: theme.comment }}>OS:</span>
             <button
-              style={buttonStyle(osType === 'linux')}
+              style={buttonStyle(osType === 'linux', isExecuting || osType === 'linux')}
               onClick={() => handleOSSwitch('linux')}
-              disabled={isExecuting}
-              title="Switch to Linux mode"
+              disabled={isExecuting || osType === 'linux'}
+              title={osType === 'linux' ? 'Already in Linux mode' : 'Switch to Linux mode'}
             >
               Linux
             </button>
             <button
-              style={buttonStyle(osType === 'windows')}
+              style={buttonStyle(osType === 'windows', isExecuting || osType === 'windows')}
               onClick={() => handleOSSwitch('windows')}
-              disabled={isExecuting}
-              title="Switch to Windows mode"
+              disabled={isExecuting || osType === 'windows'}
+              title={osType === 'windows' ? 'Already in Windows mode' : 'Switch to Windows mode'}
             >
               Windows
             </button>

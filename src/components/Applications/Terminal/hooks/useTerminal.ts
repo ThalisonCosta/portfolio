@@ -365,16 +365,21 @@ export function useTerminal() {
    * Switch operating system
    */
   const switchOS = useCallback(
-    (osType: OSType) => {
+    (newOSType: OSType) => {
+      // Prevent unnecessary switching if already in the same OS
+      if (state.osType === newOSType) {
+        return;
+      }
+
       setState((prev) => ({
         ...prev,
-        osType,
-        theme: osType === 'linux' ? ohMyZshTheme : windowsTheme,
+        osType: newOSType,
+        theme: newOSType === 'linux' ? ohMyZshTheme : windowsTheme,
       }));
-      commandRegistry.switchOS(osType);
-      addOutputLine(`Switched to ${osType === 'linux' ? 'Linux' : 'Windows'} mode`, 'info');
+      commandRegistry.switchOS(newOSType);
+      addOutputLine(`Switched to ${newOSType === 'linux' ? 'Linux' : 'Windows'} mode`, 'info');
     },
-    [commandRegistry, addOutputLine]
+    [state.osType, commandRegistry, addOutputLine]
   );
 
   /**
