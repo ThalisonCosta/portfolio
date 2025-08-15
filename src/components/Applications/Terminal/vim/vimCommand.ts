@@ -43,7 +43,7 @@ export const vimCommand: CommandDefinition = {
     if (args.length <= 1) {
       try {
         // Get files from the current directory
-        const files = context.fileSystem?.children || [];
+        const files = context.fileSystem || [];
         return files
           .filter((item: any) => !item.isFolder && item.name.startsWith(partial))
           .map((item: any) => item.name)

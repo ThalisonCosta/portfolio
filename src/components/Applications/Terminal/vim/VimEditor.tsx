@@ -1,12 +1,10 @@
-import React, { useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { StatusBar } from './components/StatusBar';
 import { TextBuffer } from './components/TextBuffer';
 import { LineNumbers } from './components/LineNumbers';
 import { VimErrorBoundary } from './components/VimErrorBoundary';
 import { useVimState } from './hooks/useVimState';
 import { useVimKeyHandler } from './hooks/useVimKeyHandler';
-import { useMemoryMonitor } from './hooks/useMemoryMonitor';
-import { useRenderProtection } from './hooks/useRenderProtection';
 import type { VimEditorContext } from './types';
 import type { TerminalTheme } from '../types';
 
@@ -111,30 +109,13 @@ export const VimEditor: React.FC<VimEditorProps> = ({
     ]
   );
 
-  // Stable callback for memory warnings (prevent memory monitor restart)
-  const onMemoryWarning = useCallback(
-    (stats: any) => {
-      console.warn('Vim Editor: Memory usage warning', stats);
-      setMessage('High memory usage detected', 'warning');
-    },
-    [setMessage]
-  );
-
-  const onMemoryCritical = useCallback(
-    (stats: any) => {
-      console.error('Vim Editor: Critical memory usage', stats);
-      setMessage('Critical memory usage - performance may be affected', 'error');
-    },
-    [setMessage]
-  );
-
   // Simplified memory monitoring - disable for now to prevent crashes
   const forceGarbageCollection = () => {
     if (window.gc && typeof window.gc === 'function') {
       window.gc();
     }
   };
-  
+
   const getCurrentMemoryUsage = () => ({
     used: 0,
     total: 0,

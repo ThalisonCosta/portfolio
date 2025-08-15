@@ -471,20 +471,6 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
           }
         };
 
-        // Helper function to find folder recursively by path
-        const _findFolderByPath = (items: FileSystemItem[], targetPath: string): FileSystemItem | null => {
-          for (const item of items) {
-            if (item.path === targetPath && item.type === 'folder') {
-              return item;
-            }
-            if (item.children && targetPath.startsWith(`${item.path}/`)) {
-              const found = findFolderByPath(item.children, targetPath);
-              if (found) return found;
-            }
-          }
-          return null;
-        };
-
         // Helper function to update file system recursively
         const updateFileSystemRecursively = (items: FileSystemItem[], targetPath: string): FileSystemItem[] =>
           items.map((item) => {

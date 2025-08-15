@@ -34,7 +34,6 @@ const TestComponent: React.FC = () => {
         label: 'Delete',
         icon: '🗑️',
         onClick: () => console.log('Delete clicked'),
-        destructive: true,
       },
     ];
 

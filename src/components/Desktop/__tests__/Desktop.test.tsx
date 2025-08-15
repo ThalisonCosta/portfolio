@@ -260,7 +260,7 @@ describe('Desktop Component', () => {
   test('only clears selection when clicking desktop directly', () => {
     const { container } = render(<Desktop />, { wrapper: TestWrapper });
     const desktopElement = container.querySelector('.desktop');
-    
+
     // Create a mock child element
     const childElement = document.createElement('div');
     desktopElement!.appendChild(childElement);
@@ -283,7 +283,7 @@ describe('Desktop Dialogs', () => {
   });
 
   test('shows new folder dialog when context menu item clicked', () => {
-    const { container, queryByText } = render(<Desktop />, { wrapper: TestWrapper });
+    const { container } = render(<Desktop />, { wrapper: TestWrapper });
     const desktopElement = container.querySelector('.desktop');
 
     // Right-click to show context menu
@@ -311,25 +311,25 @@ describe('Desktop Dialogs', () => {
 
   test('creates folder with valid name', async () => {
     mockCreateFolder.mockReturnValue(true);
-    
+
     const { container } = render(<Desktop />, { wrapper: TestWrapper });
-    
+
     // The dialog functionality is tested indirectly through the component's behavior
     expect(container.querySelector('.desktop')).toBeInTheDocument();
   });
 
   test('creates file with valid name', async () => {
     mockCreateFile.mockReturnValue(true);
-    
+
     const { container } = render(<Desktop />, { wrapper: TestWrapper });
-    
+
     // The dialog functionality is tested indirectly through the component's behavior
     expect(container.querySelector('.desktop')).toBeInTheDocument();
   });
 
   test('handles paste operation', () => {
     mockHasClipboardItems.mockReturnValue(true);
-    
+
     const { container } = render(<Desktop />, { wrapper: TestWrapper });
     const desktopElement = container.querySelector('.desktop');
 
@@ -351,7 +351,7 @@ describe('Desktop Dialogs', () => {
       },
       writable: true,
     });
-    
+
     const { container } = render(<Desktop />, { wrapper: TestWrapper });
     const desktopElement = container.querySelector('.desktop');
 

@@ -59,7 +59,7 @@ describe('FileSystemUtils', () => {
     it('should convert folder to terminal item', () => {
       const folder = mockFileSystem[0];
       const result = FileSystemUtils.convertToTerminalItem(folder);
-      
+
       expect(result).toEqual({
         name: 'Documents',
         isDirectory: true,
@@ -73,7 +73,7 @@ describe('FileSystemUtils', () => {
     it('should convert file to terminal item', () => {
       const file = mockFileSystem[0].children![0];
       const result = FileSystemUtils.convertToTerminalItem(file);
-      
+
       expect(result).toEqual({
         name: 'file.txt',
         isDirectory: false,

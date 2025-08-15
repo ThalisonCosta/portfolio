@@ -185,7 +185,7 @@ function getLanguage(filename?: string): string {
 /**
  * Helper function to create token from pool
  */
-function createToken(start: number, end: number, type: string): SyntaxToken {
+function createToken(start: number, end: number, type: SyntaxToken['type']): SyntaxToken {
   const token = syntaxTokenPool.acquire();
   token.start = start;
   token.end = end;

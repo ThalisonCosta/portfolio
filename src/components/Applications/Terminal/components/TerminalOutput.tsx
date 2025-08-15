@@ -175,28 +175,25 @@ const TerminalOutputComponent: React.FC<TerminalOutputProps> = ({
     []
   );
 
-  const scrollbarStyle = useMemo(() => {
-    const styleKey = `scrollbar-${theme.background}-${theme.comment}-${theme.foreground}`;
-    return StyleObjectPool.get(
-      styleKey,
-      () => `
-      .terminal-output::-webkit-scrollbar {
-        width: 8px;
-      }
-      .terminal-output::-webkit-scrollbar-track {
-        background: ${theme.background};
-      }
-      .terminal-output::-webkit-scrollbar-thumb {
-        background-color: ${theme.comment};
-        border-radius: 4px;
-        border: 2px solid ${theme.background};
-      }
-      .terminal-output::-webkit-scrollbar-thumb:hover {
-        background-color: ${theme.foreground};
-      }
-    `
-    );
-  }, [theme.background, theme.comment, theme.foreground]);
+  const scrollbarStyle = useMemo(
+    () => `
+    .terminal-output::-webkit-scrollbar {
+      width: 8px;
+    }
+    .terminal-output::-webkit-scrollbar-track {
+      background: ${theme.background};
+    }
+    .terminal-output::-webkit-scrollbar-thumb {
+      background-color: ${theme.comment};
+      border-radius: 4px;
+      border: 2px solid ${theme.background};
+    }
+    .terminal-output::-webkit-scrollbar-thumb:hover {
+      background-color: ${theme.foreground};
+    }
+  `,
+    [theme.background, theme.comment, theme.foreground]
+  );
 
   const hasInputProps = useMemo(
     () =>

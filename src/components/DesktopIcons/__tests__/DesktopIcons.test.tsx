@@ -307,7 +307,7 @@ describe('DesktopIcons Component', () => {
     render(<DesktopIcons />, { wrapper: TestWrapper });
 
     const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
-    
+
     if (textFileIcon) {
       // Test drag start - just verify the event handlers are attached without errors
       fireEvent.dragStart(textFileIcon, {
@@ -319,7 +319,7 @@ describe('DesktopIcons Component', () => {
 
       // Test drag end - verify it doesn't cause errors
       fireEvent.dragEnd(textFileIcon);
-      
+
       // Verify the component handles drag events without errors
       expect(textFileIcon).toBeInTheDocument();
     }
@@ -327,7 +327,7 @@ describe('DesktopIcons Component', () => {
 
   test('shows rename dialog and handles rename', () => {
     render(<DesktopIcons />, { wrapper: TestWrapper });
-    
+
     // This tests the rename dialog functionality indirectly
     // The actual dialog interaction would require more complex setup
     const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
@@ -336,7 +336,7 @@ describe('DesktopIcons Component', () => {
 
   test('shows delete dialog and handles deletion', () => {
     render(<DesktopIcons />, { wrapper: TestWrapper });
-    
+
     // This tests the delete dialog functionality indirectly
     const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
     expect(textFileIcon).toBeInTheDocument();
@@ -344,7 +344,7 @@ describe('DesktopIcons Component', () => {
 
   test('handles copy operation', () => {
     render(<DesktopIcons />, { wrapper: TestWrapper });
-    
+
     // Test context menu integration for copy operation
     const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
     if (textFileIcon) {
@@ -356,7 +356,7 @@ describe('DesktopIcons Component', () => {
 
   test('handles cut operation', () => {
     render(<DesktopIcons />, { wrapper: TestWrapper });
-    
+
     // Test context menu integration for cut operation
     const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
     if (textFileIcon) {
@@ -443,7 +443,7 @@ describe('DesktopIcons Component', () => {
 
     const container = screen.getByRole('grid');
     expect(container).toBeInTheDocument();
-    
+
     // Should have no icons when desktop is empty
     const icons = screen.queryAllByRole('gridcell');
     expect(icons).toHaveLength(0);
@@ -459,7 +459,7 @@ describe('DesktopIcons Component', () => {
 
     const container = screen.getByRole('grid');
     expect(container).toBeInTheDocument();
-    
+
     // Should have no icons when no desktop folder exists
     const icons = screen.queryAllByRole('gridcell');
     expect(icons).toHaveLength(0);
@@ -494,7 +494,7 @@ describe('DesktopIcons Component', () => {
     const folderIcon = screen.getByText('TestFolder').closest('.desktop-icon');
     if (folderIcon) {
       fireEvent.doubleClick(folderIcon);
-      
+
       // Should open file explorer for folder
       expect(mockActions.openWindow).toHaveBeenCalledWith({
         title: 'File Explorer - TestFolder',

@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { CommandRegistry } from '../commands';
 import { CommandParser } from '../utils/parser';
 import type { AutocompleteResult, OSType } from '../types';
+import type { FileSystemItem } from '../../../../stores/useDesktopStore';
 
 /**
  * Hook for handling command and path autocomplete
@@ -9,7 +10,7 @@ import type { AutocompleteResult, OSType } from '../types';
 export function useAutocomplete(
   commandRegistry: CommandRegistry,
   currentDirectory: string,
-  fileSystem: unknown,
+  fileSystem: FileSystemItem[],
   osType: OSType
 ) {
   const [suggestions, setSuggestions] = useState<string[]>([]);

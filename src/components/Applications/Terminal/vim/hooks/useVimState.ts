@@ -87,47 +87,6 @@ export function useVimState(filename?: string, context?: VimEditorContext) {
     return diffs;
   }, []);
 
-  /**
-   * Create undo change for given state (memory-efficient with diffs)
-   */
-  const createUndoChange = useCallback(
-    (
-      changeType: 'buffer' | 'cursor' | 'selection' | 'mode',
-      oldState: VimState,
-      newBuffer?: string[]
-    ): VimChange | null => {
-      const change: VimChange = {
-        type: changeType,
-        data: {},
-        timestamp: Date.now(),
-      };
-
-      // Only store what actually changed
-      if (changeType === 'buffer' && newBuffer) {
-        // Use diffs instead of full buffer for memory efficiency
-        const diffs = calculateBufferDiffs(oldState.buffer, newBuffer);
-        if (diffs.length > 0) {
-          change.data.bufferDiffs = diffs;
-          change.data.cursor = { ...oldState.cursor };
-          change.data.isModified = oldState.isModified;
-        } else {
-          return null; // No changes, don't create change
-        }
-      } else if (changeType === 'selection') {
-        change.data.cursor = { ...oldState.cursor };
-        change.data.selection = oldState.selection ? { ...oldState.selection } : undefined;
-      } else if (changeType === 'cursor') {
-        change.data.cursor = { ...oldState.cursor };
-      } else if (changeType === 'mode') {
-        change.data.mode = oldState.mode;
-        change.data.selection = oldState.selection ? { ...oldState.selection } : undefined;
-      }
-
-      return change;
-    },
-    [calculateBufferDiffs]
-  );
-
   // Timeout refs for cleanup
   const messageTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 

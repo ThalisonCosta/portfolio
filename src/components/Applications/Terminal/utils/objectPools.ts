@@ -82,10 +82,6 @@ export const terminalLinePool = new ObjectPool(
 /**
  * Style object pool for React components
  */
-interface CachedStyle {
-  [key: string]: React.CSSProperties;
-}
-
 const styleCache = new Map<string, React.CSSProperties>();
 
 export const StyleObjectPool = {
@@ -172,21 +168,21 @@ export const eventPool = new ObjectPool(createPooledEvent, resetPooledEvent, 50)
 interface SyntaxToken {
   start: number;
   end: number;
-  type: string;
+  type: 'keyword' | 'string' | 'comment' | 'number' | 'operator' | 'identifier' | 'type';
   content?: string;
 }
 
 const createSyntaxToken = (): SyntaxToken => ({
   start: 0,
   end: 0,
-  type: '',
+  type: 'identifier',
   content: '',
 });
 
 const resetSyntaxToken = (token: SyntaxToken): void => {
   token.start = 0;
   token.end = 0;
-  token.type = '';
+  token.type = 'identifier';
   token.content = '';
 };
 

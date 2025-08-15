@@ -54,10 +54,10 @@ test.describe('Vim Editor Functionality', () => {
 
     // Navigate to first line to verify it exists
     await page.press('.vim-editor', 'ArrowUp');
-    
+
     // Small delay for navigation
     await page.waitForTimeout(100);
-    
+
     // Check that we're now on line 1 and can see first line content
     const firstLineContent = await page.locator('.vim-line').first().textContent();
     expect(firstLineContent).toContain('First line');
@@ -111,7 +111,7 @@ test.describe('Vim Editor Functionality', () => {
     // Navigate up to check first line contains "Hello"
     await page.press('.vim-editor', 'ArrowUp');
     await page.waitForTimeout(100);
-    
+
     const firstLineContent = await page.locator('.vim-line').first().textContent();
     expect(firstLineContent).toContain('Hello');
   });
@@ -132,7 +132,7 @@ test.describe('Vim Editor Functionality', () => {
 
     // Verify we have 31 lines total (30 with text + 1 empty at end)
     await expect(page.locator('.vim-status-bar')).toContainText('31 lines');
-    
+
     // Check that we can see we're at the bottom of the file
     await expect(page.locator('.vim-status-bar')).toContainText('31,1');
   });
@@ -165,14 +165,14 @@ test.describe('Vim Editor Functionality', () => {
 
     // Switch to normal mode
     await page.press('.vim-editor', 'Escape');
-    
+
     // Verify we're in normal mode
     await expect(page.locator('.vim-status-bar')).toContainText('NORMAL');
 
     // Enter insert mode again and test Enter
     await page.press('.vim-editor', 'i');
     await expect(page.locator('.vim-status-bar')).toContainText('INSERT');
-    
+
     await page.press('.vim-editor', 'Enter');
     await page.type('.vim-editor', 'Another line');
 

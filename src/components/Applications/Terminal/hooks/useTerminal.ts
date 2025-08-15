@@ -258,7 +258,7 @@ export function useTerminal() {
         if (result.newDirectory) {
           setState((prev) => ({
             ...prev,
-            currentDirectory: result.newDirectory,
+            currentDirectory: result.newDirectory!,
           }));
         }
 

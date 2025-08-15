@@ -58,7 +58,7 @@ export interface CommandContext {
   /** Command history */
   history: string[];
   /** Reference to the file system */
-  fileSystem: unknown;
+  fileSystem: import('../../../stores/useDesktopStore').FileSystemItem[];
   /** Username for the prompt */
   username: string;
   /** Hostname for the prompt */

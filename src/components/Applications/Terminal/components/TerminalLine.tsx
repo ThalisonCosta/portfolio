@@ -24,24 +24,21 @@ const TerminalLineComponent: React.FC<TerminalLineProps> = ({ line, theme, isLas
    * Memoized color getter using style pool
    */
   const lineColor = useMemo(() => {
-    const colorKey = `color-${line.type}-${theme.foreground}-${theme.error}-${theme.success}-${theme.warning}-${theme.comment}`;
-    return StyleObjectPool.get(colorKey, () => {
-      switch (line.type) {
-        case 'input':
-        case 'output':
-          return theme.foreground;
-        case 'error':
-          return theme.error;
-        case 'success':
-          return theme.success;
-        case 'warning':
-          return theme.warning;
-        case 'info':
-          return theme.comment;
-        default:
-          return theme.foreground;
-      }
-    });
+    switch (line.type) {
+      case 'input':
+      case 'output':
+        return theme.foreground;
+      case 'error':
+        return theme.error;
+      case 'success':
+        return theme.success;
+      case 'warning':
+        return theme.warning;
+      case 'info':
+        return theme.comment;
+      default:
+        return theme.foreground;
+    }
   }, [line.type, theme.foreground, theme.error, theme.success, theme.warning, theme.comment]);
 
   /**

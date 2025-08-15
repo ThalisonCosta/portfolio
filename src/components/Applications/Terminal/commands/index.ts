@@ -1,4 +1,4 @@
-import type { CommandDefinition, OSType } from '../types';
+import type { CommandDefinition, CommandContext, OSType } from '../types';
 import { linuxCommands } from './linux';
 import { windowsCommands } from './windows';
 import {
@@ -114,7 +114,7 @@ export class CommandRegistry {
   /**
    * Get autocomplete suggestions for command arguments
    */
-  getArgumentSuggestions(commandName: string, partial: string, args: string[], context: unknown): string[] {
+  getArgumentSuggestions(commandName: string, partial: string, args: string[], context: CommandContext): string[] {
     const command = this.getCommand(commandName);
     if (!command || !command.autocomplete) {
       return [];
