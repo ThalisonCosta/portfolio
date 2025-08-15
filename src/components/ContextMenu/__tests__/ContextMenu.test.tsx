@@ -4,7 +4,7 @@ import { ContextMenu, type ContextMenuItem } from '../ContextMenu';
 
 describe('ContextMenu Component', () => {
   const mockOnClose = jest.fn();
-  
+
   const defaultProps = {
     isVisible: true,
     position: { x: 100, y: 100 },
@@ -59,7 +59,7 @@ describe('ContextMenu Component', () => {
 
   test('renders context menu when visible', () => {
     render(<ContextMenu {...defaultProps} items={sampleMenuItems} />);
-    
+
     const menu = screen.getByRole('menu');
     expect(menu).toBeInTheDocument();
     expect(menu).toHaveClass('context-menu');
@@ -67,18 +67,18 @@ describe('ContextMenu Component', () => {
 
   test('does not render when not visible', () => {
     render(<ContextMenu {...defaultProps} isVisible={false} items={sampleMenuItems} />);
-    
+
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   });
 
   test('renders all menu items correctly', () => {
     render(<ContextMenu {...defaultProps} items={sampleMenuItems} />);
-    
+
     expect(screen.getByText('New Folder')).toBeInTheDocument();
     expect(screen.getByText('New Text File')).toBeInTheDocument();
     expect(screen.getByText('Paste')).toBeInTheDocument();
     expect(screen.getByText('Refresh')).toBeInTheDocument();
-    
+
     // Check icons are rendered
     expect(screen.getByText('📁')).toBeInTheDocument();
     expect(screen.getByText('📄')).toBeInTheDocument();
@@ -88,7 +88,7 @@ describe('ContextMenu Component', () => {
 
   test('renders separators correctly', () => {
     render(<ContextMenu {...defaultProps} items={sampleMenuItems} />);
-    
+
     const separator = screen.getByRole('separator');
     expect(separator).toBeInTheDocument();
     expect(separator).toHaveClass('context-menu-separator');
@@ -96,14 +96,14 @@ describe('ContextMenu Component', () => {
 
   test('renders shortcuts correctly', () => {
     render(<ContextMenu {...defaultProps} items={sampleMenuItems} />);
-    
+
     expect(screen.getByText('Ctrl+V')).toBeInTheDocument();
     expect(screen.getByText('F5')).toBeInTheDocument();
   });
 
   test('handles disabled items correctly', () => {
     render(<ContextMenu {...defaultProps} items={sampleMenuItems} />);
-    
+
     const pasteItem = screen.getByText('Paste').closest('.context-menu-item');
     expect(pasteItem).toHaveClass('disabled');
     expect(pasteItem).toHaveAttribute('aria-disabled', 'true');
@@ -120,9 +120,9 @@ describe('ContextMenu Component', () => {
     ];
 
     render(<ContextMenu {...defaultProps} items={items} />);
-    
+
     fireEvent.click(screen.getByText('Test Item'));
-    
+
     expect(mockClick).toHaveBeenCalledTimes(1);
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
@@ -139,19 +139,19 @@ describe('ContextMenu Component', () => {
     ];
 
     render(<ContextMenu {...defaultProps} items={items} />);
-    
+
     fireEvent.click(screen.getByText('Disabled Item'));
-    
+
     expect(mockClick).not.toHaveBeenCalled();
     expect(mockOnClose).not.toHaveBeenCalled();
   });
 
   test('closes menu when clicking outside', async () => {
     render(<ContextMenu {...defaultProps} items={sampleMenuItems} />);
-    
+
     // Click outside the menu
     fireEvent.mouseDown(document.body);
-    
+
     await waitFor(() => {
       expect(mockOnClose).toHaveBeenCalledTimes(1);
     });
@@ -159,9 +159,9 @@ describe('ContextMenu Component', () => {
 
   test('closes menu when pressing Escape key', async () => {
     render(<ContextMenu {...defaultProps} items={sampleMenuItems} />);
-    
+
     fireEvent.keyDown(document, { key: 'Escape' });
-    
+
     await waitFor(() => {
       expect(mockOnClose).toHaveBeenCalledTimes(1);
     });
@@ -184,18 +184,18 @@ describe('ContextMenu Component', () => {
     ];
 
     render(<ContextMenu {...defaultProps} items={items} />);
-    
+
     // Navigate down and press Enter
     fireEvent.keyDown(document, { key: 'ArrowDown' });
     fireEvent.keyDown(document, { key: 'Enter' });
-    
+
     expect(mockClick1).toHaveBeenCalledTimes(1);
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
   test('applies correct positioning styles', () => {
     render(<ContextMenu {...defaultProps} position={{ x: 200, y: 300 }} items={sampleMenuItems} />);
-    
+
     const menu = screen.getByRole('menu');
     expect(menu).toHaveStyle({
       left: '200px',
@@ -205,29 +205,29 @@ describe('ContextMenu Component', () => {
 
   test('applies custom className', () => {
     render(<ContextMenu {...defaultProps} className="custom-menu" items={sampleMenuItems} />);
-    
+
     const menu = screen.getByRole('menu');
     expect(menu).toHaveClass('context-menu', 'custom-menu');
   });
 
   test('has proper ARIA attributes', () => {
     render(<ContextMenu {...defaultProps} items={sampleMenuItems} />);
-    
+
     const menu = screen.getByRole('menu');
     expect(menu).toHaveAttribute('aria-label', 'Context menu');
     expect(menu).toHaveAttribute('tabIndex', '-1');
-    
+
     const menuItems = screen.getAllByRole('menuitem');
-    menuItems.forEach(item => {
+    menuItems.forEach((item) => {
       expect(item).toHaveAttribute('tabIndex', '-1');
     });
   });
 
   test('focuses menu when it becomes visible', () => {
     const { rerender } = render(<ContextMenu {...defaultProps} isVisible={false} items={sampleMenuItems} />);
-    
+
     rerender(<ContextMenu {...defaultProps} isVisible={true} items={sampleMenuItems} />);
-    
+
     const menu = screen.getByRole('menu');
     expect(menu).toHaveFocus();
   });

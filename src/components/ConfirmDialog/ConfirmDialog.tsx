@@ -31,7 +31,7 @@ interface ConfirmDialogProps {
 
 /**
  * Windows 11-style confirmation dialog component
- * 
+ *
  * Features:
  * - Fluent Design styling with backdrop blur
  * - Support for destructive actions with warning colors
@@ -126,7 +126,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   if (!isVisible) return null;
 
   // Determine default icon based on destructive prop
-  const displayIcon = icon || (destructive ? '⚠️' : 'ℹ️');
+  const displayIcon = icon !== undefined ? icon : (destructive ? '⚠️' : 'ℹ️');
 
   return (
     <div className="confirm-dialog-overlay" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
@@ -143,16 +143,10 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         </div>
 
         <div className="confirm-dialog-content">
-          <p className="confirm-dialog-message">
-            {message}
-          </p>
-          
-          {details && (
-            <p className="confirm-dialog-details">
-              {details}
-            </p>
-          )}
-          
+          <p className="confirm-dialog-message">{message}</p>
+
+          {details && <p className="confirm-dialog-details">{details}</p>}
+
           {items.length > 0 && (
             <div className="confirm-dialog-items">
               <p className="confirm-dialog-items-header">
@@ -165,9 +159,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                   </li>
                 ))}
                 {items.length > 5 && (
-                  <li className="confirm-dialog-items-more">
-                    ...and {items.length - 5} more items
-                  </li>
+                  <li className="confirm-dialog-items-more">...and {items.length - 5} more items</li>
                 )}
               </ul>
             </div>

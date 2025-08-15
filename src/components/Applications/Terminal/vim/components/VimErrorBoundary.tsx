@@ -31,9 +31,9 @@ export class VimErrorBoundary extends Component<VimErrorBoundaryProps, VimErrorB
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Vim Editor Error:', error);
     console.error('Error Info:', errorInfo);
-    
+
     this.setState({ error, errorInfo });
-    
+
     // Report error to parent component if callback provided
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
@@ -47,7 +47,7 @@ export class VimErrorBoundary extends Component<VimErrorBoundaryProps, VimErrorB
   render() {
     if (this.state.hasError) {
       const { theme } = this.props;
-      
+
       const containerStyle: React.CSSProperties = {
         display: 'flex',
         flexDirection: 'column',
@@ -103,16 +103,14 @@ export class VimErrorBoundary extends Component<VimErrorBoundaryProps, VimErrorB
 
       return (
         <div style={containerStyle}>
-          <div style={errorTitleStyle}>
-            🔧 Vim Editor Error
-          </div>
-          
+          <div style={errorTitleStyle}>🔧 Vim Editor Error</div>
+
           <div style={errorMessageStyle}>
-            The vim editor encountered an unexpected error and has been safely contained.
-            Your work in other applications is not affected.
+            The vim editor encountered an unexpected error and has been safely contained. Your work in other
+            applications is not affected.
           </div>
-          
-          <button 
+
+          <button
             style={buttonStyle}
             onClick={this.handleRestart}
             onMouseOver={(e) => {
@@ -124,27 +122,21 @@ export class VimErrorBoundary extends Component<VimErrorBoundaryProps, VimErrorB
           >
             Restart Vim Editor
           </button>
-          
+
           {process.env.NODE_ENV === 'development' && this.state.error && (
             <details style={detailsStyle}>
-              <summary style={{ cursor: 'pointer', marginBottom: '8px' }}>
-                Error Details (Development Mode)
-              </summary>
+              <summary style={{ cursor: 'pointer', marginBottom: '8px' }}>Error Details (Development Mode)</summary>
               <div>
                 <strong>Error:</strong> {this.state.error.message}
               </div>
               <div style={{ marginTop: '8px' }}>
                 <strong>Stack:</strong>
-                <pre style={{ fontSize: '11px', overflow: 'auto' }}>
-                  {this.state.error.stack}
-                </pre>
+                <pre style={{ fontSize: '11px', overflow: 'auto' }}>{this.state.error.stack}</pre>
               </div>
               {this.state.errorInfo && (
                 <div style={{ marginTop: '8px' }}>
                   <strong>Component Stack:</strong>
-                  <pre style={{ fontSize: '11px', overflow: 'auto' }}>
-                    {this.state.errorInfo.componentStack}
-                  </pre>
+                  <pre style={{ fontSize: '11px', overflow: 'auto' }}>{this.state.errorInfo.componentStack}</pre>
                 </div>
               )}
             </details>

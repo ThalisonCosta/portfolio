@@ -9,7 +9,7 @@ const writeCommand: VimCommand = {
   description: 'Write (save) the current buffer',
   execute: async (args: string[], state: VimState, context: VimEditorContext): Promise<OperationResult> => {
     const filename = args[0] || state.filename;
-    
+
     if (!filename) {
       return {
         success: false,
@@ -21,7 +21,7 @@ const writeCommand: VimCommand = {
     try {
       const content = state.buffer.join('\n');
       const success = await context.saveFile(filename, content);
-      
+
       if (success) {
         const newState: VimState = {
           ...state,
@@ -37,13 +37,12 @@ const writeCommand: VimCommand = {
           message: `"${filename}" ${state.buffer.length}L, ${content.length}C written`,
           messageType: 'info',
         };
-      } else {
-        return {
-          success: false,
-          message: `E212: Can't open file for writing: ${filename}`,
-          messageType: 'error',
-        };
       }
+      return {
+        success: false,
+        message: `E212: Can't open file for writing: ${filename}`,
+        messageType: 'error',
+      };
     } catch (error) {
       return {
         success: false,
@@ -98,7 +97,7 @@ const writeQuitCommand: VimCommand = {
   execute: async (args: string[], state: VimState, context: VimEditorContext): Promise<OperationResult> => {
     // First try to write
     const writeResult = await writeCommand.execute(args, state, context);
-    
+
     if (!writeResult.success) {
       return writeResult;
     }
@@ -137,7 +136,7 @@ const editCommand: VimCommand = {
     try {
       const content = await context.loadFile(filename);
       const lines = content.split('\n');
-      
+
       const newState: VimState = {
         ...state,
         filename,
@@ -193,7 +192,7 @@ const setCommand: VimCommand = {
     }
 
     const option = args[0];
-    let newState = { ...state };
+    const newState = { ...state };
     let message = '';
 
     switch (option) {

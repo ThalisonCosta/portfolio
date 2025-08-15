@@ -2,7 +2,7 @@ import type { CommandDefinition, CommandResult, CommandContext } from '../types'
 
 /**
  * Vim text editor command for the terminal
- * 
+ *
  * This command switches the terminal into vim mode, transforming it into a full-screen
  * text editor with modal editing capabilities inspired by LunarVim.
  */
@@ -13,7 +13,7 @@ export const vimCommand: CommandDefinition = {
   usage: 'vim [filename]',
   execute: async (args: string[], context: CommandContext): Promise<CommandResult> => {
     const filename = args[0];
-    
+
     // Validate filename if provided
     if (filename) {
       // Check for invalid characters or paths

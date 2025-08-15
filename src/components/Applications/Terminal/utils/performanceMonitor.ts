@@ -52,7 +52,7 @@ class PerformanceMonitor {
     // Update render times history
     const times = this.renderTimes.get(componentName) || [];
     times.push(renderTime);
-    
+
     // Keep only last 50 render times for average calculation
     if (times.length > 50) {
       times.shift();
@@ -72,7 +72,8 @@ class PerformanceMonitor {
     this.metrics.set(componentName, updated);
 
     // Log warning for slow renders
-    if (renderTime > 16) { // > 16ms (60fps threshold)
+    if (renderTime > 16) {
+      // > 16ms (60fps threshold)
       console.warn(`Slow render detected: ${componentName} took ${renderTime.toFixed(2)}ms`);
     }
 
@@ -121,7 +122,7 @@ class PerformanceMonitor {
    */
   getPerformanceIssues(): PerformanceMetrics[] {
     return this.getAllMetrics().filter(
-      metric => 
+      (metric) =>
         metric.averageRenderTime > 10 || // Slower than 10ms average
         metric.renderCount > 200 // Too many renders
     );
@@ -149,9 +150,9 @@ class PerformanceMonitor {
   generateReport(): string {
     const issues = this.getPerformanceIssues();
     const memoryStats = this.getMemoryStats();
-    
+
     let report = '=== Terminal Performance Report ===\n\n';
-    
+
     if (memoryStats) {
       report += `Memory Usage:\n`;
       report += `  Used: ${(memoryStats.usedJSHeapSize / 1024 / 1024).toFixed(2)} MB\n`;
@@ -161,7 +162,7 @@ class PerformanceMonitor {
 
     if (issues.length > 0) {
       report += `Performance Issues Found:\n`;
-      issues.forEach(metric => {
+      issues.forEach((metric) => {
         report += `  ${metric.componentName}:\n`;
         report += `    Render Count: ${metric.renderCount}\n`;
         report += `    Average Render Time: ${metric.averageRenderTime.toFixed(2)}ms\n`;
@@ -176,7 +177,7 @@ class PerformanceMonitor {
     }
 
     report += `Total Components Monitored: ${this.metrics.size}\n`;
-    
+
     return report;
   }
 
@@ -196,7 +197,7 @@ export const performanceMonitor = new PerformanceMonitor();
  */
 export function usePerformanceMonitor(componentName: string) {
   const endRender = performanceMonitor.startRender(componentName);
-  
+
   // Call endRender after the component finishes rendering
   React.useLayoutEffect(() => {
     endRender();
@@ -276,7 +277,7 @@ export const PerformanceUtils = {
     if (!stats) return 'low';
 
     const usageRatio = stats.usedJSHeapSize / stats.jsHeapSizeLimit;
-    
+
     if (usageRatio > 0.8) return 'high';
     if (usageRatio > 0.6) return 'medium';
     return 'low';

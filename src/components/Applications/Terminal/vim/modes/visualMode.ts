@@ -23,7 +23,7 @@ function getSelectedText(state: VimState): string {
   if (!state.selection) return '';
 
   const { start, end } = state.selection;
-  
+
   // Normalize selection (ensure start comes before end)
   const selStart = start.line < end.line || (start.line === end.line && start.column <= end.column) ? start : end;
   const selEnd = start.line < end.line || (start.line === end.line && start.column <= end.column) ? end : start;
@@ -32,21 +32,20 @@ function getSelectedText(state: VimState): string {
     // Single line selection
     const line = state.buffer[selStart.line] || '';
     return line.slice(selStart.column, selEnd.column);
-  } else {
-    // Multi-line selection
-    const lines = [];
-    for (let i = selStart.line; i <= selEnd.line; i++) {
-      const line = state.buffer[i] || '';
-      if (i === selStart.line) {
-        lines.push(line.slice(selStart.column));
-      } else if (i === selEnd.line) {
-        lines.push(line.slice(0, selEnd.column));
-      } else {
-        lines.push(line);
-      }
-    }
-    return lines.join('\n');
   }
+  // Multi-line selection
+  const lines = [];
+  for (let i = selStart.line; i <= selEnd.line; i++) {
+    const line = state.buffer[i] || '';
+    if (i === selStart.line) {
+      lines.push(line.slice(selStart.column));
+    } else if (i === selEnd.line) {
+      lines.push(line.slice(0, selEnd.column));
+    } else {
+      lines.push(line);
+    }
+  }
+  return lines.join('\n');
 }
 
 /**
@@ -56,7 +55,7 @@ function deleteSelection(state: VimState, actions: VimActions): void {
   if (!state.selection) return;
 
   const { start, end } = state.selection;
-  
+
   // Normalize selection
   const selStart = start.line < end.line || (start.line === end.line && start.column <= end.column) ? start : end;
   const selEnd = start.line < end.line || (start.line === end.line && start.column <= end.column) ? end : start;
@@ -67,7 +66,7 @@ function deleteSelection(state: VimState, actions: VimActions): void {
     const newLine = line.slice(0, selStart.column) + line.slice(selEnd.column);
     const newBuffer = [...state.buffer];
     newBuffer[selStart.line] = newLine;
-    
+
     actions.updateBuffer(newBuffer);
     actions.moveCursor(selStart);
   } else {
@@ -75,17 +74,13 @@ function deleteSelection(state: VimState, actions: VimActions): void {
     const firstLine = state.buffer[selStart.line] || '';
     const lastLine = state.buffer[selEnd.line] || '';
     const newLine = firstLine.slice(0, selStart.column) + lastLine.slice(selEnd.column);
-    
-    const newBuffer = [
-      ...state.buffer.slice(0, selStart.line),
-      newLine,
-      ...state.buffer.slice(selEnd.line + 1),
-    ];
-    
+
+    const newBuffer = [...state.buffer.slice(0, selStart.line), newLine, ...state.buffer.slice(selEnd.line + 1)];
+
     actions.updateBuffer(newBuffer);
     actions.moveCursor(selStart);
   }
-  
+
   actions.enterNormalMode();
 }
 
@@ -97,7 +92,7 @@ function yankSelection(state: VimState, actions: VimActions): void {
 
   const selectedText = getSelectedText(state);
   const lineCount = selectedText.split('\n').length;
-  
+
   actions.setMessage(`${lineCount} line${lineCount === 1 ? '' : 's'} yanked`, 'info');
   actions.enterNormalMode();
 }
@@ -108,11 +103,11 @@ function yankSelection(state: VimState, actions: VimActions): void {
 function getWordBoundaries(line: string): number[] {
   const boundaries = [0];
   let inWord = false;
-  
+
   for (let i = 0; i < line.length; i++) {
     const char = line[i];
     const isWordChar = /\w/.test(char);
-    
+
     if (!inWord && isWordChar) {
       boundaries.push(i);
       inWord = true;
@@ -121,7 +116,7 @@ function getWordBoundaries(line: string): number[] {
       inWord = false;
     }
   }
-  
+
   boundaries.push(line.length);
   return [...new Set(boundaries)].sort((a, b) => a - b);
 }
@@ -132,24 +127,26 @@ function getWordBoundaries(line: string): number[] {
 function moveByWord(state: VimState, direction: 'forward' | 'backward'): Position {
   const currentLine = state.buffer[state.cursor.line] || '';
   const boundaries = getWordBoundaries(currentLine);
-  
+
   if (direction === 'forward') {
-    const nextBoundary = boundaries.find(b => b > state.cursor.column);
+    const nextBoundary = boundaries.find((b) => b > state.cursor.column);
     if (nextBoundary !== undefined) {
       return { line: state.cursor.line, column: nextBoundary };
-    } else if (state.cursor.line < state.buffer.length - 1) {
+    }
+    if (state.cursor.line < state.buffer.length - 1) {
       return { line: state.cursor.line + 1, column: 0 };
     }
   } else {
-    const prevBoundary = boundaries.reverse().find(b => b < state.cursor.column);
+    const prevBoundary = boundaries.reverse().find((b) => b < state.cursor.column);
     if (prevBoundary !== undefined) {
       return { line: state.cursor.line, column: prevBoundary };
-    } else if (state.cursor.line > 0) {
+    }
+    if (state.cursor.line > 0) {
       const prevLine = state.buffer[state.cursor.line - 1] || '';
       return { line: state.cursor.line - 1, column: prevLine.length };
     }
   }
-  
+
   return state.cursor;
 }
 

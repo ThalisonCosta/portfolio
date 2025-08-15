@@ -1,6 +1,8 @@
 /** @jsxImportSource react */
+import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import { DesktopIcons } from '../DesktopIcons';
+import { ContextMenuProvider } from '../../../contexts/ContextMenuContext';
 
 // Mock the useDesktopStore hook
 const mockActions = {
@@ -54,13 +56,18 @@ jest.mock('../../../stores/useDesktopStore', () => ({
   }),
 }));
 
+// Test wrapper component
+const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <ContextMenuProvider>{children}</ContextMenuProvider>
+);
+
 describe('DesktopIcons Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   test('renders desktop icons from file system', () => {
-    render(<DesktopIcons />);
+    render(<DesktopIcons />, { wrapper: TestWrapper });
 
     expect(screen.getByText('About.txt')).toBeInTheDocument();
     expect(screen.getByText('Resume.pdf')).toBeInTheDocument();
@@ -68,7 +75,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('displays correct icons for different file types', () => {
-    render(<DesktopIcons />);
+    render(<DesktopIcons />, { wrapper: TestWrapper });
 
     const icons = screen.getAllByText(/📄|📋|📁/);
     expect(icons).toHaveLength(3);
@@ -82,7 +89,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('positions icons correctly based on position data', () => {
-    render(<DesktopIcons />);
+    render(<DesktopIcons />, { wrapper: TestWrapper });
 
     const aboutMeIcon = screen.getByText('About.txt').closest('.desktop-icon') as HTMLElement;
     if (aboutMeIcon) {
@@ -98,7 +105,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('double-clicking file icon opens appropriate application', () => {
-    render(<DesktopIcons />);
+    render(<DesktopIcons />, { wrapper: TestWrapper });
 
     const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
     if (textFileIcon) fireEvent.doubleClick(textFileIcon);
@@ -114,7 +121,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('double-clicking PDF file opens PDF viewer', () => {
-    render(<DesktopIcons />);
+    render(<DesktopIcons />, { wrapper: TestWrapper });
 
     const pdfIcon = screen.getByText('Resume.pdf').closest('.desktop-icon');
     if (pdfIcon) fireEvent.doubleClick(pdfIcon);
@@ -130,7 +137,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('double-clicking folder opens file explorer', () => {
-    render(<DesktopIcons />);
+    render(<DesktopIcons />, { wrapper: TestWrapper });
 
     const folderIcon = screen.getByText('Projects').closest('.desktop-icon');
     if (folderIcon) fireEvent.doubleClick(folderIcon);
@@ -146,7 +153,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('drag start sets dragging state', () => {
-    render(<DesktopIcons />);
+    render(<DesktopIcons />, { wrapper: TestWrapper });
 
     const icon = screen.getByText('About.txt').closest('.desktop-icon');
 
@@ -165,7 +172,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('has drag end handler for clearing state', () => {
-    render(<DesktopIcons />);
+    render(<DesktopIcons />, { wrapper: TestWrapper });
 
     const icon = screen.getByText('About.txt').closest('.desktop-icon');
     expect(icon).toBeInTheDocument();
@@ -177,7 +184,7 @@ describe('DesktopIcons Component', () => {
   test('handles icons with no position data', () => {
     // This test validates the default positioning behavior
     // Since we're using a static mock, we test with the existing mock data
-    render(<DesktopIcons />);
+    render(<DesktopIcons />, { wrapper: TestWrapper });
 
     // Test that all icons have the desktop-icon class and inline positioning
     const icons = screen.getAllByText(/About\.txt|Resume\.pdf|Projects/).map((text) => text.closest('.desktop-icon'));
@@ -192,7 +199,7 @@ describe('DesktopIcons Component', () => {
 
   test('handles different file extensions correctly', () => {
     // Test file extension handling with existing mock data
-    render(<DesktopIcons />);
+    render(<DesktopIcons />, { wrapper: TestWrapper });
 
     // Test text file (.txt)
     const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
@@ -218,6 +225,71 @@ describe('DesktopIcons Component', () => {
       isMaximized: false,
       position: { x: 200, y: 100 },
       size: { width: 600, height: 400 },
+    });
+  });
+
+  test('right-clicking icon shows context menu', () => {
+    render(<DesktopIcons />, { wrapper: TestWrapper });
+
+    const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
+    if (textFileIcon) {
+      fireEvent.contextMenu(textFileIcon);
+    }
+
+    // Context menu should be rendered (testing integration with context provider)
+    // Note: Actual context menu content testing is done in ContextMenu component tests
+    expect(textFileIcon).toBeInTheDocument();
+  });
+
+  test('keyboard navigation opens file on Enter key', () => {
+    render(<DesktopIcons />, { wrapper: TestWrapper });
+
+    const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
+    if (textFileIcon) {
+      fireEvent.keyDown(textFileIcon, { key: 'Enter' });
+    }
+
+    expect(mockActions.openWindow).toHaveBeenCalledWith({
+      title: 'About.txt',
+      component: 'TextEditor',
+      isMinimized: false,
+      isMaximized: false,
+      position: { x: 200, y: 100 },
+      size: { width: 600, height: 400 },
+    });
+  });
+
+  test('keyboard navigation opens file on Space key', () => {
+    render(<DesktopIcons />, { wrapper: TestWrapper });
+
+    const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
+    if (textFileIcon) {
+      fireEvent.keyDown(textFileIcon, { key: ' ' });
+    }
+
+    expect(mockActions.openWindow).toHaveBeenCalledWith({
+      title: 'About.txt',
+      component: 'TextEditor',
+      isMinimized: false,
+      isMaximized: false,
+      position: { x: 200, y: 100 },
+      size: { width: 600, height: 400 },
+    });
+  });
+
+  test('has proper accessibility attributes', () => {
+    render(<DesktopIcons />, { wrapper: TestWrapper });
+
+    const container = screen.getByRole('grid');
+    expect(container).toHaveAttribute('aria-label', 'Desktop icons');
+
+    const icons = screen.getAllByRole('gridcell');
+    expect(icons).toHaveLength(3);
+
+    icons.forEach((icon) => {
+      expect(icon).toHaveAttribute('tabIndex', '0');
+      expect(icon).toHaveAttribute('aria-label');
+      expect(icon).toHaveAttribute('aria-describedby');
     });
   });
 });

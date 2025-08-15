@@ -648,22 +648,20 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
                 // Check if sibling with same name already exists
                 const parentPath = path.substring(0, path.lastIndexOf('/')) || '/';
                 const newPath = parentPath === '/' ? `/${newName}` : `${parentPath}/${newName}`;
-                
+
                 // Get parent folder
-                const parentFolder = state.fileSystem.find(f => f.path === parentPath && f.type === 'folder');
+                const parentFolder = state.fileSystem.find((f) => f.path === parentPath && f.type === 'folder');
                 const siblings = parentFolder?.children || [];
-                
+
                 // Check for name conflict (excluding current item)
-                const nameExists = siblings.some(sibling => 
-                  sibling.name === newName && sibling.id !== item.id
-                );
-                
+                const nameExists = siblings.some((sibling) => sibling.name === newName && sibling.id !== item.id);
+
                 if (nameExists) {
                   return item; // Don't rename if name already exists
                 }
 
                 success = true;
-                
+
                 // Create updated item with new name and path
                 const updatedItem = {
                   ...item,
@@ -673,11 +671,17 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
 
                 // If it's a folder, update all children paths recursively
                 if (item.type === 'folder' && item.children) {
-                  const updateChildrenPaths = (children: FileSystemItem[], oldParentPath: string, newParentPath: string): FileSystemItem[] =>
-                    children.map(child => ({
+                  const updateChildrenPaths = (
+                    children: FileSystemItem[],
+                    oldParentPath: string,
+                    newParentPath: string
+                  ): FileSystemItem[] =>
+                    children.map((child) => ({
                       ...child,
                       path: child.path.replace(oldParentPath, newParentPath),
-                      children: child.children ? updateChildrenPaths(child.children, oldParentPath, newParentPath) : undefined,
+                      children: child.children
+                        ? updateChildrenPaths(child.children, oldParentPath, newParentPath)
+                        : undefined,
                     }));
 
                   updatedItem.children = updateChildrenPaths(item.children, path, newPath);
@@ -711,7 +715,7 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
         // Helper function to find items by path
         const findItemsByPaths = (fileSystemItems: FileSystemItem[], targetPaths: string[]): FileSystemItem[] => {
           const foundItems: FileSystemItem[] = [];
-          
+
           const searchInItems = (items: FileSystemItem[]) => {
             for (const item of items) {
               if (targetPaths.includes(item.path)) {
@@ -728,7 +732,7 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
         };
 
         const foundItems = findItemsByPaths(state.fileSystem, paths);
-        
+
         set((state) => ({
           ...state,
           clipboard: {
@@ -744,7 +748,7 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
         // Helper function to find items by path
         const findItemsByPaths = (fileSystemItems: FileSystemItem[], targetPaths: string[]): FileSystemItem[] => {
           const foundItems: FileSystemItem[] = [];
-          
+
           const searchInItems = (items: FileSystemItem[]) => {
             for (const item of items) {
               if (targetPaths.includes(item.path)) {
@@ -761,7 +765,7 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
         };
 
         const foundItems = findItemsByPaths(state.fileSystem, paths);
-        
+
         set((state) => ({
           ...state,
           clipboard: {
@@ -774,7 +778,7 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
       pasteFromClipboard: (targetPath) => {
         const state = get();
         const { clipboard } = state;
-        
+
         if (!clipboard.items.length || !clipboard.operation) {
           return false;
         }
@@ -790,15 +794,15 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
           const nameParts = baseName.split('.');
           const extension = nameParts.length > 1 ? `.${nameParts.pop()}` : '';
           const nameWithoutExt = nameParts.join('.');
-          
+
           let counter = 1;
           let newName = `${nameWithoutExt} (${counter})${extension}`;
-          
+
           while (existingNames.includes(newName)) {
             counter++;
             newName = `${nameWithoutExt} (${counter})${extension}`;
           }
-          
+
           return newName;
         };
 
@@ -834,14 +838,14 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
           const pasteToFolder = (items: FileSystemItem[]): FileSystemItem[] =>
             items.map((item) => {
               if (item.path === targetPath && item.type === 'folder') {
-                const existingNames = item.children?.map(child => child.name) || [];
+                const existingNames = item.children?.map((child) => child.name) || [];
                 const newChildren = [...(item.children || [])];
 
                 // Add clipboard items to target folder
                 for (const clipboardItem of clipboard.items) {
                   const uniqueName = generateUniqueName(clipboardItem.name, existingNames);
                   const newPath = targetPath === '/' ? `/${uniqueName}` : `${targetPath}/${uniqueName}`;
-                  
+
                   const newItem: FileSystemItem = {
                     ...clipboardItem,
                     id: `${clipboardItem.type}-${Date.now()}-${Math.random()}`,
@@ -852,12 +856,18 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
 
                   // If it's a folder, update all children paths recursively
                   if (newItem.type === 'folder' && newItem.children) {
-                    const updateChildrenPaths = (children: FileSystemItem[], oldParentPath: string, newParentPath: string): FileSystemItem[] =>
-                      children.map(child => ({
+                    const updateChildrenPaths = (
+                      children: FileSystemItem[],
+                      oldParentPath: string,
+                      newParentPath: string
+                    ): FileSystemItem[] =>
+                      children.map((child) => ({
                         ...child,
                         id: `${child.type}-${Date.now()}-${Math.random()}`,
                         path: child.path.replace(oldParentPath, newParentPath),
-                        children: child.children ? updateChildrenPaths(child.children, oldParentPath, newParentPath) : undefined,
+                        children: child.children
+                          ? updateChildrenPaths(child.children, oldParentPath, newParentPath)
+                          : undefined,
                       }));
 
                     newItem.children = updateChildrenPaths(newItem.children, clipboardItem.path, newPath);
@@ -891,7 +901,7 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
           if (clipboard.operation === 'cut' && success) {
             const removeFromFolder = (items: FileSystemItem[]): FileSystemItem[] =>
               items.filter((item) => {
-                const shouldRemove = clipboard.items.some(clipItem => clipItem.path === item.path);
+                const shouldRemove = clipboard.items.some((clipItem) => clipItem.path === item.path);
                 if (shouldRemove) {
                   return false;
                 }

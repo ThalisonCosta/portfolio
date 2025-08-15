@@ -22,11 +22,11 @@ interface VimActions {
 function getWordBoundaries(line: string): number[] {
   const boundaries = [0];
   let inWord = false;
-  
+
   for (let i = 0; i < line.length; i++) {
     const char = line[i];
     const isWordChar = /\w/.test(char);
-    
+
     if (!inWord && isWordChar) {
       boundaries.push(i);
       inWord = true;
@@ -35,7 +35,7 @@ function getWordBoundaries(line: string): number[] {
       inWord = false;
     }
   }
-  
+
   boundaries.push(line.length);
   return [...new Set(boundaries)].sort((a, b) => a - b);
 }
@@ -46,26 +46,28 @@ function getWordBoundaries(line: string): number[] {
 function moveByWord(state: VimState, direction: 'forward' | 'backward'): Position {
   const currentLine = state.buffer[state.cursor.line] || '';
   const boundaries = getWordBoundaries(currentLine);
-  
+
   if (direction === 'forward') {
-    const nextBoundary = boundaries.find(b => b > state.cursor.column);
+    const nextBoundary = boundaries.find((b) => b > state.cursor.column);
     if (nextBoundary !== undefined) {
       return { line: state.cursor.line, column: nextBoundary };
-    } else if (state.cursor.line < state.buffer.length - 1) {
+    }
+    if (state.cursor.line < state.buffer.length - 1) {
       // Move to next line
       return { line: state.cursor.line + 1, column: 0 };
     }
   } else {
-    const prevBoundary = boundaries.reverse().find(b => b < state.cursor.column);
+    const prevBoundary = boundaries.reverse().find((b) => b < state.cursor.column);
     if (prevBoundary !== undefined) {
       return { line: state.cursor.line, column: prevBoundary };
-    } else if (state.cursor.line > 0) {
+    }
+    if (state.cursor.line > 0) {
       // Move to end of previous line
       const prevLine = state.buffer[state.cursor.line - 1] || '';
       return { line: state.cursor.line - 1, column: prevLine.length };
     }
   }
-  
+
   return state.cursor;
 }
 
@@ -94,7 +96,7 @@ function deleteLine(state: VimState, actions: VimActions): void {
     // Remove the current line
     const newBuffer = state.buffer.filter((_, index) => index !== state.cursor.line);
     actions.updateBuffer(newBuffer);
-    
+
     // Adjust cursor position
     const newLine = Math.min(state.cursor.line, newBuffer.length - 1);
     const newColumn = Math.min(state.cursor.column, (newBuffer[newLine] || '').length);
@@ -247,10 +249,7 @@ export function normalModeKeymap(event: KeyboardEvent, state: VimState, actions:
 
     case 'a':
       // Append after cursor
-      const appendColumn = Math.min(
-        state.cursor.column + 1,
-        (state.buffer[state.cursor.line] || '').length
-      );
+      const appendColumn = Math.min(state.cursor.column + 1, (state.buffer[state.cursor.line] || '').length);
       actions.enterInsertMode({ line: state.cursor.line, column: appendColumn });
       break;
 

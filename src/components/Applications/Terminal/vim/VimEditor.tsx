@@ -32,7 +32,7 @@ interface VimEditorProps {
 
 /**
  * VimEditor - A comprehensive vim text editor component
- * 
+ *
  * Features:
  * - Modal editing (Normal, Insert, Visual, Command modes)
  * - Essential vim motions and operations
@@ -52,15 +52,18 @@ export const VimEditor: React.FC<VimEditorProps> = ({
   onFileExists,
 }) => {
   const editorRef = useRef<HTMLDivElement>(null);
-  
+
   // Create vim editor context (memoized to prevent recreation)
-  const context = useMemo<VimEditorContext>(() => ({
-    saveFile: onSaveFile,
-    loadFile: onLoadFile,
-    exitVim: onExit,
-    fileExists: onFileExists,
-    currentDirectory,
-  }), [onSaveFile, onLoadFile, onExit, onFileExists, currentDirectory]);
+  const context = useMemo<VimEditorContext>(
+    () => ({
+      saveFile: onSaveFile,
+      loadFile: onLoadFile,
+      exitVim: onExit,
+      fileExists: onFileExists,
+      currentDirectory,
+    }),
+    [onSaveFile, onLoadFile, onExit, onFileExists, currentDirectory]
+  );
 
   // Initialize vim state
   const {
@@ -79,42 +82,51 @@ export const VimEditor: React.FC<VimEditorProps> = ({
   } = useVimState(filename, context);
 
   // Memoize actions object to prevent useVimKeyHandler from recreating
-  const vimActions = useMemo(() => ({
-    executeCommand,
-    enterInsertMode,
-    enterVisualMode,
-    enterNormalMode,
-    enterCommandMode,
-    updateBuffer,
-    moveCursor,
-    undo,
-    redo,
-    setMessage,
-    handleCommandInputChange,
-  }), [
-    executeCommand,
-    enterInsertMode,
-    enterVisualMode,
-    enterNormalMode,
-    enterCommandMode,
-    updateBuffer,
-    moveCursor,
-    undo,
-    redo,
-    setMessage,
-    handleCommandInputChange,
-  ]);
+  const vimActions = useMemo(
+    () => ({
+      executeCommand,
+      enterInsertMode,
+      enterVisualMode,
+      enterNormalMode,
+      enterCommandMode,
+      updateBuffer,
+      moveCursor,
+      undo,
+      redo,
+      setMessage,
+      handleCommandInputChange,
+    }),
+    [
+      executeCommand,
+      enterInsertMode,
+      enterVisualMode,
+      enterNormalMode,
+      enterCommandMode,
+      updateBuffer,
+      moveCursor,
+      undo,
+      redo,
+      setMessage,
+      handleCommandInputChange,
+    ]
+  );
 
   // Stable callback for memory warnings (prevent memory monitor restart)
-  const onMemoryWarning = useCallback((stats: any) => {
-    console.warn('Vim Editor: Memory usage warning', stats);
-    setMessage('High memory usage detected', 'warning');
-  }, [setMessage]);
-  
-  const onMemoryCritical = useCallback((stats: any) => {
-    console.error('Vim Editor: Critical memory usage', stats);
-    setMessage('Critical memory usage - performance may be affected', 'error');
-  }, [setMessage]);
+  const onMemoryWarning = useCallback(
+    (stats: any) => {
+      console.warn('Vim Editor: Memory usage warning', stats);
+      setMessage('High memory usage detected', 'warning');
+    },
+    [setMessage]
+  );
+
+  const onMemoryCritical = useCallback(
+    (stats: any) => {
+      console.error('Vim Editor: Critical memory usage', stats);
+      setMessage('Critical memory usage - performance may be affected', 'error');
+    },
+    [setMessage]
+  );
 
   // Memory monitoring with stable callbacks
   const { forceGarbageCollection, getCurrentMemoryUsage } = useMemoryMonitor({
@@ -140,16 +152,18 @@ export const VimEditor: React.FC<VimEditorProps> = ({
   // Emergency bailout if render threat is detected
   if (isThreatDetected) {
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100%',
-        color: theme.foreground,
-        backgroundColor: theme.background,
-        fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "Courier New", monospace',
-        fontSize: '14px',
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+          color: theme.foreground,
+          backgroundColor: theme.background,
+          fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "Courier New", monospace',
+          fontSize: '14px',
+        }}
+      >
         <div style={{ textAlign: 'center' }}>
           <div style={{ color: theme.error || '#ff4444', marginBottom: '8px' }}>
             ⚠️ Performance Protection Activated
@@ -179,12 +193,12 @@ export const VimEditor: React.FC<VimEditorProps> = ({
     const handleGlobalKeyDown = (event: KeyboardEvent) => {
       // Performance guard: prevent processing if element is not visible
       if (element.offsetParent === null) return;
-      
+
       // Prevent default browser shortcuts that conflict with vim
       if (event.ctrlKey && ['s', 'o', 'f', 'h', 'r', 'w', 'n', 't'].includes(event.key)) {
         event.preventDefault();
       }
-      
+
       try {
         handleKeyDown(event);
       } catch (error) {
@@ -195,71 +209,86 @@ export const VimEditor: React.FC<VimEditorProps> = ({
 
     // Use passive event listener for better performance
     element.addEventListener('keydown', handleGlobalKeyDown, { passive: false });
-    
+
     return () => {
       element.removeEventListener('keydown', handleGlobalKeyDown);
     };
   }, [handleKeyDown]);
 
   // Convert terminal theme to vim theme (memoized)
-  const vimTheme = useMemo(() => ({
-    background: theme.background,
-    foreground: theme.foreground,
-    currentLineBackground: theme.selection,
-    lineNumber: theme.comment,
-    currentLineNumber: theme.foreground,
-    statusBackground: theme.selection,
-    statusForeground: theme.foreground,
-    selectionBackground: theme.selection,
-    searchHighlight: theme.warning,
-    cursor: theme.cursor,
-    syntax: {
-      keyword: theme.success,
-      string: theme.directory,
-      comment: theme.comment,
-      number: theme.warning,
-      operator: theme.foreground,
-      identifier: theme.foreground,
-      type: theme.success,
-    },
-  }), [theme]);
+  const vimTheme = useMemo(
+    () => ({
+      background: theme.background,
+      foreground: theme.foreground,
+      currentLineBackground: theme.selection,
+      lineNumber: theme.comment,
+      currentLineNumber: theme.foreground,
+      statusBackground: theme.selection,
+      statusForeground: theme.foreground,
+      selectionBackground: theme.selection,
+      searchHighlight: theme.warning,
+      cursor: theme.cursor,
+      syntax: {
+        keyword: theme.success,
+        string: theme.directory,
+        comment: theme.comment,
+        number: theme.warning,
+        operator: theme.foreground,
+        identifier: theme.foreground,
+        type: theme.success,
+      },
+    }),
+    [theme]
+  );
 
   // Memoize style objects to prevent recreation
-  const containerStyle = useMemo((): React.CSSProperties => ({
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-    width: '100%',
-    backgroundColor: vimTheme.background,
-    color: vimTheme.foreground,
-    fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "Courier New", monospace',
-    fontSize: '14px',
-    overflow: 'hidden',
-    position: 'relative',
-  }), [vimTheme.background, vimTheme.foreground]);
+  const containerStyle = useMemo(
+    (): React.CSSProperties => ({
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%',
+      width: '100%',
+      backgroundColor: vimTheme.background,
+      color: vimTheme.foreground,
+      fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "Courier New", monospace',
+      fontSize: '14px',
+      overflow: 'hidden',
+      position: 'relative',
+    }),
+    [vimTheme.background, vimTheme.foreground]
+  );
 
-  const editorAreaStyle = useMemo((): React.CSSProperties => ({
-    display: 'flex',
-    flex: 1,
-    overflow: 'hidden',
-  }), []);
+  const editorAreaStyle = useMemo(
+    (): React.CSSProperties => ({
+      display: 'flex',
+      flex: 1,
+      overflow: 'hidden',
+    }),
+    []
+  );
 
-  const lineNumbersStyle = useMemo((): React.CSSProperties => ({
-    flexShrink: 0,
-  }), []);
+  const lineNumbersStyle = useMemo(
+    (): React.CSSProperties => ({
+      flexShrink: 0,
+    }),
+    []
+  );
 
-  const textAreaStyle = useMemo((): React.CSSProperties => ({
-    flex: 1,
-    overflow: 'hidden',
-  }), []);
+  const textAreaStyle = useMemo(
+    (): React.CSSProperties => ({
+      flex: 1,
+      overflow: 'hidden',
+    }),
+    []
+  );
 
   const handleVimError = (error: Error) => {
     console.error('Vim Editor crashed:', error);
     setMessage('Editor crashed - restarting in safe mode', 'error');
-    
+
     // Log memory usage for debugging
     console.log('Memory usage at crash:', getCurrentMemoryUsage());
-    
+
     // Force cleanup
     forceGarbageCollection();
   };
@@ -286,22 +315,13 @@ export const VimEditor: React.FC<VimEditorProps> = ({
               />
             </div>
           )}
-          
+
           <div style={textAreaStyle}>
-            <TextBuffer
-              state={state}
-              theme={vimTheme}
-              onBufferChange={updateBuffer}
-            />
+            <TextBuffer state={state} theme={vimTheme} onBufferChange={updateBuffer} />
           </div>
         </div>
 
-        <StatusBar
-          state={state}
-          theme={vimTheme}
-          filename={filename}
-          currentDirectory={currentDirectory}
-        />
+        <StatusBar state={state} theme={vimTheme} filename={filename} currentDirectory={currentDirectory} />
 
         {/* Vim-specific styling */}
         <style>{`

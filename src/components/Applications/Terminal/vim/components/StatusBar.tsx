@@ -17,15 +17,11 @@ interface StatusBarProps {
 
 /**
  * StatusBar - Enhanced status bar for vim editor
- * 
+ *
  * Shows current mode, filename, cursor position, and messages
  * Inspired by LunarVim's modern status bar design
  */
-export const StatusBar: React.FC<StatusBarProps> = ({
-  state,
-  theme,
-  filename,
-}) => {
+export const StatusBar: React.FC<StatusBarProps> = ({ state, theme, filename }) => {
   // Get mode display text and color
   const getModeDisplay = () => {
     switch (state.mode) {
@@ -124,8 +120,12 @@ export const StatusBar: React.FC<StatusBarProps> = ({
   };
 
   const messageStyle: React.CSSProperties = {
-    color: state.messageType === 'error' ? theme.syntax.string : 
-           state.messageType === 'warning' ? theme.syntax.number : theme.statusForeground,
+    color:
+      state.messageType === 'error'
+        ? theme.syntax.string
+        : state.messageType === 'warning'
+          ? theme.syntax.number
+          : theme.statusForeground,
     fontStyle: state.messageType === 'info' ? 'italic' : 'normal',
   };
 
@@ -139,27 +139,17 @@ export const StatusBar: React.FC<StatusBarProps> = ({
       {/* Main status bar */}
       <div style={containerStyle} className="vim-status-bar">
         <div style={leftSectionStyle}>
-          <div style={modeStyle}>
-            {modeDisplay.text}
-          </div>
-          
+          <div style={modeStyle}>{modeDisplay.text}</div>
+
           <div style={fileInfoStyle}>
             <span>{filename || '[No Name]'}</span>
             <span>{getFileStatus()}</span>
-            {state.message && (
-              <span style={messageStyle}>
-                {state.message}
-              </span>
-            )}
+            {state.message && <span style={messageStyle}>{state.message}</span>}
           </div>
         </div>
 
         <div style={rightSectionStyle}>
-          {getFileType() && (
-            <span style={fileTypeStyle}>
-              {getFileType()}
-            </span>
-          )}
+          {getFileType() && <span style={fileTypeStyle}>{getFileType()}</span>}
           <span>{getCursorPosition()}</span>
           <span>{state.buffer.length} lines</span>
         </div>
@@ -179,7 +169,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({
           className="vim-command-line"
         >
           :{state.commandInput}
-          <span 
+          <span
             style={{
               animation: 'vim-blink 1s infinite',
               marginLeft: '1px',

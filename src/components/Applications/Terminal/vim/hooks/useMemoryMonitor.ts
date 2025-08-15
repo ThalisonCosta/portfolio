@@ -34,20 +34,20 @@ export function useMemoryMonitor(options: MemoryMonitorOptions = {}) {
   const getMemoryStats = useCallback((): MemoryStats => {
     // Check if performance.memory is available (Chrome/Edge)
     if (typeof performance !== 'undefined' && 'memory' in performance) {
-      const memory = (performance as any).memory;
+      const { memory } = performance as any;
       return {
         usedJSHeapSize: memory.usedJSHeapSize,
         totalJSHeapSize: memory.totalJSHeapSize,
         jsHeapSizeLimit: memory.jsHeapSizeLimit,
       };
     }
-    
+
     return {};
   }, []);
 
   const checkMemory = useCallback(() => {
     const stats = getMemoryStats();
-    
+
     if (!stats.usedJSHeapSize) {
       // Memory API not available, skip monitoring
       return;
@@ -55,16 +55,16 @@ export function useMemoryMonitor(options: MemoryMonitorOptions = {}) {
 
     const usedMB = stats.usedJSHeapSize / (1024 * 1024);
     const now = Date.now();
-    
+
     // Check critical threshold (only alert once per 5 minutes)
     if (usedMB > criticalThresholdMB && now - lastCriticalRef.current > 300000) {
       lastCriticalRef.current = now;
       console.warn(`Vim Editor: Critical memory usage detected: ${usedMB.toFixed(1)}MB`);
-      
+
       if (onCritical) {
         onCritical(stats);
       }
-      
+
       // Trigger garbage collection if available
       if (typeof window !== 'undefined' && 'gc' in window && typeof (window as any).gc === 'function') {
         try {
@@ -78,7 +78,7 @@ export function useMemoryMonitor(options: MemoryMonitorOptions = {}) {
     else if (usedMB > warningThresholdMB && now - lastWarningRef.current > 120000) {
       lastWarningRef.current = now;
       console.warn(`Vim Editor: High memory usage detected: ${usedMB.toFixed(1)}MB`);
-      
+
       if (onWarning) {
         onWarning(stats);
       }
@@ -100,15 +100,15 @@ export function useMemoryMonitor(options: MemoryMonitorOptions = {}) {
   // Get current memory usage for debugging
   const getCurrentMemoryUsage = useCallback((): string => {
     const stats = getMemoryStats();
-    
+
     if (!stats.usedJSHeapSize) {
       return 'Memory monitoring not available';
     }
-    
+
     const usedMB = (stats.usedJSHeapSize / (1024 * 1024)).toFixed(1);
     const totalMB = stats.totalJSHeapSize ? (stats.totalJSHeapSize / (1024 * 1024)).toFixed(1) : 'N/A';
     const limitMB = stats.jsHeapSizeLimit ? (stats.jsHeapSizeLimit / (1024 * 1024)).toFixed(1) : 'N/A';
-    
+
     return `Used: ${usedMB}MB, Total: ${totalMB}MB, Limit: ${limitMB}MB`;
   }, [getMemoryStats]);
 
@@ -116,10 +116,10 @@ export function useMemoryMonitor(options: MemoryMonitorOptions = {}) {
   useEffect(() => {
     // Initial check
     checkMemory();
-    
+
     // Set up periodic monitoring
     intervalRef.current = setInterval(checkMemory, monitoringIntervalMs);
-    
+
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);

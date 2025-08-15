@@ -21,7 +21,7 @@ interface LineNumbersProps {
 
 /**
  * LineNumbers - Line number gutter for the vim editor
- * 
+ *
  * Features:
  * - Absolute and relative line numbers
  * - Current line highlighting
@@ -56,10 +56,7 @@ export const LineNumbers: React.FC<LineNumbersProps> = ({
   const getVisibleRange = (): [number, number] => {
     const lineHeight = 20;
     const startLine = Math.max(0, Math.floor(scrollOffset / lineHeight) - 5);
-    const endLine = Math.min(
-      buffer.length,
-      startLine + Math.ceil(viewportHeight / lineHeight) + 10
-    );
+    const endLine = Math.min(buffer.length, startLine + Math.ceil(viewportHeight / lineHeight) + 10);
     return [startLine, endLine];
   };
 
@@ -118,7 +115,7 @@ export const LineNumbers: React.FC<LineNumbersProps> = ({
               </div>
             );
           })}
-          
+
           {/* Handle empty buffer */}
           {buffer.length === 0 && (
             <div style={lineNumberStyle(0)} className="vim-line-number current">

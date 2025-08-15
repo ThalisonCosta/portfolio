@@ -98,7 +98,7 @@ export const StyleObjectPool = {
     }
 
     const style = factory();
-    
+
     // Prevent cache from growing too large
     if (styleCache.size >= 500) {
       // Clear oldest 50% of entries
@@ -164,11 +164,7 @@ const resetPooledEvent = (event: PooledEvent): void => {
   event.metaKey = false;
 };
 
-export const eventPool = new ObjectPool(
-  createPooledEvent,
-  resetPooledEvent,
-  50
-);
+export const eventPool = new ObjectPool(createPooledEvent, resetPooledEvent, 50);
 
 /**
  * Syntax token pool for highlighting

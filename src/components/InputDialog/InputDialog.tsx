@@ -29,7 +29,7 @@ interface InputDialogProps {
 
 /**
  * Windows 11-style input dialog component
- * 
+ *
  * Features:
  * - Fluent Design styling with backdrop blur
  * - Form validation with error messages
@@ -67,29 +67,32 @@ export const InputDialog: React.FC<InputDialogProps> = ({
   /**
    * Validate input value
    */
-  const validateInput = useCallback((inputValue: string): string | null => {
-    if (required && !inputValue.trim()) {
-      return 'This field is required';
-    }
+  const validateInput = useCallback(
+    (inputValue: string): string | null => {
+      if (required && !inputValue.trim()) {
+        return 'This field is required';
+      }
 
-    if (inputValue.length > maxLength) {
-      return `Maximum length is ${maxLength} characters`;
-    }
+      if (inputValue.length > maxLength) {
+        return `Maximum length is ${maxLength} characters`;
+      }
 
-    // Custom validation
-    if (validate) {
-      return validate(inputValue);
-    }
+      // Custom validation
+      if (validate) {
+        return validate(inputValue);
+      }
 
-    return null;
-  }, [required, maxLength, validate]);
+      return null;
+    },
+    [required, maxLength, validate]
+  );
 
   /**
    * Handle confirmation
    */
   const handleConfirm = useCallback(() => {
     const validationError = validateInput(value);
-    
+
     if (validationError) {
       setError(validationError);
       return;
@@ -156,15 +159,18 @@ export const InputDialog: React.FC<InputDialogProps> = ({
   /**
    * Handle input change
    */
-  const handleInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = event.target.value;
-    setValue(newValue);
-    
-    // Clear error when user starts typing
-    if (error) {
-      setError(null);
-    }
-  }, [error]);
+  const handleInputChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = event.target.value;
+      setValue(newValue);
+
+      // Clear error when user starts typing
+      if (error) {
+        setError(null);
+      }
+    },
+    [error]
+  );
 
   /**
    * Handle cancel
@@ -204,13 +210,13 @@ export const InputDialog: React.FC<InputDialogProps> = ({
               aria-describedby={error ? 'input-error' : 'input-hint'}
               aria-invalid={!!error}
             />
-            
+
             {error && (
               <div id="input-error" className="input-dialog-error" role="alert">
                 {error}
               </div>
             )}
-            
+
             <div id="input-hint" className="input-dialog-hint">
               {charactersRemaining} characters remaining
             </div>
@@ -218,11 +224,7 @@ export const InputDialog: React.FC<InputDialogProps> = ({
         </div>
 
         <div className="input-dialog-actions">
-          <button
-            type="button"
-            onClick={handleCancel}
-            className="input-dialog-button input-dialog-button-secondary"
-          >
+          <button type="button" onClick={handleCancel} className="input-dialog-button input-dialog-button-secondary">
             Cancel
           </button>
           <button

@@ -23,7 +23,7 @@
   background: var(--dialog-bg, rgba(249, 249, 249, 0.95));
   border: 1px solid var(--dialog-border, rgba(0, 0, 0, 0.05));
   border-radius: 12px;
-  box-shadow: 
+  box-shadow:
     0 32px 64px var(--dialog-shadow-1, rgba(0, 0, 0, 0.18)),
     0 0 0 1px var(--dialog-shadow-2, rgba(0, 0, 0, 0.05));
   backdrop-filter: blur(30px);
@@ -31,7 +31,14 @@
   max-width: 500px;
   width: 100%;
   animation: dialogSlideIn 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
-  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+  font-family:
+    'Segoe UI',
+    -apple-system,
+    BlinkMacSystemFont,
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
   overflow: hidden;
 }
 
@@ -184,7 +191,9 @@
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.1s ease;
+  transition:
+    background-color 0.15s ease,
+    transform 0.1s ease;
   min-width: 80px;
   height: 40px;
   display: flex;
@@ -264,11 +273,11 @@
     box-shadow: none;
     backdrop-filter: none;
   }
-  
+
   .confirm-dialog-button {
     border: 2px solid;
   }
-  
+
   .confirm-dialog-button:focus {
     outline: 3px solid;
     outline-offset: 3px;
@@ -280,19 +289,19 @@
   .confirm-dialog-overlay {
     animation: none;
   }
-  
+
   .confirm-dialog {
     animation: none;
   }
-  
+
   .confirm-dialog-button {
     transition: none;
   }
-  
+
   .confirm-dialog-button:hover {
     transform: none;
   }
-  
+
   .confirm-dialog-button:active {
     transform: none;
   }
@@ -303,29 +312,29 @@
   .confirm-dialog-overlay {
     padding: 16px;
   }
-  
+
   .confirm-dialog {
     min-width: 280px;
   }
-  
+
   .confirm-dialog-header {
     padding: 20px 20px 16px 20px;
   }
-  
+
   .confirm-dialog-content {
     padding: 16px 20px;
   }
-  
+
   .confirm-dialog-actions {
     padding: 16px 20px 20px 20px;
     flex-direction: column-reverse;
   }
-  
+
   .confirm-dialog-button {
     width: 100%;
     min-width: auto;
   }
-  
+
   .confirm-dialog-items {
     padding: 12px;
   }

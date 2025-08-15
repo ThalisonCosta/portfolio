@@ -23,7 +23,7 @@
   background: var(--dialog-bg, rgba(249, 249, 249, 0.95));
   border: 1px solid var(--dialog-border, rgba(0, 0, 0, 0.05));
   border-radius: 12px;
-  box-shadow: 
+  box-shadow:
     0 32px 64px var(--dialog-shadow-1, rgba(0, 0, 0, 0.18)),
     0 0 0 1px var(--dialog-shadow-2, rgba(0, 0, 0, 0.05));
   backdrop-filter: blur(30px);
@@ -31,7 +31,14 @@
   max-width: 480px;
   width: 100%;
   animation: dialogSlideIn 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
-  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+  font-family:
+    'Segoe UI',
+    -apple-system,
+    BlinkMacSystemFont,
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
   overflow: hidden;
 }
 
@@ -112,7 +119,9 @@
   color: var(--dialog-text-color, #1f1f1f);
   font-size: 14px;
   font-family: inherit;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
   outline: none;
   box-sizing: border-box;
 }
@@ -163,7 +172,9 @@
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.1s ease;
+  transition:
+    background-color 0.15s ease,
+    transform 0.1s ease;
   min-width: 80px;
   height: 40px;
   display: flex;
@@ -231,12 +242,12 @@
     box-shadow: none;
     backdrop-filter: none;
   }
-  
+
   .input-dialog-input:focus {
     outline: 2px solid;
     outline-offset: 2px;
   }
-  
+
   .input-dialog-button {
     border: 2px solid;
   }
@@ -247,23 +258,23 @@
   .input-dialog-overlay {
     animation: none;
   }
-  
+
   .input-dialog {
     animation: none;
   }
-  
+
   .input-dialog-input {
     transition: none;
   }
-  
+
   .input-dialog-button {
     transition: none;
   }
-  
+
   .input-dialog-button:hover:not(:disabled) {
     transform: none;
   }
-  
+
   .input-dialog-button:active:not(:disabled) {
     transform: none;
   }
@@ -274,24 +285,24 @@
   .input-dialog-overlay {
     padding: 16px;
   }
-  
+
   .input-dialog {
     min-width: 280px;
   }
-  
+
   .input-dialog-header {
     padding: 20px 20px 16px 20px;
   }
-  
+
   .input-dialog-content {
     padding: 16px 20px;
   }
-  
+
   .input-dialog-actions {
     padding: 16px 20px 20px 20px;
     flex-direction: column-reverse;
   }
-  
+
   .input-dialog-button {
     width: 100%;
     min-width: auto;

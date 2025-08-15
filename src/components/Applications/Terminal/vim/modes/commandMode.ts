@@ -17,7 +17,6 @@ interface VimActions {
   handleCommandInputChange: (char: string, action: 'add' | 'delete') => void;
 }
 
-
 /**
  * Execute the current command
  */
@@ -32,7 +31,7 @@ async function executeCurrentCommand(state: VimState, actions: VimActions): Prom
   } catch (error) {
     actions.setMessage(`Command error: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
   }
-  
+
   // executeCommand should handle mode switching, but ensure we're in normal mode
   actions.enterNormalMode();
 }

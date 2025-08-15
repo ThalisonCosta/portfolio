@@ -39,7 +39,7 @@ interface ContextMenuProps {
 
 /**
  * Windows 11-style context menu component
- * 
+ *
  * Features:
  * - Fluent Design styling with rounded corners and shadows
  * - Keyboard navigation support
@@ -47,13 +47,7 @@ interface ContextMenuProps {
  * - Automatic positioning to stay within viewport
  * - Smooth animations
  */
-export const ContextMenu: React.FC<ContextMenuProps> = ({
-  isVisible,
-  position,
-  items,
-  onClose,
-  className = '',
-}) => {
+export const ContextMenu: React.FC<ContextMenuProps> = ({ isVisible, position, items, onClose, className = '' }) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const focusedItemRef = useRef<number>(-1);
 
@@ -123,8 +117,8 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
     if (!isVisible) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      const validItems = items.filter(item => !item.separator && !item.disabled);
-      
+      const validItems = items.filter((item) => !item.separator && !item.disabled);
+
       switch (event.key) {
         case 'ArrowDown':
           event.preventDefault();
@@ -160,14 +154,17 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
   /**
    * Handle menu item click
    */
-  const handleItemClick = useCallback((item: ContextMenuItem) => {
-    if (item.disabled || item.separator) return;
-    
-    if (item.onClick) {
-      item.onClick();
-    }
-    onClose();
-  }, [onClose]);
+  const handleItemClick = useCallback(
+    (item: ContextMenuItem) => {
+      if (item.disabled || item.separator) return;
+
+      if (item.onClick) {
+        item.onClick();
+      }
+      onClose();
+    },
+    [onClose]
+  );
 
   /**
    * Focus the menu when it becomes visible
@@ -197,16 +194,10 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
     >
       {items.map((item, index) => {
         if (item.separator) {
-          return (
-            <div
-              key={`separator-${index}`}
-              className="context-menu-separator"
-              role="separator"
-            />
-          );
+          return <div key={`separator-${index}`} className="context-menu-separator" role="separator" />;
         }
 
-        const validItemIndex = items.slice(0, index).filter(i => !i.separator && !i.disabled).length;
+        const validItemIndex = items.slice(0, index).filter((i) => !i.separator && !i.disabled).length;
         const isFocused = focusedItemRef.current === validItemIndex;
 
         return (

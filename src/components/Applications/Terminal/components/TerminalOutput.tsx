@@ -67,7 +67,7 @@ const TerminalOutputComponent: React.FC<TerminalOutputProps> = ({
   const outputRef = useRef<HTMLDivElement>(null);
   const isUserScrollingRef = useRef(false);
   const scrollTimeoutRef = useRef<number | undefined>(undefined);
-  
+
   // Virtual scrolling state
   const [scrollTop, setScrollTop] = useState(0);
   const [viewportHeight, setViewportHeight] = useState(0);
@@ -90,7 +90,10 @@ const TerminalOutputComponent: React.FC<TerminalOutputProps> = ({
   }, [scrollTop, viewportHeight, displayedOutput.length]);
 
   // Get visible items
-  const visibleItems = useMemo(() => displayedOutput.slice(startIndex, endIndex), [displayedOutput, startIndex, endIndex]);
+  const visibleItems = useMemo(
+    () => displayedOutput.slice(startIndex, endIndex),
+    [displayedOutput, startIndex, endIndex]
+  );
 
   /**
    * Optimized scroll handler with debouncing
@@ -153,20 +156,30 @@ const TerminalOutputComponent: React.FC<TerminalOutputProps> = ({
     }));
   }, [theme.background, theme.comment]);
 
-  const contentStyle = useMemo(() => StyleObjectPool.get('content', () => ({
-    position: 'relative' as const,
-    height: `${totalHeight}px`,
-    padding: '8px 8px',
-  })), [totalHeight]);
+  const contentStyle = useMemo(
+    () =>
+      StyleObjectPool.get('content', () => ({
+        position: 'relative' as const,
+        height: `${totalHeight}px`,
+        padding: '8px 8px',
+      })),
+    [totalHeight]
+  );
 
-  const inputContainerStyle = useMemo(() => StyleObjectPool.get('input-container', () => ({
-      padding: '0',
-      minHeight: 'auto' as const,
-    })), []);
+  const inputContainerStyle = useMemo(
+    () =>
+      StyleObjectPool.get('input-container', () => ({
+        padding: '0',
+        minHeight: 'auto' as const,
+      })),
+    []
+  );
 
   const scrollbarStyle = useMemo(() => {
     const styleKey = `scrollbar-${theme.background}-${theme.comment}-${theme.foreground}`;
-    return StyleObjectPool.get(styleKey, () => `
+    return StyleObjectPool.get(
+      styleKey,
+      () => `
       .terminal-output::-webkit-scrollbar {
         width: 8px;
       }
@@ -181,18 +194,27 @@ const TerminalOutputComponent: React.FC<TerminalOutputProps> = ({
       .terminal-output::-webkit-scrollbar-thumb:hover {
         background-color: ${theme.foreground};
       }
-    `);
+    `
+    );
   }, [theme.background, theme.comment, theme.foreground]);
 
-  const hasInputProps = useMemo(() => currentInput !== undefined && onInputChange && onKeyDown && currentDirectory && osType && username && hostname, [currentInput, onInputChange, onKeyDown, currentDirectory, osType, username, hostname]);
+  const hasInputProps = useMemo(
+    () =>
+      currentInput !== undefined && onInputChange && onKeyDown && currentDirectory && osType && username && hostname,
+    [currentInput, onInputChange, onKeyDown, currentDirectory, osType, username, hostname]
+  );
 
   // Virtual list item style
-  const virtualListStyle = useMemo(() => StyleObjectPool.get('virtual-list', () => ({
-      position: 'absolute' as const,
-      top: `${startIndex * ITEM_HEIGHT}px`,
-      left: 0,
-      right: 0,
-    })), [startIndex]);
+  const virtualListStyle = useMemo(
+    () =>
+      StyleObjectPool.get('virtual-list', () => ({
+        position: 'absolute' as const,
+        top: `${startIndex * ITEM_HEIGHT}px`,
+        left: 0,
+        right: 0,
+      })),
+    [startIndex]
+  );
 
   return (
     <>
@@ -223,27 +245,23 @@ const TerminalOutputComponent: React.FC<TerminalOutputProps> = ({
               {visibleItems.map((line, index) => {
                 const actualIndex = startIndex + index;
                 // Create robust unique key to prevent duplicate key warnings
-                const uniqueKey = line.id && line.id.trim() !== '' 
-                  ? `${line.id}-${actualIndex}` 
-                  : `line-${actualIndex}-${line.timestamp?.getTime() || Date.now()}`;
-                
+                const uniqueKey =
+                  line.id && line.id.trim() !== ''
+                    ? `${line.id}-${actualIndex}`
+                    : `line-${actualIndex}-${line.timestamp?.getTime() || Date.now()}`;
+
                 // Development mode: validate key uniqueness
                 if (process.env.NODE_ENV === 'development') {
                   if (!line.id || line.id.trim() === '') {
-                    console.warn(`TerminalOutput: Line at index ${actualIndex} has empty ID, using fallback key: ${uniqueKey}`);
+                    console.warn(
+                      `TerminalOutput: Line at index ${actualIndex} has empty ID, using fallback key: ${uniqueKey}`
+                    );
                   }
                 }
-                
+
                 return (
-                  <div
-                    key={uniqueKey}
-                    style={{ height: `${ITEM_HEIGHT}px` }}
-                  >
-                    <TerminalLine 
-                      line={line} 
-                      theme={theme} 
-                      isLast={actualIndex === displayedOutput.length - 1} 
-                    />
+                  <div key={uniqueKey} style={{ height: `${ITEM_HEIGHT}px` }}>
+                    <TerminalLine line={line} theme={theme} isLast={actualIndex === displayedOutput.length - 1} />
                   </div>
                 );
               })}
@@ -280,7 +298,9 @@ const TerminalOutputComponent: React.FC<TerminalOutputProps> = ({
 /**
  * Memoized terminal output with custom comparison
  */
-export const TerminalOutput = memo(TerminalOutputComponent, (prevProps, nextProps) => (
+export const TerminalOutput = memo(
+  TerminalOutputComponent,
+  (prevProps, nextProps) =>
     prevProps.output.length === nextProps.output.length &&
     prevProps.output === nextProps.output &&
     prevProps.theme === nextProps.theme &&
@@ -290,6 +310,6 @@ export const TerminalOutput = memo(TerminalOutputComponent, (prevProps, nextProp
     prevProps.isExecuting === nextProps.isExecuting &&
     prevProps.cursorPosition === nextProps.cursorPosition &&
     prevProps.showSuggestions === nextProps.showSuggestions
-  ));
+);
 
 TerminalOutput.displayName = 'TerminalOutput';

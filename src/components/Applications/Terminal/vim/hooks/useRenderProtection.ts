@@ -42,7 +42,7 @@ export function useRenderProtection(options: RenderProtectionOptions = {}) {
     renderTimesRef.current.push(now);
 
     // Clean old render times (older than 1 second)
-    renderTimesRef.current = renderTimesRef.current.filter(time => now - time < 1000);
+    renderTimesRef.current = renderTimesRef.current.filter((time) => now - time < 1000);
 
     // Check for excessive renders per second
     if (renderTimesRef.current.length > maxRendersPerSecond) {
@@ -67,7 +67,8 @@ export function useRenderProtection(options: RenderProtectionOptions = {}) {
     }
 
     // Reset consecutive counter if enough time has passed
-    if (now - lastResetRef.current > 5000) { // 5 seconds
+    if (now - lastResetRef.current > 5000) {
+      // 5 seconds
       consecutiveRendersRef.current = 0;
       lastResetRef.current = now;
     }

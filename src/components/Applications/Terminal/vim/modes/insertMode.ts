@@ -22,10 +22,10 @@ interface VimActions {
 function insertCharacter(state: VimState, char: string, actions: VimActions): void {
   const currentLine = state.buffer[state.cursor.line] || '';
   const newLine = currentLine.slice(0, state.cursor.column) + char + currentLine.slice(state.cursor.column);
-  
+
   const newBuffer = [...state.buffer];
   newBuffer[state.cursor.line] = newLine;
-  
+
   actions.updateBuffer(newBuffer);
   actions.moveCursor({ line: state.cursor.line, column: state.cursor.column + 1 });
 }
@@ -38,10 +38,10 @@ function deleteCharacterBefore(state: VimState, actions: VimActions): void {
     // Delete character in current line
     const currentLine = state.buffer[state.cursor.line] || '';
     const newLine = currentLine.slice(0, state.cursor.column - 1) + currentLine.slice(state.cursor.column);
-    
+
     const newBuffer = [...state.buffer];
     newBuffer[state.cursor.line] = newLine;
-    
+
     actions.updateBuffer(newBuffer);
     actions.moveCursor({ line: state.cursor.line, column: state.cursor.column - 1 });
   } else if (state.cursor.line > 0) {
@@ -49,13 +49,13 @@ function deleteCharacterBefore(state: VimState, actions: VimActions): void {
     const currentLine = state.buffer[state.cursor.line] || '';
     const previousLine = state.buffer[state.cursor.line - 1] || '';
     const joinedLine = previousLine + currentLine;
-    
+
     const newBuffer = [
       ...state.buffer.slice(0, state.cursor.line - 1),
       joinedLine,
       ...state.buffer.slice(state.cursor.line + 1),
     ];
-    
+
     actions.updateBuffer(newBuffer);
     actions.moveCursor({ line: state.cursor.line - 1, column: previousLine.length });
   }
@@ -66,26 +66,26 @@ function deleteCharacterBefore(state: VimState, actions: VimActions): void {
  */
 function deleteCharacterAfter(state: VimState, actions: VimActions): void {
   const currentLine = state.buffer[state.cursor.line] || '';
-  
+
   if (state.cursor.column < currentLine.length) {
     // Delete character in current line
     const newLine = currentLine.slice(0, state.cursor.column) + currentLine.slice(state.cursor.column + 1);
-    
+
     const newBuffer = [...state.buffer];
     newBuffer[state.cursor.line] = newLine;
-    
+
     actions.updateBuffer(newBuffer);
   } else if (state.cursor.line < state.buffer.length - 1) {
     // Join with next line
     const nextLine = state.buffer[state.cursor.line + 1] || '';
     const joinedLine = currentLine + nextLine;
-    
+
     const newBuffer = [
       ...state.buffer.slice(0, state.cursor.line),
       joinedLine,
       ...state.buffer.slice(state.cursor.line + 2),
     ];
-    
+
     actions.updateBuffer(newBuffer);
   }
 }
@@ -97,14 +97,14 @@ function insertNewLine(state: VimState, actions: VimActions): void {
   const currentLine = state.buffer[state.cursor.line] || '';
   const beforeCursor = currentLine.slice(0, state.cursor.column);
   const afterCursor = currentLine.slice(state.cursor.column);
-  
+
   const newBuffer = [
     ...state.buffer.slice(0, state.cursor.line),
     beforeCursor,
     afterCursor,
     ...state.buffer.slice(state.cursor.line + 1),
   ];
-  
+
   actions.updateBuffer(newBuffer);
   actions.moveCursor({ line: state.cursor.line + 1, column: 0 });
 }

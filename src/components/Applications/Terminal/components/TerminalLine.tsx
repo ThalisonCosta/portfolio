@@ -66,7 +66,7 @@ const TerminalLineComponent: React.FC<TerminalLineProps> = ({ line, theme, isLas
       if (['input', 'error', 'success', 'warning'].includes(line.type)) {
         return { ...baseStyle, fontWeight: 500 };
       }
-      
+
       return baseStyle;
     });
   }, [line.type, lineColor]);
@@ -78,7 +78,7 @@ const TerminalLineComponent: React.FC<TerminalLineProps> = ({ line, theme, isLas
     const hasHtmlContent = line.content.includes('<span') || line.content.includes('</span>');
     const hasAnsiCodes = line.content.includes('\x1b[');
     const needsHtml = hasHtmlContent || hasAnsiCodes;
-    
+
     return {
       needsHtmlRendering: needsHtml,
       processedContent: hasAnsiCodes ? AnsiColorizer.ansiToHtml(line.content) : line.content,
@@ -88,11 +88,14 @@ const TerminalLineComponent: React.FC<TerminalLineProps> = ({ line, theme, isLas
   /**
    * Memoized scroll-into-view callback
    */
-  const scrollRef = useCallback((el: HTMLDivElement | null) => {
-    if (el && isLast && typeof el.scrollIntoView === 'function') {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [isLast]);
+  const scrollRef = useCallback(
+    (el: HTMLDivElement | null) => {
+      if (el && isLast && typeof el.scrollIntoView === 'function') {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    },
+    [isLast]
+  );
 
   return (
     <div
@@ -102,11 +105,7 @@ const TerminalLineComponent: React.FC<TerminalLineProps> = ({ line, theme, isLas
       data-timestamp={line.timestamp.toISOString()}
       ref={isLast ? scrollRef : undefined}
     >
-      {needsHtmlRendering ? (
-        <span dangerouslySetInnerHTML={{ __html: processedContent }} />
-      ) : (
-        processedContent
-      )}
+      {needsHtmlRendering ? <span dangerouslySetInnerHTML={{ __html: processedContent }} /> : processedContent}
     </div>
   );
 };
@@ -114,15 +113,15 @@ const TerminalLineComponent: React.FC<TerminalLineProps> = ({ line, theme, isLas
 /**
  * Memoized terminal line with custom comparison function
  */
-export const TerminalLine = memo(TerminalLineComponent, (prevProps, nextProps) => {
-  // Custom comparison to prevent unnecessary re-renders
-  return (
+export const TerminalLine = memo(
+  TerminalLineComponent,
+  (prevProps, nextProps) =>
+    // Custom comparison to prevent unnecessary re-renders
     prevProps.line.id === nextProps.line.id &&
     prevProps.line.content === nextProps.line.content &&
     prevProps.line.type === nextProps.line.type &&
     prevProps.isLast === nextProps.isLast &&
     prevProps.theme === nextProps.theme
-  );
-});
+);
 
 TerminalLine.displayName = 'TerminalLine';

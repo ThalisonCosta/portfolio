@@ -11,7 +11,7 @@ interface ContextMenuProviderProps {
 
 /**
  * Context menu provider component for global context menu state management
- * 
+ *
  * This provider allows any component in the app to show context menus
  * without having to manage state locally. It renders a single context menu
  * component that can be controlled from anywhere in the component tree.
@@ -38,7 +38,7 @@ export const ContextMenuProvider: React.FC<ContextMenuProviderProps> = ({ childr
    * Hide context menu
    */
   const hideContextMenu = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isVisible: false,
     }));
@@ -63,4 +63,3 @@ export const ContextMenuProvider: React.FC<ContextMenuProviderProps> = ({ childr
     </ContextMenuContext.Provider>
   );
 };
-

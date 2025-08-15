@@ -16,7 +16,7 @@ interface TextBufferProps {
 
 /**
  * TextBuffer - The main text editing area of the vim editor
- * 
+ *
  * Features:
  * - Virtual scrolling for performance
  * - Syntax highlighting
@@ -24,36 +24,33 @@ interface TextBufferProps {
  * - Search highlighting
  * - Cursor positioning and rendering
  */
-export const TextBuffer: React.FC<TextBufferProps> = ({
-  state,
-  theme,
-}) => {
+export const TextBuffer: React.FC<TextBufferProps> = ({ state, theme }) => {
   const bufferRef = useRef<HTMLDivElement>(null);
   const { highlightLine, clearCache, getCacheStats } = useSyntaxHighlighter();
 
   // State for visible range to prevent infinite render loops
   const [visibleRange, setVisibleRange] = useState<[number, number]>([0, Math.min(state.buffer.length, 50)]);
-  
+
   // Calculate visible range without triggering renders
   const calculateVisibleRange = useCallback((): [number, number] => {
     const element = bufferRef.current;
     if (!element) return [0, Math.min(state.buffer.length, 50)];
-    
+
     const lineHeight = 20;
     const viewportHeight = element.clientHeight;
-    const scrollTop = element.scrollTop;
-    
+    const { scrollTop } = element;
+
     const startLine = Math.floor(scrollTop / lineHeight);
     const endLine = Math.min(
       state.buffer.length,
       startLine + Math.ceil(viewportHeight / lineHeight) + 10 // Increased buffer for new lines
     );
-    
+
     // Ensure cursor line is always included in visible range
     const cursorLine = state.cursor.line;
     const adjustedStartLine = Math.max(0, Math.min(startLine - 5, cursorLine - 5));
     const adjustedEndLine = Math.max(endLine, cursorLine + 10);
-    
+
     return [adjustedStartLine, Math.min(adjustedEndLine, state.buffer.length)];
   }, [state.buffer.length, state.cursor.line]);
 
@@ -76,7 +73,7 @@ export const TextBuffer: React.FC<TextBufferProps> = ({
     // If cursor is outside viewport, scroll immediately (no delay)
     if (cursorTop < viewportTop || cursorTop > viewportBottom - lineHeight) {
       element.scrollTop = Math.max(0, cursorTop - element.clientHeight / 2);
-      
+
       // Update visible range immediately after scroll
       const newRange = calculateVisibleRange();
       setVisibleRange(newRange);
@@ -110,7 +107,7 @@ export const TextBuffer: React.FC<TextBufferProps> = ({
 
         if (cursorTop < viewportTop || cursorTop > viewportBottom - lineHeight) {
           element.scrollTop = Math.max(0, cursorTop - element.clientHeight / 2);
-          
+
           // Update visible range after programmatic scroll
           const newRange = calculateVisibleRange();
           setVisibleRange(newRange);
@@ -130,14 +127,13 @@ export const TextBuffer: React.FC<TextBufferProps> = ({
 
     element.addEventListener('scroll', handleScroll, { passive: true });
     handleCursorScroll(); // Handle cursor scroll immediately
-    
+
     return () => {
       element.removeEventListener('scroll', handleScroll);
       clearTimeout(scrollTimeout);
       clearTimeout(cursorScrollTimeout);
     };
   }, [calculateVisibleRange, state.cursor, state.buffer, clearCache, getCacheStats]);
-
 
   // Stabilize cursor and mode values to reduce re-renders
   const cursorLine = state.cursor.line;
@@ -146,89 +142,90 @@ export const TextBuffer: React.FC<TextBufferProps> = ({
   const currentFilename = state.filename;
 
   // Generate line HTML with syntax highlighting using string manipulation (much faster than React elements)
-  const generateLineHTML = useMemo(() => {
-    return (lineText: string, lineIndex: number): string => {
-      const highlightedLine = highlightLine(lineText, currentFilename);
-      let html = '';
-      
-      // Pre-compute selection and cursor info for this line
-      const isCursorLine = cursorLine === lineIndex;
-      const cursorCol = isCursorLine ? cursorColumn : -1;
-      
-      // Handle empty lines
-      if (lineText.length === 0) {
-        if (isCursorLine) {
-          return '<span class="vim-cursor">█</span>';
+  const generateLineHTML = useMemo(
+    () =>
+      (lineText: string, lineIndex: number): string => {
+        const highlightedLine = highlightLine(lineText, currentFilename);
+        let html = '';
+
+        // Pre-compute selection and cursor info for this line
+        const isCursorLine = cursorLine === lineIndex;
+        const cursorCol = isCursorLine ? cursorColumn : -1;
+
+        // Handle empty lines
+        if (lineText.length === 0) {
+          if (isCursorLine) {
+            return '<span class="vim-cursor">█</span>';
+          }
+          return '<span>&nbsp;</span>';
         }
-        return '<span>&nbsp;</span>';
-      }
-      
-      // Create segments based on syntax tokens and cursor position
-      const segments: Array<{start: number, end: number, className: string, isCursor?: boolean}> = [];
-      
-      // Add syntax highlighting segments
-      highlightedLine.tokens.forEach(token => {
-        segments.push({
-          start: token.start,
-          end: token.end,
-          className: `vim-syntax-${token.type}`
+
+        // Create segments based on syntax tokens and cursor position
+        const segments: Array<{ start: number; end: number; className: string; isCursor?: boolean }> = [];
+
+        // Add syntax highlighting segments
+        highlightedLine.tokens.forEach((token) => {
+          segments.push({
+            start: token.start,
+            end: token.end,
+            className: `vim-syntax-${token.type}`,
+          });
         });
-      });
-      
-      // Add cursor segment if on this line
-      if (isCursorLine && cursorCol >= 0 && cursorCol < lineText.length && currentMode !== 'insert') {
-        segments.push({
-          start: cursorCol,
-          end: cursorCol + 1,
-          className: 'vim-cursor',
-          isCursor: true
-        });
-      }
-      
-      // Sort segments and merge overlapping ones
-      segments.sort((a, b) => a.start - b.start);
-      
-      let currentPos = 0;
-      
-      for (const segment of segments) {
-        // Add text before segment
-        if (currentPos < segment.start) {
-          const text = lineText.slice(currentPos, segment.start);
-          html += escapeHtml(text);
+
+        // Add cursor segment if on this line
+        if (isCursorLine && cursorCol >= 0 && cursorCol < lineText.length && currentMode !== 'insert') {
+          segments.push({
+            start: cursorCol,
+            end: cursorCol + 1,
+            className: 'vim-cursor',
+            isCursor: true,
+          });
         }
-        
-        // Add segment with styling
-        const segmentText = lineText.slice(segment.start, segment.end);
-        html += `<span class="${segment.className}">${escapeHtml(segmentText)}</span>`;
-        
-        currentPos = Math.max(currentPos, segment.end);
-      }
-      
-      // Add remaining text
-      if (currentPos < lineText.length) {
-        const remainingText = lineText.slice(currentPos);
-        html += escapeHtml(remainingText);
-      }
-      
-      // Add cursor at end of line for insert mode
-      if (isCursorLine && currentMode === 'insert' && cursorCol === lineText.length) {
-        html += '<span class="vim-cursor">█</span>';
-      }
-      
-      return html || '&nbsp;';
-    };
-  }, [cursorLine, cursorColumn, currentMode, currentFilename, highlightLine]);
+
+        // Sort segments and merge overlapping ones
+        segments.sort((a, b) => a.start - b.start);
+
+        let currentPos = 0;
+
+        for (const segment of segments) {
+          // Add text before segment
+          if (currentPos < segment.start) {
+            const text = lineText.slice(currentPos, segment.start);
+            html += escapeHtml(text);
+          }
+
+          // Add segment with styling
+          const segmentText = lineText.slice(segment.start, segment.end);
+          html += `<span class="${segment.className}">${escapeHtml(segmentText)}</span>`;
+
+          currentPos = Math.max(currentPos, segment.end);
+        }
+
+        // Add remaining text
+        if (currentPos < lineText.length) {
+          const remainingText = lineText.slice(currentPos);
+          html += escapeHtml(remainingText);
+        }
+
+        // Add cursor at end of line for insert mode
+        if (isCursorLine && currentMode === 'insert' && cursorCol === lineText.length) {
+          html += '<span class="vim-cursor">█</span>';
+        }
+
+        return html || '&nbsp;';
+      },
+    [cursorLine, cursorColumn, currentMode, currentFilename, highlightLine]
+  );
 
   // Helper function to escape HTML
-  const escapeHtml = (text: string): string => {
-    return text
+  const escapeHtml = (text: string): string =>
+    text
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#x27;')
       .replace(/ /g, '&nbsp;');
-  };
 
   const [startLine, endLine] = visibleRange;
 
@@ -280,7 +277,7 @@ export const TextBuffer: React.FC<TextBufferProps> = ({
           {state.buffer.slice(startLine, endLine).map((line, index) => {
             const actualLineIndex = startLine + index;
             const lineHTML = generateLineHTML(line, actualLineIndex);
-            
+
             return (
               <div
                 key={actualLineIndex}
@@ -290,7 +287,7 @@ export const TextBuffer: React.FC<TextBufferProps> = ({
               />
             );
           })}
-          
+
           {/* Empty buffer placeholder */}
           {state.buffer.length === 0 && (
             <div style={lineStyle(0)} className="vim-line vim-current-line">

@@ -11,12 +11,19 @@
   background: var(--context-menu-bg, rgba(243, 243, 243, 0.95));
   border: 1px solid var(--context-menu-border, rgba(0, 0, 0, 0.05));
   border-radius: 8px;
-  box-shadow: 
+  box-shadow:
     0 8px 16px var(--context-menu-shadow-1, rgba(0, 0, 0, 0.14)),
     0 0 0 1px var(--context-menu-shadow-2, rgba(0, 0, 0, 0.05));
   backdrop-filter: blur(20px);
   padding: 4px;
-  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+  font-family:
+    'Segoe UI',
+    -apple-system,
+    BlinkMacSystemFont,
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
   font-size: 14px;
   animation: contextMenuFadeIn 0.15s cubic-bezier(0.1, 0.9, 0.2, 1);
   outline: none;
@@ -57,7 +64,9 @@
   border-radius: 4px;
   cursor: pointer;
   color: var(--context-menu-item-color, #1f1f1f);
-  transition: background-color 0.1s ease, transform 0.1s ease;
+  transition:
+    background-color 0.1s ease,
+    transform 0.1s ease;
   line-height: 1.4;
   gap: 12px;
   position: relative;
@@ -137,7 +146,7 @@
     backdrop-filter: none;
     background: var(--context-menu-bg);
   }
-  
+
   .context-menu-item:hover:not(.disabled),
   .context-menu-item.focused:not(.disabled) {
     outline: 2px solid;
@@ -150,11 +159,11 @@
   .context-menu {
     animation: none;
   }
-  
+
   .context-menu-item {
     transition: none;
   }
-  
+
   .context-menu-item:active:not(.disabled) {
     transform: none;
   }
