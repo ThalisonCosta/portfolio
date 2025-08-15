@@ -73,6 +73,8 @@ interface DesktopState {
   draggedItem: string | null;
   /** Whether the start menu is currently open */
   isStartMenuOpen: boolean;
+  /** Whether the screensaver (Snake game) is currently active */
+  isScreensaverActive: boolean;
   /** Clipboard contents */
   clipboard: {
     items: FileSystemItem[];
@@ -122,6 +124,10 @@ interface DesktopActions {
   toggleStartMenu: () => void;
   /** Closes the start menu */
   closeStartMenu: () => void;
+  /** Activates the screensaver (Snake game) */
+  activateScreensaver: () => void;
+  /** Deactivates the screensaver (Snake game) */
+  deactivateScreensaver: () => void;
   /** Creates a new file in the file system */
   createFile: (path: string, name: string, content?: string) => boolean;
   /** Creates a new folder in the file system */
@@ -235,6 +241,7 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
       isDragging: false,
       draggedItem: null,
       isStartMenuOpen: false,
+      isScreensaverActive: false,
       clipboard: {
         items: [],
         operation: null,
@@ -411,6 +418,14 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
 
       closeStartMenu: () => {
         set({ isStartMenuOpen: false });
+      },
+
+      activateScreensaver: () => {
+        set({ isScreensaverActive: true, isStartMenuOpen: false });
+      },
+
+      deactivateScreensaver: () => {
+        set({ isScreensaverActive: false });
       },
 
       createFile: (path, name, content = '') => {

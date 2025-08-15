@@ -4,6 +4,7 @@ import { StartMenu } from '../StartMenu';
 
 const mockCloseStartMenu = jest.fn();
 const mockOpenWindow = jest.fn();
+const mockActivateScreensaver = jest.fn();
 const mockGetState = jest.fn(() => ({
   windows: [] as Array<unknown>,
 }));
@@ -13,6 +14,7 @@ jest.mock('../../../stores/useDesktopStore', () => ({
     isStartMenuOpen: true,
     closeStartMenu: mockCloseStartMenu,
     openWindow: mockOpenWindow,
+    activateScreensaver: mockActivateScreensaver,
   })),
 }));
 
@@ -68,7 +70,7 @@ describe('StartMenu Component', () => {
   test('renders power button', () => {
     render(<StartMenu />);
 
-    const powerButton = screen.getByLabelText('Power options');
+    const powerButton = screen.getByLabelText('Activate Snake Game Screensaver');
     expect(powerButton).toBeInTheDocument();
   });
 

@@ -8,7 +8,7 @@ import './StartMenu.css';
  * and provides application launching functionality.
  */
 export const StartMenu: React.FC = React.memo(() => {
-  const { isStartMenuOpen, closeStartMenu, openWindow } = useDesktopStore();
+  const { isStartMenuOpen, closeStartMenu, openWindow, activateScreensaver } = useDesktopStore();
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -192,7 +192,13 @@ export const StartMenu: React.FC = React.memo(() => {
         </div>
 
         <div className="start-menu-footer">
-          <button className="power-button" title="Power options" aria-label="Power options" type="button">
+          <button
+            className="power-button"
+            title="Activate Snake Game Screensaver"
+            aria-label="Activate Snake Game Screensaver"
+            type="button"
+            onClick={activateScreensaver}
+          >
             <span className="power-icon" aria-hidden="true">
               ⏻
             </span>

@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Taskbar } from '../Taskbar/Taskbar';
 import { WindowManager } from '../WindowManager/WindowManager';
 import { DesktopIcons } from '../DesktopIcons/DesktopIcons';
+import { SnakeGame } from '../SnakeGame/SnakeGame';
 import { useDesktopStore } from '../../stores/useDesktopStore';
 import { useContextMenu } from '../../hooks/useContextMenu';
 import { InputDialog } from '../InputDialog';
@@ -18,6 +19,7 @@ export const Desktop: React.FC = () => {
   const {
     wallpaper,
     theme,
+    isScreensaverActive,
     updateIconPosition,
     setDragging,
     createFile,
@@ -156,6 +158,9 @@ export const Desktop: React.FC = () => {
       <DesktopIcons />
       <WindowManager />
       <Taskbar />
+
+      {/* Snake Game Screensaver */}
+      {isScreensaverActive && <SnakeGame />}
 
       {/* New Folder Dialog */}
       <InputDialog
