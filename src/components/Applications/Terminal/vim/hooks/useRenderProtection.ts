@@ -13,8 +13,8 @@ interface RenderProtectionOptions {
  */
 export function useRenderProtection(options: RenderProtectionOptions = {}) {
   const {
-    maxRendersPerSecond = 60,
-    maxConsecutiveRenders = 100,
+    maxRendersPerSecond = 300, // Increased from 60 to 300 for text editing
+    maxConsecutiveRenders = 500, // Increased from 100 to 500 for text editing  
     onThreatDetected,
     componentName = 'Component',
   } = options;

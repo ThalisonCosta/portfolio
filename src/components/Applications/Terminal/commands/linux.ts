@@ -171,6 +171,7 @@ export const mkdirCommand: CommandDefinition = {
       }
 
       // Check for illegal characters
+      // eslint-disable-next-line no-control-regex
       const illegalChars = /[<>:"|?*\x00-\x1f]/;
       if (illegalChars.test(name)) {
         return 'Name contains illegal characters';
@@ -368,6 +369,7 @@ export const touchCommand: CommandDefinition = {
       }
 
       // Check for illegal characters
+      // eslint-disable-next-line no-control-regex
       const illegalChars = /[<>:"|?*\x00-\x1f]/;
       if (illegalChars.test(name)) {
         return 'Name contains illegal characters';
@@ -398,7 +400,7 @@ export const touchCommand: CommandDefinition = {
         'LPT8',
         'LPT9',
       ];
-      const nameWithoutExt = name.split('.')[0];
+      const [nameWithoutExt] = name.split('.');
       if (reservedNames.includes(nameWithoutExt.toUpperCase())) {
         return 'Reserved name not allowed';
       }
@@ -685,8 +687,7 @@ export const mvCommand: CommandDefinition = {
       };
     }
 
-    const source = args[0];
-    const dest = args[1];
+    const [source, dest] = args;
 
     const sourcePath = FileSystemUtils.resolvePath(context.currentDirectory, source);
 
@@ -876,7 +877,7 @@ export const grepCommand: CommandDefinition = {
       };
     }
 
-    const pattern = args[0];
+    const [pattern] = args;
     const files = args.slice(1);
 
     if (files.length === 0) {

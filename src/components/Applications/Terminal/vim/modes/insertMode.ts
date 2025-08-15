@@ -4,7 +4,7 @@ import type { VimState, Position } from '../types';
  * Actions interface for insert mode
  */
 interface VimActions {
-  executeCommand: (command: string) => Promise<any>;
+  executeCommand: (command: string) => Promise<unknown>;
   enterInsertMode: (position?: Position) => void;
   enterVisualMode: () => void;
   enterNormalMode: () => void;
@@ -139,7 +139,7 @@ export function insertModeKeymap(event: KeyboardEvent, state: VimState, actions:
         // For now, just delete character
         deleteCharacterBefore(state, actions);
         return;
-      case 'u':
+      case 'u': {
         // Ctrl+U - delete line before cursor
         const currentLine = state.buffer[state.cursor.line] || '';
         const afterCursor = currentLine.slice(state.cursor.column);
@@ -148,6 +148,7 @@ export function insertModeKeymap(event: KeyboardEvent, state: VimState, actions:
         actions.updateBuffer(newBuffer);
         actions.moveCursor({ line: state.cursor.line, column: 0 });
         return;
+      }
       default:
         // Ignore other Ctrl combinations
         return;
@@ -185,7 +186,7 @@ export function insertModeKeymap(event: KeyboardEvent, state: VimState, actions:
       }
       break;
 
-    case 'ArrowRight':
+    case 'ArrowRight': {
       const currentLine = state.buffer[state.cursor.line] || '';
       if (state.cursor.column < currentLine.length) {
         actions.moveCursor({ line: state.cursor.line, column: state.cursor.column + 1 });
@@ -193,6 +194,7 @@ export function insertModeKeymap(event: KeyboardEvent, state: VimState, actions:
         actions.moveCursor({ line: state.cursor.line + 1, column: 0 });
       }
       break;
+    }
 
     case 'ArrowUp':
       if (state.cursor.line > 0) {
@@ -218,20 +220,23 @@ export function insertModeKeymap(event: KeyboardEvent, state: VimState, actions:
       actions.moveCursor({ line: state.cursor.line, column: 0 });
       break;
 
-    case 'End':
+    case 'End': {
       const endColumn = (state.buffer[state.cursor.line] || '').length;
       actions.moveCursor({ line: state.cursor.line, column: endColumn });
       break;
+    }
 
-    case 'PageUp':
+    case 'PageUp': {
       const pageUpLine = Math.max(0, state.cursor.line - state.viewportHeight);
       actions.moveCursor({ line: pageUpLine, column: state.cursor.column });
       break;
+    }
 
-    case 'PageDown':
+    case 'PageDown': {
       const pageDownLine = Math.min(state.buffer.length - 1, state.cursor.line + state.viewportHeight);
       actions.moveCursor({ line: pageDownLine, column: state.cursor.column });
       break;
+    }
 
     default:
       // Handle printable characters

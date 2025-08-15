@@ -58,7 +58,7 @@ export interface CommandContext {
   /** Command history */
   history: string[];
   /** Reference to the file system */
-  fileSystem: any;
+  fileSystem: unknown;
   /** Username for the prompt */
   username: string;
   /** Hostname for the prompt */

@@ -45,17 +45,22 @@ test.describe('Vim Editor Functionality', () => {
     // Type text on second line
     await page.type('.vim-editor', 'Second line');
 
-    // Check that vim buffer contains both lines
-    const vimLines = await page.locator('.vim-line').count();
-    expect(vimLines).toBeGreaterThanOrEqual(2);
+    // Check that status bar shows 2 lines (more reliable than counting DOM elements)
+    await expect(page.locator('.vim-status-bar')).toContainText('2 lines');
 
-    // Check content of first line
-    const firstLineContent = await page.locator('.vim-line').nth(0).textContent();
+    // Check that current line (line 2) contains the second line text
+    const currentLineContent = await page.locator('.vim-line').first().textContent();
+    expect(currentLineContent).toContain('Second line');
+
+    // Navigate to first line to verify it exists
+    await page.press('.vim-editor', 'ArrowUp');
+    
+    // Small delay for navigation
+    await page.waitForTimeout(100);
+    
+    // Check that we're now on line 1 and can see first line content
+    const firstLineContent = await page.locator('.vim-line').first().textContent();
     expect(firstLineContent).toContain('First line');
-
-    // Check content of second line
-    const secondLineContent = await page.locator('.vim-line').nth(1).textContent();
-    expect(secondLineContent).toContain('Second line');
   });
 
   test('should handle multiple consecutive Enter key presses', async ({ page }) => {
@@ -70,13 +75,16 @@ test.describe('Vim Editor Functionality', () => {
     // Type text after empty lines
     await page.type('.vim-editor', 'Line 5');
 
-    // Check that we have at least 5 lines (including empty ones)
-    const vimLines = await page.locator('.vim-line').count();
-    expect(vimLines).toBeGreaterThanOrEqual(5);
+    // Check that we have 5 lines total (including empty ones)
+    await expect(page.locator('.vim-status-bar')).toContainText('5 lines');
 
     // Check that cursor is visible and positioned correctly
     const cursor = await page.locator('.vim-cursor');
     expect(cursor).toBeVisible();
+
+    // Check that current line shows the text we typed
+    const currentLineContent = await page.locator('.vim-line').first().textContent();
+    expect(currentLineContent).toContain('Line 5');
   });
 
   test('should create line breaks at cursor position', async ({ page }) => {
@@ -93,12 +101,19 @@ test.describe('Vim Editor Functionality', () => {
     // Press Enter to split line
     await page.press('.vim-editor', 'Enter');
 
-    // Check that line was split correctly
-    const firstLineContent = await page.locator('.vim-line').nth(0).textContent();
-    const secondLineContent = await page.locator('.vim-line').nth(1).textContent();
+    // Check that we now have 2 lines
+    await expect(page.locator('.vim-status-bar')).toContainText('2 lines');
 
+    // Check current line (line 2) contains "World"
+    const currentLineContent = await page.locator('.vim-line').first().textContent();
+    expect(currentLineContent).toContain('World');
+
+    // Navigate up to check first line contains "Hello"
+    await page.press('.vim-editor', 'ArrowUp');
+    await page.waitForTimeout(100);
+    
+    const firstLineContent = await page.locator('.vim-line').first().textContent();
     expect(firstLineContent).toContain('Hello');
-    expect(secondLineContent).toContain('World');
   });
 
   test('should auto-scroll to keep new lines visible', async ({ page }) => {
@@ -115,9 +130,11 @@ test.describe('Vim Editor Functionality', () => {
     const cursor = await page.locator('.vim-cursor');
     expect(cursor).toBeVisible();
 
-    // Verify we have many lines
-    const vimLines = await page.locator('.vim-line').count();
-    expect(vimLines).toBeGreaterThanOrEqual(30);
+    // Verify we have 31 lines total (30 with text + 1 empty at end)
+    await expect(page.locator('.vim-status-bar')).toContainText('31 lines');
+    
+    // Check that we can see we're at the bottom of the file
+    await expect(page.locator('.vim-status-bar')).toContainText('31,1');
   });
 
   test('should maintain cursor position on new line', async ({ page }) => {
@@ -129,11 +146,15 @@ test.describe('Vim Editor Functionality', () => {
     const cursor = await page.locator('.vim-cursor');
     expect(cursor).toBeVisible();
 
+    // Check position shows line 2, column 1
+    await expect(page.locator('.vim-status-bar')).toContainText('2,1');
+
     // Type on new line to verify cursor position
     await page.type('.vim-editor', 'New line text');
 
-    const secondLineContent = await page.locator('.vim-line').nth(1).textContent();
-    expect(secondLineContent).toContain('New line text');
+    // Check that current line contains the new text
+    const currentLineContent = await page.locator('.vim-line').first().textContent();
+    expect(currentLineContent).toContain('New line text');
   });
 
   test('should work with Enter key in different vim modes', async ({ page }) => {
@@ -144,15 +165,19 @@ test.describe('Vim Editor Functionality', () => {
 
     // Switch to normal mode
     await page.press('.vim-editor', 'Escape');
+    
+    // Verify we're in normal mode
+    await expect(page.locator('.vim-status-bar')).toContainText('NORMAL');
 
     // Enter insert mode again and test Enter
     await page.press('.vim-editor', 'i');
+    await expect(page.locator('.vim-status-bar')).toContainText('INSERT');
+    
     await page.press('.vim-editor', 'Enter');
     await page.type('.vim-editor', 'Another line');
 
-    // Verify all lines exist
-    const vimLines = await page.locator('.vim-line').count();
-    expect(vimLines).toBeGreaterThanOrEqual(3);
+    // Verify we have 4 lines total
+    await expect(page.locator('.vim-status-bar')).toContainText('4 lines');
   });
 
   test('should handle Enter key with empty lines', async ({ page }) => {
@@ -163,13 +188,11 @@ test.describe('Vim Editor Functionality', () => {
     // Add text after empty lines
     await page.type('.vim-editor', 'Text after empties');
 
-    // Check that empty lines and text line exist
-    const vimLines = await page.locator('.vim-line').count();
-    expect(vimLines).toBeGreaterThanOrEqual(3);
+    // Check that we have 3 lines (2 empty + 1 with text)
+    await expect(page.locator('.vim-status-bar')).toContainText('3 lines');
 
-    // Check that last line has the text
-    const lastLineIndex = vimLines - 1;
-    const lastLineContent = await page.locator('.vim-line').nth(lastLineIndex).textContent();
-    expect(lastLineContent).toContain('Text after empties');
+    // Check that current line has the text we typed
+    const currentLineContent = await page.locator('.vim-line').first().textContent();
+    expect(currentLineContent).toContain('Text after empties');
   });
 });

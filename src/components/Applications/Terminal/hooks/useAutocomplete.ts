@@ -9,7 +9,7 @@ import type { AutocompleteResult, OSType } from '../types';
 export function useAutocomplete(
   commandRegistry: CommandRegistry,
   currentDirectory: string,
-  fileSystem: any,
+  fileSystem: unknown,
   osType: OSType
 ) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -41,7 +41,7 @@ export function useAutocomplete(
         commonPrefix = findCommonPrefix(completions);
       } else {
         // Completing command arguments
-        const commandName = words[0];
+        const [commandName] = words;
         const args = words.slice(1, currentWordIndex);
 
         try {
@@ -259,7 +259,7 @@ function findCommonPrefix(strings: string[]): string {
   if (strings.length === 1) return strings[0];
 
   let prefix = '';
-  const firstString = strings[0];
+  const [firstString] = strings;
 
   for (let i = 0; i < firstString.length; i++) {
     const char = firstString[i];

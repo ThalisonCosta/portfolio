@@ -147,25 +147,13 @@ export const TerminalApp: React.FC<TerminalAppProps> = ({ initialOS = 'linux', s
     }
   };
 
-  const handleVimLoadFile = async (_filename: string): Promise<string> => {
-    try {
-      // For now, return empty content - would need to implement file reading from store
-      return '';
-    } catch (error) {
-      throw new Error(`Cannot read file: ${_filename}`);
-    }
-  };
-
-  const handleVimFileExists = (_filename: string): boolean => {
-    try {
-      // Check if file exists in current directory
-      // For now, return false - would need to implement file checking from store
-      return false;
-    } catch (error) {
-      return false;
-    }
-  };
-
+  const handleVimLoadFile = async (_filename: string): Promise<string> =>
+    // For now, return empty content - would need to implement file reading from store
+    '';
+  const handleVimFileExists = (_filename: string): boolean =>
+    // Check if file exists in current directory
+    // For now, return false - would need to implement file checking from store
+    false;
   const containerStyle: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',

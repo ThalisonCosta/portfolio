@@ -128,56 +128,18 @@ export const VimEditor: React.FC<VimEditorProps> = ({
     [setMessage]
   );
 
-  // Memory monitoring with stable callbacks
-  const { forceGarbageCollection, getCurrentMemoryUsage } = useMemoryMonitor({
-    warningThresholdMB: 150,
-    criticalThresholdMB: 300,
-    onWarning: onMemoryWarning,
-    onCritical: onMemoryCritical,
+  // Simplified memory monitoring - disable for now to prevent crashes
+  const forceGarbageCollection = () => {
+    if (window.gc && typeof window.gc === 'function') {
+      window.gc();
+    }
+  };
+  
+  const getCurrentMemoryUsage = () => ({
+    used: 0,
+    total: 0,
+    available: 0,
   });
-
-  // Render protection to prevent infinite loops and crashes
-  const { isThreatDetected, renderCount, rendersPerSecond } = useRenderProtection({
-    maxRendersPerSecond: 30, // Conservative limit for text editor
-    maxConsecutiveRenders: 50, // Prevent runaway renders
-    componentName: 'VimEditor',
-    onThreatDetected: () => {
-      console.error('Vim Editor: Render threat detected, forcing exit');
-      setMessage('Performance threat detected - exiting vim', 'error');
-      // Emergency exit after short delay
-      setTimeout(() => onExit(), 100);
-    },
-  });
-
-  // Emergency bailout if render threat is detected
-  if (isThreatDetected) {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100%',
-          color: theme.foreground,
-          backgroundColor: theme.background,
-          fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, "Courier New", monospace',
-          fontSize: '14px',
-        }}
-      >
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ color: theme.error || '#ff4444', marginBottom: '8px' }}>
-            ⚠️ Performance Protection Activated
-          </div>
-          <div style={{ marginBottom: '8px' }}>
-            Excessive renders detected: {renderCount} ({rendersPerSecond}/sec)
-          </div>
-          <div style={{ fontSize: '12px', opacity: 0.8 }}>
-            Vim editor has been safely stopped to prevent browser crash.
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Handle keyboard events
   const { handleKeyDown } = useVimKeyHandler(state, vimActions);

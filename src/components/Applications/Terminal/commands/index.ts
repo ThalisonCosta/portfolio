@@ -114,7 +114,7 @@ export class CommandRegistry {
   /**
    * Get autocomplete suggestions for command arguments
    */
-  getArgumentSuggestions(commandName: string, partial: string, args: string[], context: any): string[] {
+  getArgumentSuggestions(commandName: string, partial: string, args: string[], context: unknown): string[] {
     const command = this.getCommand(commandName);
     if (!command || !command.autocomplete) {
       return [];

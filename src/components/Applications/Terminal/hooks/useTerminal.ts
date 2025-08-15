@@ -232,11 +232,11 @@ export function useTerminal() {
         const result: CommandResult = await command.execute(parsed.args, context);
 
         // Handle vim mode entry
-        if ((result as any).type === 'vim' && (result as any).vimData) {
+        if (result.type === 'vim' && result.vimData) {
           setState((prev) => ({
             ...prev,
             isVimMode: true,
-            vimData: (result as any).vimData,
+            vimData: result.vimData,
             isExecuting: false,
             currentInput: '',
             cursorPosition: 0,
@@ -258,7 +258,7 @@ export function useTerminal() {
         if (result.newDirectory) {
           setState((prev) => ({
             ...prev,
-            currentDirectory: result.newDirectory!,
+            currentDirectory: result.newDirectory,
           }));
         }
 
@@ -342,11 +342,12 @@ export function useTerminal() {
           }
           break;
 
-        case 'Tab':
+        case 'Tab': {
           event.preventDefault();
           const completion = getTabCompletion(state.currentInput, state.cursorPosition);
           updateInput(completion.newInput, completion.newCursorPosition);
           break;
+        }
 
         case 'Escape':
           event.preventDefault();
@@ -376,6 +377,10 @@ export function useTerminal() {
             // Implement reverse history search
             addOutputLine('(reverse-i-search): ', 'info');
           }
+          break;
+
+        default:
+          // Let other keys be handled by default input behavior
           break;
       }
     },
@@ -456,7 +461,7 @@ export function useTerminal() {
 
     welcomeMessages.forEach((msg) => addOutputLine(msg, 'info'));
     welcomeShown.current = true;
-  }, []); // Run only once on mount
+  }, [addOutputLine, state.osType]); // Run only once on mount
 
   /**
    * Periodic cleanup and garbage collection

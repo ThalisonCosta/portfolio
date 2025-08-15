@@ -93,15 +93,13 @@ describe('InputDialog Component', () => {
     expect(mockOnCancel).toHaveBeenCalledTimes(1);
   });
 
-  test('validates required input', async () => {
+  test('validates required input', () => {
     render(<InputDialog {...defaultProps} required={true} />);
 
     const okButton = screen.getByText('OK');
-    fireEvent.click(okButton);
 
-    await waitFor(() => {
-      expect(screen.getByText('This field is required')).toBeInTheDocument();
-    });
+    // OK button should be disabled when input is empty and required
+    expect(okButton).toBeDisabled();
     expect(mockOnConfirm).not.toHaveBeenCalled();
   });
 
@@ -112,9 +110,9 @@ describe('InputDialog Component', () => {
     fireEvent.change(input, { target: { value: 'toolong' } });
 
     const okButton = screen.getByText('OK');
-    fireEvent.click(okButton);
 
-    expect(screen.getByText('Maximum length is 5 characters')).toBeInTheDocument();
+    // OK button should be disabled when input exceeds max length
+    expect(okButton).toBeDisabled();
     expect(mockOnConfirm).not.toHaveBeenCalled();
   });
 
@@ -127,26 +125,26 @@ describe('InputDialog Component', () => {
     fireEvent.change(input, { target: { value: 'invalid' } });
 
     const okButton = screen.getByText('OK');
-    fireEvent.click(okButton);
 
-    expect(screen.getByText('Custom error message')).toBeInTheDocument();
+    // OK button should be disabled when custom validation fails
+    expect(okButton).toBeDisabled();
     expect(mockOnConfirm).not.toHaveBeenCalled();
   });
 
-  test('clears error when user starts typing', () => {
+  test('validates and enables OK button when input becomes valid', () => {
     render(<InputDialog {...defaultProps} required={true} />);
 
-    // Trigger validation error
     const okButton = screen.getByText('OK');
-    fireEvent.click(okButton);
-
-    expect(screen.getByText('This field is required')).toBeInTheDocument();
-
-    // Start typing
     const input = screen.getByRole('textbox');
-    fireEvent.change(input, { target: { value: 'a' } });
 
-    expect(screen.queryByText('This field is required')).not.toBeInTheDocument();
+    // Initially OK button should be disabled for required empty input
+    expect(okButton).toBeDisabled();
+
+    // Start typing to make input valid
+    fireEvent.change(input, { target: { value: 'valid input' } });
+
+    // OK button should now be enabled
+    expect(okButton).toBeEnabled();
   });
 
   test('handles Enter key to confirm', async () => {
@@ -229,24 +227,21 @@ describe('InputDialog Component', () => {
     expect(input).toHaveAttribute('aria-describedby');
   });
 
-  test('shows error with proper ARIA attributes', () => {
+  test('shows proper ARIA attributes for invalid input', () => {
     render(<InputDialog {...defaultProps} required={true} />);
 
-    const okButton = screen.getByText('OK');
-    fireEvent.click(okButton);
-
     const input = screen.getByRole('textbox');
-    expect(input).toHaveAttribute('aria-invalid', 'true');
 
-    const error = screen.getByRole('alert');
-    expect(error).toBeInTheDocument();
+    // Input should have aria-invalid=false initially and when invalid but no error shown
+    expect(input).toHaveAttribute('aria-invalid', 'false');
+    expect(input).toHaveAttribute('aria-describedby', 'input-hint');
   });
 
   test('resets state when dialog becomes visible again', () => {
     const { rerender } = render(<InputDialog {...defaultProps} isVisible={true} initialValue="initial" />);
 
     // Change the input value
-    const input = screen.getByRole('textbox');
+    let input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: 'changed' } });
     expect(input).toHaveValue('changed');
 
@@ -254,6 +249,8 @@ describe('InputDialog Component', () => {
     rerender(<InputDialog {...defaultProps} isVisible={false} initialValue="new initial" />);
     rerender(<InputDialog {...defaultProps} isVisible={true} initialValue="new initial" />);
 
+    // Get the input again after rerender
+    input = screen.getByRole('textbox');
     expect(input).toHaveValue('new initial');
   });
 });

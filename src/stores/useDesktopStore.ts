@@ -472,7 +472,7 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
         };
 
         // Helper function to find folder recursively by path
-        const findFolderByPath = (items: FileSystemItem[], targetPath: string): FileSystemItem | null => {
+        const _findFolderByPath = (items: FileSystemItem[], targetPath: string): FileSystemItem | null => {
           for (const item of items) {
             if (item.path === targetPath && item.type === 'folder') {
               return item;

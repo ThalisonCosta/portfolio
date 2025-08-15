@@ -115,7 +115,10 @@ describe('Desktop Component', () => {
     });
 
     const preventDefaultSpy = jest.spyOn(contextMenuEvent, 'preventDefault');
-    desktopElement!.dispatchEvent(contextMenuEvent);
+
+    act(() => {
+      desktopElement!.dispatchEvent(contextMenuEvent);
+    });
 
     expect(preventDefaultSpy).toHaveBeenCalled();
   });

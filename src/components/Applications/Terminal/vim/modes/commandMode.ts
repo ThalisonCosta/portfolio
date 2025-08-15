@@ -4,7 +4,7 @@ import type { VimState, Position } from '../types';
  * Actions interface for command mode
  */
 interface VimActions {
-  executeCommand: (command: string) => Promise<any>;
+  executeCommand: (command: string) => Promise<unknown>;
   enterInsertMode: (position?: Position) => void;
   enterVisualMode: () => void;
   enterNormalMode: () => void;

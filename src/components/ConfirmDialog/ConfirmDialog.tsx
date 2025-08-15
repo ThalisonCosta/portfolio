@@ -126,7 +126,10 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   if (!isVisible) return null;
 
   // Determine default icon based on destructive prop
-  const displayIcon = icon !== undefined ? icon : (destructive ? '⚠️' : 'ℹ️');
+  let displayIcon = icon;
+  if (icon === undefined) {
+    displayIcon = destructive ? '⚠️' : 'ℹ️';
+  }
 
   return (
     <div className="confirm-dialog-overlay" role="dialog" aria-modal="true" aria-labelledby="dialog-title">

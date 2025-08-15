@@ -259,8 +259,7 @@ export const copyCommand: CommandDefinition = {
     }
 
     // Copy operation simulated
-    const source = args[0];
-    const dest = args[1];
+    const [source, dest] = args;
 
     return {
       success: true,
@@ -289,8 +288,7 @@ export const moveCommand: CommandDefinition = {
     }
 
     // Move operation simulated
-    const source = args[0];
-    const dest = args[1];
+    const [source, dest] = args;
 
     return {
       success: true,
@@ -318,7 +316,7 @@ export const typeCommand: CommandDefinition = {
       };
     }
 
-    const file = args[0];
+    const [file] = args;
     const filePath = FileSystemUtils.resolvePath(context.currentDirectory, file);
 
     if (!FileSystemUtils.pathExists(context.fileSystem, filePath)) {
@@ -454,7 +452,7 @@ export const findstrCommand: CommandDefinition = {
       };
     }
 
-    const pattern = args[0];
+    const [pattern] = args;
     const files = args.slice(1);
 
     if (files.length === 0) {
@@ -564,7 +562,7 @@ export const nslookupCommand: CommandDefinition = {
       };
     }
 
-    const hostname = args[0];
+    const [hostname] = args;
 
     // Simulate DNS lookup delay
     await new Promise((resolve) => setTimeout(resolve, 500));

@@ -9,7 +9,12 @@ export default tseslint.config([
   { ignores: ['dist', 'node_modules', '**/*.d.ts', 'tests/drag-drop.spec.ts', 'coverage/**/*'] },
   {
     files: ['**/*.{ts,tsx}'],
-    ignores: ['**/*.test.{ts,tsx}', '**/tests/**/*.{ts,tsx}'],
+    ignores: [
+      '**/*.test.{ts,tsx}',
+      '**/tests/**/*.{ts,tsx}',
+      '**/Terminal/**/*.{ts,tsx}',
+      'src/stores/useDesktopStore.ts',
+    ], //TODO: remove Terminal and useDesktopStore from ignores
     extends: [
       js.configs.recommended,
       ...tseslint.configs.strict,

@@ -165,7 +165,7 @@ export const pingCommand: CommandDefinition = {
       };
     }
 
-    const host = args[0];
+    const [host] = args;
     const results: string[] = [];
 
     results.push(`PING ${host} (${host}): 56 data bytes`);
@@ -206,7 +206,7 @@ export const curlCommand: CommandDefinition = {
       };
     }
 
-    const url = args[0];
+    const [url] = args;
     await simulateDelay(1000);
 
     // Simulate HTTP response

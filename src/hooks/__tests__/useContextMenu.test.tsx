@@ -1,6 +1,6 @@
 /** @jsxImportSource react */
 import React from 'react';
-import { renderHook } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useContextMenu } from '../useContextMenu';
 import { ContextMenuProvider } from '../../contexts/ContextMenuContext';
 
@@ -48,7 +48,9 @@ describe('useContextMenu Hook', () => {
 
     // Test that showContextMenu is callable
     expect(() => {
-      result.current.showContextMenu({ x: 100, y: 200 }, [{ id: 'test', label: 'Test Item', onClick: () => {} }]);
+      act(() => {
+        result.current.showContextMenu({ x: 100, y: 200 }, [{ id: 'test', label: 'Test Item', onClick: () => {} }]);
+      });
     }).not.toThrow();
   });
 
@@ -59,7 +61,9 @@ describe('useContextMenu Hook', () => {
 
     // Test that hideContextMenu is callable
     expect(() => {
-      result.current.hideContextMenu();
+      act(() => {
+        result.current.hideContextMenu();
+      });
     }).not.toThrow();
   });
 });
