@@ -38,23 +38,24 @@ export const DesktopIcons: React.FC = React.memo(() => {
   const handleIconDoubleClick = useCallback(
     (item: FileSystemItem) => {
       if (item.type === 'file') {
-        let component = 'TextEditor';
+        let component = 'FileViewer';
 
         switch (item.name.split('.').pop()) {
           case 'txt':
-            component = 'TextEditor';
+          case 'html':
+          case 'htm':
+          case 'md':
+          case 'markdown':
+            component = 'FileViewer';
             break;
           case 'pdf':
             component = 'PDFViewer';
-            break;
-          case 'md':
-            component = 'MarkdownViewer';
             break;
           case 'lnk':
             component = 'ContactForm';
             break;
           default:
-            component = 'TextEditor';
+            component = 'FileViewer';
         }
 
         openWindow({

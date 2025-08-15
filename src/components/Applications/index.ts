@@ -1,4 +1,4 @@
-export { TextEditorApp } from './TextEditorApp';
+export { FileViewerApp } from './FileViewerApp';
 export { FileExplorerApp } from './FileExplorerApp';
 export { TerminalApp } from './TerminalApp';
 export { ContactFormApp } from './ContactFormApp';

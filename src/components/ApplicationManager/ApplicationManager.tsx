@@ -2,8 +2,8 @@ import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { ErrorBoundary } from '../ErrorBoundary';
 
 // Lazy load application components for better performance
-const TextEditorApp = lazy(() =>
-  import('../Applications/TextEditorApp').then((module) => ({ default: module.TextEditorApp }))
+const FileViewerApp = lazy(() =>
+  import('../Applications/FileViewerApp').then((module) => ({ default: module.FileViewerApp }))
 );
 const FileExplorerApp = lazy(() =>
   import('../Applications/FileExplorerApp').then((module) => ({ default: module.FileExplorerApp }))
@@ -60,7 +60,8 @@ export const ApplicationManager: React.FC<ApplicationManagerProps> = ({ componen
     try {
       switch (component) {
         case 'TextEditor':
-          return <TextEditorApp />;
+        case 'FileViewer':
+          return <FileViewerApp />;
         case 'FileExplorer':
         case 'explorer':
           return <FileExplorerApp />;
