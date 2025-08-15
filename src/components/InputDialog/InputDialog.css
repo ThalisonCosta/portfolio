@@ -1,0 +1,299 @@
+/**
+ * Windows 11-style Input Dialog Styles
+ * Following Fluent Design principles with backdrop blur and layered design
+ */
+
+.input-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--dialog-overlay-bg, rgba(0, 0, 0, 0.3));
+  backdrop-filter: blur(4px);
+  z-index: 20000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: dialogOverlayFadeIn 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+  padding: 20px;
+}
+
+.input-dialog {
+  background: var(--dialog-bg, rgba(249, 249, 249, 0.95));
+  border: 1px solid var(--dialog-border, rgba(0, 0, 0, 0.05));
+  border-radius: 12px;
+  box-shadow: 
+    0 32px 64px var(--dialog-shadow-1, rgba(0, 0, 0, 0.18)),
+    0 0 0 1px var(--dialog-shadow-2, rgba(0, 0, 0, 0.05));
+  backdrop-filter: blur(30px);
+  min-width: 320px;
+  max-width: 480px;
+  width: 100%;
+  animation: dialogSlideIn 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden;
+}
+
+/* Dark theme support */
+.dark .input-dialog {
+  --dialog-bg: rgba(32, 32, 32, 0.95);
+  --dialog-border: rgba(255, 255, 255, 0.08);
+  --dialog-shadow-1: rgba(0, 0, 0, 0.4);
+  --dialog-shadow-2: rgba(0, 0, 0, 0.1);
+  --dialog-text-color: #ffffff;
+  --dialog-text-secondary: rgba(255, 255, 255, 0.7);
+  --dialog-input-bg: rgba(255, 255, 255, 0.05);
+  --dialog-input-border: rgba(255, 255, 255, 0.12);
+  --dialog-input-border-focus: #0078d4;
+  --dialog-error-color: #ff6b6b;
+  --dialog-button-primary-bg: #0078d4;
+  --dialog-button-primary-bg-hover: #106ebe;
+  --dialog-button-secondary-bg: rgba(255, 255, 255, 0.08);
+  --dialog-button-secondary-bg-hover: rgba(255, 255, 255, 0.12);
+}
+
+/* Light theme support */
+.light .input-dialog {
+  --dialog-bg: rgba(252, 252, 252, 0.95);
+  --dialog-border: rgba(0, 0, 0, 0.05);
+  --dialog-shadow-1: rgba(0, 0, 0, 0.14);
+  --dialog-shadow-2: rgba(0, 0, 0, 0.05);
+  --dialog-text-color: #1f1f1f;
+  --dialog-text-secondary: rgba(0, 0, 0, 0.7);
+  --dialog-input-bg: #ffffff;
+  --dialog-input-border: rgba(0, 0, 0, 0.12);
+  --dialog-input-border-focus: #0078d4;
+  --dialog-error-color: #d83b01;
+  --dialog-button-primary-bg: #0078d4;
+  --dialog-button-primary-bg-hover: #106ebe;
+  --dialog-button-secondary-bg: rgba(0, 0, 0, 0.04);
+  --dialog-button-secondary-bg-hover: rgba(0, 0, 0, 0.08);
+}
+
+/* Header */
+.input-dialog-header {
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid var(--dialog-border, rgba(0, 0, 0, 0.08));
+}
+
+.input-dialog-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--dialog-text-color, #1f1f1f);
+  line-height: 1.4;
+}
+
+/* Content */
+.input-dialog-content {
+  padding: 20px 24px;
+}
+
+.input-dialog-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-dialog-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--dialog-text-color, #1f1f1f);
+  margin-bottom: 4px;
+}
+
+.input-dialog-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--dialog-input-border, rgba(0, 0, 0, 0.12));
+  border-radius: 6px;
+  background: var(--dialog-input-bg, #ffffff);
+  color: var(--dialog-text-color, #1f1f1f);
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.input-dialog-input:focus {
+  border-color: var(--dialog-input-border-focus, #0078d4);
+  box-shadow: 0 0 0 1px var(--dialog-input-border-focus, #0078d4);
+}
+
+.input-dialog-input.error {
+  border-color: var(--dialog-error-color, #d83b01);
+  box-shadow: 0 0 0 1px var(--dialog-error-color, #d83b01);
+}
+
+.input-dialog-input::placeholder {
+  color: var(--dialog-text-secondary, rgba(0, 0, 0, 0.6));
+}
+
+.input-dialog-error {
+  color: var(--dialog-error-color, #d83b01);
+  font-size: 12px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.input-dialog-hint {
+  color: var(--dialog-text-secondary, rgba(0, 0, 0, 0.6));
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Actions */
+.input-dialog-actions {
+  padding: 16px 24px 24px 24px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  border-top: 1px solid var(--dialog-border, rgba(0, 0, 0, 0.08));
+}
+
+.input-dialog-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  min-width: 80px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-dialog-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.input-dialog-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.input-dialog-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.input-dialog-button-primary {
+  background: var(--dialog-button-primary-bg, #0078d4);
+  color: #ffffff;
+}
+
+.input-dialog-button-primary:hover:not(:disabled) {
+  background: var(--dialog-button-primary-bg-hover, #106ebe);
+}
+
+.input-dialog-button-secondary {
+  background: var(--dialog-button-secondary-bg, rgba(0, 0, 0, 0.04));
+  color: var(--dialog-text-color, #1f1f1f);
+}
+
+.input-dialog-button-secondary:hover:not(:disabled) {
+  background: var(--dialog-button-secondary-bg-hover, rgba(0, 0, 0, 0.08));
+}
+
+/* Animations */
+@keyframes dialogOverlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dialogSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .input-dialog {
+    border: 2px solid;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  
+  .input-dialog-input:focus {
+    outline: 2px solid;
+    outline-offset: 2px;
+  }
+  
+  .input-dialog-button {
+    border: 2px solid;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .input-dialog-overlay {
+    animation: none;
+  }
+  
+  .input-dialog {
+    animation: none;
+  }
+  
+  .input-dialog-input {
+    transition: none;
+  }
+  
+  .input-dialog-button {
+    transition: none;
+  }
+  
+  .input-dialog-button:hover:not(:disabled) {
+    transform: none;
+  }
+  
+  .input-dialog-button:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 480px) {
+  .input-dialog-overlay {
+    padding: 16px;
+  }
+  
+  .input-dialog {
+    min-width: 280px;
+  }
+  
+  .input-dialog-header {
+    padding: 20px 20px 16px 20px;
+  }
+  
+  .input-dialog-content {
+    padding: 16px 20px;
+  }
+  
+  .input-dialog-actions {
+    padding: 16px 20px 20px 20px;
+    flex-direction: column-reverse;
+  }
+  
+  .input-dialog-button {
+    width: 100%;
+    min-width: auto;
+  }
+}

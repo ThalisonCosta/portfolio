@@ -378,7 +378,7 @@ export const TerminalApp: React.FC<TerminalAppProps> = ({ initialOS = 'linux', s
           }
           
           .terminal-input-container {
-            padding: 12px 16px;
+            padding: 12px 0px;
           }
           
           .terminal-output {

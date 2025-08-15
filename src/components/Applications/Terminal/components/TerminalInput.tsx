@@ -69,7 +69,7 @@ const TerminalInputComponent: React.FC<TerminalInputProps> = ({
      */
     useLayoutEffect(() => {
       if (promptRef.current) {
-        const width = promptRef.current.getBoundingClientRect().width;
+        const { width } = promptRef.current.getBoundingClientRect();
         setPromptWidth(width);
       }
     }, [currentDirectory, osType, username, hostname, theme]);
@@ -137,20 +137,18 @@ const TerminalInputComponent: React.FC<TerminalInputProps> = ({
         position: 'relative' as const,
         display: 'flex' as const,
         alignItems: 'center' as const,
-        padding: '8px 16px',
+        padding: '8px 8px',
         backgroundColor: theme.background,
         minHeight: '40px',
       }));
     }, [theme.background]);
 
-    const inputContainerStyle = useMemo(() => {
-      return StyleObjectPool.get('input-container', () => ({
-        position: 'relative' as const,
-        flex: 1,
-        display: 'flex' as const,
-        alignItems: 'center' as const,
-      }));
-    }, []);
+    const inputContainerStyle = useMemo(() => StyleObjectPool.get('input-container', () => ({
+      position: 'relative' as const,
+      flex: 1,
+      display: 'flex' as const,
+      alignItems: 'center' as const,
+    })), []);
 
     const inputStyle = useMemo(() => {
       const styleKey = `input-${theme.foreground}-${theme.cursor}-${promptWidth}`;
@@ -168,8 +166,7 @@ const TerminalInputComponent: React.FC<TerminalInputProps> = ({
         overflowWrap: 'anywhere' as const,
         wordBreak: 'break-word' as const,
         minHeight: '20px',
-        paddingLeft: `${promptWidth}px`,
-        marginLeft: `-${promptWidth}px`,
+        marginLeft: '4px',
       }));
     }, [theme.foreground, theme.cursor, promptWidth]);
 
@@ -214,7 +211,7 @@ const TerminalInputComponent: React.FC<TerminalInputProps> = ({
       return StyleObjectPool.get(styleKey, () => ({
         position: 'absolute' as const,
         top: 0,
-        left: `${promptWidth}px`,
+        left: '4px',
         right: 0,
         bottom: 0,
         pointerEvents: 'none' as const,
@@ -333,21 +330,19 @@ const TerminalInputComponent: React.FC<TerminalInputProps> = ({
 /**
  * Memoized terminal input with custom comparison function
  */
-export const TerminalInput = memo(TerminalInputComponent, (prevProps, nextProps) => {
-  return (
-    prevProps.value === nextProps.value &&
-    prevProps.cursorPosition === nextProps.cursorPosition &&
-    prevProps.isExecuting === nextProps.isExecuting &&
-    prevProps.showSuggestions === nextProps.showSuggestions &&
-    prevProps.selectedSuggestion === nextProps.selectedSuggestion &&
-    prevProps.suggestions === nextProps.suggestions &&
-    prevProps.theme === nextProps.theme &&
-    prevProps.currentDirectory === nextProps.currentDirectory &&
-    prevProps.osType === nextProps.osType &&
-    prevProps.username === nextProps.username &&
-    prevProps.hostname === nextProps.hostname &&
-    prevProps.commandRegistry === nextProps.commandRegistry
-  );
-});
+export const TerminalInput = memo(TerminalInputComponent, (prevProps, nextProps) => (
+  prevProps.value === nextProps.value &&
+  prevProps.cursorPosition === nextProps.cursorPosition &&
+  prevProps.isExecuting === nextProps.isExecuting &&
+  prevProps.showSuggestions === nextProps.showSuggestions &&
+  prevProps.selectedSuggestion === nextProps.selectedSuggestion &&
+  prevProps.suggestions === nextProps.suggestions &&
+  prevProps.theme === nextProps.theme &&
+  prevProps.currentDirectory === nextProps.currentDirectory &&
+  prevProps.osType === nextProps.osType &&
+  prevProps.username === nextProps.username &&
+  prevProps.hostname === nextProps.hostname &&
+  prevProps.commandRegistry === nextProps.commandRegistry
+));
 
 TerminalInput.displayName = 'TerminalInput';

@@ -73,6 +73,11 @@ interface DesktopState {
   draggedItem: string | null;
   /** Whether the start menu is currently open */
   isStartMenuOpen: boolean;
+  /** Clipboard contents */
+  clipboard: {
+    items: FileSystemItem[];
+    operation: 'copy' | 'cut' | null;
+  };
 }
 
 /**
@@ -123,6 +128,18 @@ interface DesktopActions {
   createFolder: (path: string, name: string) => boolean;
   /** Removes a file or folder from the file system */
   removeFileSystemItem: (path: string) => boolean;
+  /** Renames a file or folder in the file system */
+  renameFileSystemItem: (path: string, newName: string) => boolean;
+  /** Copies items to clipboard */
+  copyToClipboard: (paths: string[]) => void;
+  /** Cuts items to clipboard */
+  cutToClipboard: (paths: string[]) => void;
+  /** Pastes items from clipboard to target path */
+  pasteFromClipboard: (targetPath: string) => boolean;
+  /** Clears the clipboard */
+  clearClipboard: () => void;
+  /** Checks if clipboard has items */
+  hasClipboardItems: () => boolean;
 }
 
 const defaultFileSystem: FileSystemItem[] = [
@@ -218,6 +235,10 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
       isDragging: false,
       draggedItem: null,
       isStartMenuOpen: false,
+      clipboard: {
+        items: [],
+        operation: null,
+      },
 
       openWindow: (windowConfig) => {
         const { nextZIndex } = get();
@@ -610,6 +631,302 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
         });
 
         return success;
+      },
+
+      renameFileSystemItem: (path, newName) => {
+        // Validate new name
+        if (!newName.trim()) {
+          return false;
+        }
+
+        let success = false;
+
+        set((state) => {
+          const renameInFolder = (items: FileSystemItem[]): FileSystemItem[] =>
+            items.map((item) => {
+              if (item.path === path) {
+                // Check if sibling with same name already exists
+                const parentPath = path.substring(0, path.lastIndexOf('/')) || '/';
+                const newPath = parentPath === '/' ? `/${newName}` : `${parentPath}/${newName}`;
+                
+                // Get parent folder
+                const parentFolder = state.fileSystem.find(f => f.path === parentPath && f.type === 'folder');
+                const siblings = parentFolder?.children || [];
+                
+                // Check for name conflict (excluding current item)
+                const nameExists = siblings.some(sibling => 
+                  sibling.name === newName && sibling.id !== item.id
+                );
+                
+                if (nameExists) {
+                  return item; // Don't rename if name already exists
+                }
+
+                success = true;
+                
+                // Create updated item with new name and path
+                const updatedItem = {
+                  ...item,
+                  name: newName,
+                  path: newPath,
+                };
+
+                // If it's a folder, update all children paths recursively
+                if (item.type === 'folder' && item.children) {
+                  const updateChildrenPaths = (children: FileSystemItem[], oldParentPath: string, newParentPath: string): FileSystemItem[] =>
+                    children.map(child => ({
+                      ...child,
+                      path: child.path.replace(oldParentPath, newParentPath),
+                      children: child.children ? updateChildrenPaths(child.children, oldParentPath, newParentPath) : undefined,
+                    }));
+
+                  updatedItem.children = updateChildrenPaths(item.children, path, newPath);
+                }
+
+                return updatedItem;
+              }
+
+              // Recursively search in children
+              if (item.children) {
+                return {
+                  ...item,
+                  children: renameInFolder(item.children),
+                };
+              }
+
+              return item;
+            });
+
+          return {
+            fileSystem: renameInFolder(state.fileSystem),
+          };
+        });
+
+        return success;
+      },
+
+      copyToClipboard: (paths) => {
+        const state = get();
+
+        // Helper function to find items by path
+        const findItemsByPaths = (fileSystemItems: FileSystemItem[], targetPaths: string[]): FileSystemItem[] => {
+          const foundItems: FileSystemItem[] = [];
+          
+          const searchInItems = (items: FileSystemItem[]) => {
+            for (const item of items) {
+              if (targetPaths.includes(item.path)) {
+                foundItems.push({ ...item });
+              }
+              if (item.children) {
+                searchInItems(item.children);
+              }
+            }
+          };
+
+          searchInItems(fileSystemItems);
+          return foundItems;
+        };
+
+        const foundItems = findItemsByPaths(state.fileSystem, paths);
+        
+        set((state) => ({
+          ...state,
+          clipboard: {
+            items: foundItems,
+            operation: 'copy',
+          },
+        }));
+      },
+
+      cutToClipboard: (paths) => {
+        const state = get();
+
+        // Helper function to find items by path
+        const findItemsByPaths = (fileSystemItems: FileSystemItem[], targetPaths: string[]): FileSystemItem[] => {
+          const foundItems: FileSystemItem[] = [];
+          
+          const searchInItems = (items: FileSystemItem[]) => {
+            for (const item of items) {
+              if (targetPaths.includes(item.path)) {
+                foundItems.push({ ...item });
+              }
+              if (item.children) {
+                searchInItems(item.children);
+              }
+            }
+          };
+
+          searchInItems(fileSystemItems);
+          return foundItems;
+        };
+
+        const foundItems = findItemsByPaths(state.fileSystem, paths);
+        
+        set((state) => ({
+          ...state,
+          clipboard: {
+            items: foundItems,
+            operation: 'cut',
+          },
+        }));
+      },
+
+      pasteFromClipboard: (targetPath) => {
+        const state = get();
+        const { clipboard } = state;
+        
+        if (!clipboard.items.length || !clipboard.operation) {
+          return false;
+        }
+
+        let success = false;
+
+        // Helper function to generate unique name if conflict exists
+        const generateUniqueName = (baseName: string, existingNames: string[]): string => {
+          if (!existingNames.includes(baseName)) {
+            return baseName;
+          }
+
+          const nameParts = baseName.split('.');
+          const extension = nameParts.length > 1 ? `.${nameParts.pop()}` : '';
+          const nameWithoutExt = nameParts.join('.');
+          
+          let counter = 1;
+          let newName = `${nameWithoutExt} (${counter})${extension}`;
+          
+          while (existingNames.includes(newName)) {
+            counter++;
+            newName = `${nameWithoutExt} (${counter})${extension}`;
+          }
+          
+          return newName;
+        };
+
+        // Helper function to find next available desktop position
+        const findNextDesktopPosition = (existingItems: FileSystemItem[]): { x: number; y: number } => {
+          const ICON_SIZE = 80;
+          const MARGIN = 20;
+          const START_X = 100;
+          const START_Y = 100;
+          const MAX_COLUMNS = 8;
+
+          const usedPositions = existingItems.filter((item) => item.position).map((item) => item.position!);
+
+          for (let row = 0; row < 10; row++) {
+            for (let col = 0; col < MAX_COLUMNS; col++) {
+              const x = START_X + col * (ICON_SIZE + MARGIN);
+              const y = START_Y + row * (ICON_SIZE + MARGIN);
+
+              const isOccupied = usedPositions.some(
+                (pos) => Math.abs(pos.x - x) < ICON_SIZE && Math.abs(pos.y - y) < ICON_SIZE
+              );
+
+              if (!isOccupied) {
+                return { x, y };
+              }
+            }
+          }
+
+          return { x: START_X, y: START_Y };
+        };
+
+        set((state) => {
+          const pasteToFolder = (items: FileSystemItem[]): FileSystemItem[] =>
+            items.map((item) => {
+              if (item.path === targetPath && item.type === 'folder') {
+                const existingNames = item.children?.map(child => child.name) || [];
+                const newChildren = [...(item.children || [])];
+
+                // Add clipboard items to target folder
+                for (const clipboardItem of clipboard.items) {
+                  const uniqueName = generateUniqueName(clipboardItem.name, existingNames);
+                  const newPath = targetPath === '/' ? `/${uniqueName}` : `${targetPath}/${uniqueName}`;
+                  
+                  const newItem: FileSystemItem = {
+                    ...clipboardItem,
+                    id: `${clipboardItem.type}-${Date.now()}-${Math.random()}`,
+                    name: uniqueName,
+                    path: newPath,
+                    position: targetPath === '/Desktop' ? findNextDesktopPosition(newChildren) : undefined,
+                  };
+
+                  // If it's a folder, update all children paths recursively
+                  if (newItem.type === 'folder' && newItem.children) {
+                    const updateChildrenPaths = (children: FileSystemItem[], oldParentPath: string, newParentPath: string): FileSystemItem[] =>
+                      children.map(child => ({
+                        ...child,
+                        id: `${child.type}-${Date.now()}-${Math.random()}`,
+                        path: child.path.replace(oldParentPath, newParentPath),
+                        children: child.children ? updateChildrenPaths(child.children, oldParentPath, newParentPath) : undefined,
+                      }));
+
+                    newItem.children = updateChildrenPaths(newItem.children, clipboardItem.path, newPath);
+                  }
+
+                  newChildren.push(newItem);
+                  existingNames.push(uniqueName);
+                }
+
+                success = true;
+                return {
+                  ...item,
+                  children: newChildren,
+                };
+              }
+
+              if (item.children && targetPath.startsWith(`${item.path}/`)) {
+                return {
+                  ...item,
+                  children: pasteToFolder(item.children),
+                };
+              }
+
+              return item;
+            });
+
+          const newFileSystem = pasteToFolder(state.fileSystem);
+
+          // If it was a cut operation, remove original items
+          let finalFileSystem = newFileSystem;
+          if (clipboard.operation === 'cut' && success) {
+            const removeFromFolder = (items: FileSystemItem[]): FileSystemItem[] =>
+              items.filter((item) => {
+                const shouldRemove = clipboard.items.some(clipItem => clipItem.path === item.path);
+                if (shouldRemove) {
+                  return false;
+                }
+                if (item.children) {
+                  item.children = removeFromFolder(item.children);
+                }
+                return true;
+              });
+
+            finalFileSystem = removeFromFolder(newFileSystem);
+          }
+
+          return {
+            ...state,
+            fileSystem: finalFileSystem,
+            clipboard: success && clipboard.operation === 'cut' ? { items: [], operation: null } : state.clipboard,
+          };
+        });
+
+        return success;
+      },
+
+      clearClipboard: () => {
+        set((state) => ({
+          ...state,
+          clipboard: {
+            items: [],
+            operation: null,
+          },
+        }));
+      },
+
+      hasClipboardItems: () => {
+        const state = get();
+        return state.clipboard.items.length > 0;
       },
     }),
     {

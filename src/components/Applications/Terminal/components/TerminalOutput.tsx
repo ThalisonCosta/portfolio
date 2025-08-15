@@ -73,9 +73,7 @@ const TerminalOutputComponent: React.FC<TerminalOutputProps> = ({
   const [viewportHeight, setViewportHeight] = useState(0);
 
   // Memoized display output to prevent recalculation
-  const displayedOutput = useMemo(() => {
-    return output.slice(-maxLines);
-  }, [output, maxLines]);
+  const displayedOutput = useMemo(() => output.slice(-maxLines), [output, maxLines]);
 
   // Calculate visible range for virtual scrolling
   const { startIndex, endIndex, totalHeight } = useMemo(() => {
@@ -92,9 +90,7 @@ const TerminalOutputComponent: React.FC<TerminalOutputProps> = ({
   }, [scrollTop, viewportHeight, displayedOutput.length]);
 
   // Get visible items
-  const visibleItems = useMemo(() => {
-    return displayedOutput.slice(startIndex, endIndex);
-  }, [displayedOutput, startIndex, endIndex]);
+  const visibleItems = useMemo(() => displayedOutput.slice(startIndex, endIndex), [displayedOutput, startIndex, endIndex]);
 
   /**
    * Optimized scroll handler with debouncing
@@ -157,20 +153,16 @@ const TerminalOutputComponent: React.FC<TerminalOutputProps> = ({
     }));
   }, [theme.background, theme.comment]);
 
-  const contentStyle = useMemo(() => {
-    return StyleObjectPool.get('content', () => ({
-      position: 'relative' as const,
-      height: `${totalHeight}px`,
-      padding: '8px 16px',
-    }));
-  }, [totalHeight]);
+  const contentStyle = useMemo(() => StyleObjectPool.get('content', () => ({
+    position: 'relative' as const,
+    height: `${totalHeight}px`,
+    padding: '8px 8px',
+  })), [totalHeight]);
 
-  const inputContainerStyle = useMemo(() => {
-    return StyleObjectPool.get('input-container', () => ({
+  const inputContainerStyle = useMemo(() => StyleObjectPool.get('input-container', () => ({
       padding: '0',
       minHeight: 'auto' as const,
-    }));
-  }, []);
+    })), []);
 
   const scrollbarStyle = useMemo(() => {
     const styleKey = `scrollbar-${theme.background}-${theme.comment}-${theme.foreground}`;
@@ -192,19 +184,15 @@ const TerminalOutputComponent: React.FC<TerminalOutputProps> = ({
     `);
   }, [theme.background, theme.comment, theme.foreground]);
 
-  const hasInputProps = useMemo(() => {
-    return currentInput !== undefined && onInputChange && onKeyDown && currentDirectory && osType && username && hostname;
-  }, [currentInput, onInputChange, onKeyDown, currentDirectory, osType, username, hostname]);
+  const hasInputProps = useMemo(() => currentInput !== undefined && onInputChange && onKeyDown && currentDirectory && osType && username && hostname, [currentInput, onInputChange, onKeyDown, currentDirectory, osType, username, hostname]);
 
   // Virtual list item style
-  const virtualListStyle = useMemo(() => {
-    return StyleObjectPool.get('virtual-list', () => ({
+  const virtualListStyle = useMemo(() => StyleObjectPool.get('virtual-list', () => ({
       position: 'absolute' as const,
       top: `${startIndex * ITEM_HEIGHT}px`,
       left: 0,
       right: 0,
-    }));
-  }, [startIndex]);
+    })), [startIndex]);
 
   return (
     <>
@@ -292,8 +280,7 @@ const TerminalOutputComponent: React.FC<TerminalOutputProps> = ({
 /**
  * Memoized terminal output with custom comparison
  */
-export const TerminalOutput = memo(TerminalOutputComponent, (prevProps, nextProps) => {
-  return (
+export const TerminalOutput = memo(TerminalOutputComponent, (prevProps, nextProps) => (
     prevProps.output.length === nextProps.output.length &&
     prevProps.output === nextProps.output &&
     prevProps.theme === nextProps.theme &&
@@ -303,7 +290,6 @@ export const TerminalOutput = memo(TerminalOutputComponent, (prevProps, nextProp
     prevProps.isExecuting === nextProps.isExecuting &&
     prevProps.cursorPosition === nextProps.cursorPosition &&
     prevProps.showSuggestions === nextProps.showSuggestions
-  );
-});
+  ));
 
 TerminalOutput.displayName = 'TerminalOutput';
