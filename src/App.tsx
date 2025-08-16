@@ -4,6 +4,7 @@ import { Desktop } from './components/Desktop/Desktop';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ContextMenuProvider } from './contexts/ContextMenuContext';
 import { useDesktopStore } from './stores/useDesktopStore';
+import './i18n/config';
 import './App.css';
 
 function App() {

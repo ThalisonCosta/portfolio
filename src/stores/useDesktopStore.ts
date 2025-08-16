@@ -1,5 +1,7 @@
 import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
+import { devtools, persist } from 'zustand/middleware';
+import type { SystemSettings } from '../types/settings.types';
+import { DEFAULT_SETTINGS } from '../types/settings.types';
 
 /**
  * Represents the state of a window in the desktop environment
@@ -84,6 +86,10 @@ interface DesktopState {
     items: FileSystemItem[];
     operation: 'copy' | 'cut' | null;
   };
+  /** System settings */
+  settings: SystemSettings;
+  /** RGB timer interval ID */
+  rgbTimerInterval: NodeJS.Timeout | null;
 }
 
 /**
@@ -154,6 +160,14 @@ interface DesktopActions {
   clearClipboard: () => void;
   /** Checks if clipboard has items */
   hasClipboardItems: () => boolean;
+  /** Updates system settings */
+  updateSettings: (settings: Partial<SystemSettings>) => void;
+  /** Starts RGB timer */
+  startRGBTimer: () => void;
+  /** Stops RGB timer */
+  stopRGBTimer: () => void;
+  /** Gets current background style */
+  getBackgroundStyle: () => string;
 }
 
 const defaultFileSystem: FileSystemItem[] = [
@@ -197,6 +211,15 @@ const defaultFileSystem: FileSystemItem[] = [
         icon: 'app',
         content: 'TextEditor',
         position: { x: 100, y: 200 },
+      },
+      {
+        id: 'settings-app',
+        name: 'Settings',
+        type: 'file',
+        path: '/Desktop/Settings.app',
+        icon: 'app',
+        content: 'SettingsApp',
+        position: { x: 200, y: 200 },
       },
       {
         id: 'test-md-file',
@@ -257,814 +280,283 @@ const defaultFileSystem: FileSystemItem[] = [
 
 export const useDesktopStore = create<DesktopState & DesktopActions>()(
   devtools(
-    (set, get) => ({
-      windows: [],
-      fileSystem: [],
-      currentPath: '/Desktop',
-      selectedItems: [],
-      nextZIndex: 1000,
-      theme: 'light',
-      wallpaper: '/wallpapers/default.jpg',
-      isDragging: false,
-      draggedItem: null,
-      isStartMenuOpen: false,
-      isScreensaverActive: false,
-      clipboard: {
-        items: [],
-        operation: null,
-      },
+    persist(
+      (set, get) => ({
+        windows: [],
+        fileSystem: [],
+        currentPath: '/Desktop',
+        selectedItems: [],
+        nextZIndex: 1000,
+        theme: 'light',
+        wallpaper: '/wallpapers/default.jpg',
+        isDragging: false,
+        draggedItem: null,
+        isStartMenuOpen: false,
+        isScreensaverActive: false,
+        clipboard: {
+          items: [],
+          operation: null,
+        },
+        settings: DEFAULT_SETTINGS,
+        rgbTimerInterval: null,
 
-      openWindow: (windowConfig) => {
-        const { nextZIndex } = get();
-        const newWindow: WindowState = {
-          ...windowConfig,
-          id: `window-${Date.now()}-${Math.random()}`,
-          isOpen: true,
-          zIndex: nextZIndex,
-        };
-
-        set((state) => ({
-          windows: [...state.windows, newWindow],
-          nextZIndex: nextZIndex + 1,
-        }));
-      },
-
-      closeWindow: (id) => {
-        set((state) => ({
-          windows: state.windows.filter((window) => window.id !== id),
-        }));
-      },
-
-      minimizeWindow: (id) => {
-        set((state) => ({
-          windows: state.windows.map((window) =>
-            window.id === id ? { ...window, isMinimized: !window.isMinimized } : window
-          ),
-        }));
-      },
-
-      maximizeWindow: (id) => {
-        set((state) => ({
-          windows: state.windows.map((window) =>
-            window.id === id ? { ...window, isMaximized: !window.isMaximized } : window
-          ),
-        }));
-      },
-
-      updateWindowPosition: (id, position) => {
-        set((state) => ({
-          windows: state.windows.map((window) => (window.id === id ? { ...window, position } : window)),
-        }));
-      },
-
-      updateWindowSize: (id, size) => {
-        set((state) => ({
-          windows: state.windows.map((window) => (window.id === id ? { ...window, size } : window)),
-        }));
-      },
-
-      bringToFront: (id) => {
-        const { nextZIndex } = get();
-        set((state) => ({
-          windows: state.windows.map((window) => (window.id === id ? { ...window, zIndex: nextZIndex } : window)),
-          nextZIndex: nextZIndex + 1,
-        }));
-      },
-
-      setCurrentPath: (path) => set({ currentPath: path }),
-
-      setSelectedItems: (items) => set({ selectedItems: items }),
-
-      addSelectedItem: (item) => {
-        set((state) => ({
-          selectedItems: [...state.selectedItems, item],
-        }));
-      },
-
-      removeSelectedItem: (item) => {
-        set((state) => ({
-          selectedItems: state.selectedItems.filter((i) => i !== item),
-        }));
-      },
-
-      clearSelection: () => set({ selectedItems: [] }),
-
-      setTheme: (theme) => set({ theme }),
-
-      setWallpaper: (wallpaper) => set({ wallpaper }),
-
-      initializeFileSystem: () => set({ fileSystem: defaultFileSystem }),
-
-      updateIconPosition: (id, position) => {
-        set((state) => {
-          const ICON_SIZE = 80;
-          const COLLISION_THRESHOLD = 60;
-
-          const checkCollision = (pos1: { x: number; y: number }, pos2: { x: number; y: number }) => {
-            const distance = Math.sqrt(Math.pow(pos1.x - pos2.x, 2) + Math.pow(pos1.y - pos2.y, 2));
-            return distance < COLLISION_THRESHOLD;
+        openWindow: (windowConfig) => {
+          const { nextZIndex } = get();
+          const newWindow: WindowState = {
+            ...windowConfig,
+            id: `window-${Date.now()}-${Math.random()}`,
+            isOpen: true,
+            zIndex: nextZIndex,
           };
 
-          const findSafePosition = (
-            desiredPos: { x: number; y: number },
-            excludeId: string,
-            items: FileSystemItem[]
-          ) => {
-            // eslint-disable-next-line prefer-const
-            let safePos = { ...desiredPos };
-            let attempts = 0;
-            const maxAttempts = 20;
+          set((state) => ({
+            windows: [...state.windows, newWindow],
+            nextZIndex: nextZIndex + 1,
+          }));
+        },
 
-            while (attempts < maxAttempts) {
-              const hasCollision = items.some(
-                (item) => item.id !== excludeId && item.position && checkCollision(safePos, item.position)
-              );
+        closeWindow: (id) => {
+          set((state) => ({
+            windows: state.windows.filter((window) => window.id !== id),
+          }));
+        },
 
-              if (!hasCollision) {
-                return safePos;
-              }
+        minimizeWindow: (id) => {
+          set((state) => ({
+            windows: state.windows.map((window) =>
+              window.id === id ? { ...window, isMinimized: !window.isMinimized } : window
+            ),
+          }));
+        },
 
-              safePos.y += ICON_SIZE + 10;
-              attempts++;
-            }
+        maximizeWindow: (id) => {
+          set((state) => ({
+            windows: state.windows.map((window) =>
+              window.id === id ? { ...window, isMaximized: !window.isMaximized } : window
+            ),
+          }));
+        },
 
-            return safePos;
-          };
+        updateWindowPosition: (id, position) => {
+          set((state) => ({
+            windows: state.windows.map((window) => (window.id === id ? { ...window, position } : window)),
+          }));
+        },
 
-          const updatedFileSystem = state.fileSystem.map((folder) => {
-            if (folder.children) {
-              const desktopItems = folder.children;
-              const draggedItem = desktopItems.find((item) => item.id === id);
+        updateWindowSize: (id, size) => {
+          set((state) => ({
+            windows: state.windows.map((window) => (window.id === id ? { ...window, size } : window)),
+          }));
+        },
 
-              if (!draggedItem) return folder;
+        bringToFront: (id) => {
+          const { nextZIndex } = get();
+          set((state) => ({
+            windows: state.windows.map((window) => (window.id === id ? { ...window, zIndex: nextZIndex } : window)),
+            nextZIndex: nextZIndex + 1,
+          }));
+        },
 
-              const otherItems = desktopItems.filter((item) => item.id !== id);
-              const collisionItem = otherItems.find((item) => item.position && checkCollision(position, item.position));
+        setCurrentPath: (path) => set({ currentPath: path }),
 
-              let updatedChildren = [...desktopItems];
+        setSelectedItems: (items) => set({ selectedItems: items }),
 
-              if (collisionItem && collisionItem.position) {
-                const newCollisionPosition = findSafePosition(
-                  { x: collisionItem.position.x, y: collisionItem.position.y + ICON_SIZE + 10 },
-                  collisionItem.id,
-                  otherItems.filter((item) => item.id !== collisionItem.id)
+        addSelectedItem: (item) => {
+          set((state) => ({
+            selectedItems: [...state.selectedItems, item],
+          }));
+        },
+
+        removeSelectedItem: (item) => {
+          set((state) => ({
+            selectedItems: state.selectedItems.filter((i) => i !== item),
+          }));
+        },
+
+        clearSelection: () => set({ selectedItems: [] }),
+
+        setTheme: (theme) => set({ theme }),
+
+        setWallpaper: (wallpaper) => set({ wallpaper }),
+
+        initializeFileSystem: () => set({ fileSystem: defaultFileSystem }),
+
+        updateIconPosition: (id, position) => {
+          set((state) => {
+            const ICON_SIZE = 80;
+            const COLLISION_THRESHOLD = 60;
+
+            const checkCollision = (pos1: { x: number; y: number }, pos2: { x: number; y: number }) => {
+              const distance = Math.sqrt(Math.pow(pos1.x - pos2.x, 2) + Math.pow(pos1.y - pos2.y, 2));
+              return distance < COLLISION_THRESHOLD;
+            };
+
+            const findSafePosition = (
+              desiredPos: { x: number; y: number },
+              excludeId: string,
+              items: FileSystemItem[]
+            ) => {
+              // eslint-disable-next-line prefer-const
+              let safePos = { ...desiredPos };
+              let attempts = 0;
+              const maxAttempts = 20;
+
+              while (attempts < maxAttempts) {
+                const hasCollision = items.some(
+                  (item) => item.id !== excludeId && item.position && checkCollision(safePos, item.position)
                 );
 
-                updatedChildren = updatedChildren.map((item) => {
-                  if (item.id === collisionItem.id) {
-                    return { ...item, position: newCollisionPosition };
-                  }
-                  if (item.id === id) {
-                    return { ...item, position };
-                  }
-                  return item;
-                });
-              } else {
-                updatedChildren = updatedChildren.map((item) => (item.id === id ? { ...item, position } : item));
-              }
-
-              return {
-                ...folder,
-                children: updatedChildren,
-              };
-            }
-            return folder;
-          });
-
-          return { fileSystem: updatedFileSystem };
-        });
-      },
-
-      setDragging: (isDragging, itemId) => {
-        set({ isDragging, draggedItem: itemId || null });
-      },
-
-      toggleStartMenu: () => {
-        set((state) => ({ isStartMenuOpen: !state.isStartMenuOpen }));
-      },
-
-      closeStartMenu: () => {
-        set({ isStartMenuOpen: false });
-      },
-
-      activateScreensaver: () => {
-        set({ isScreensaverActive: true, isStartMenuOpen: false });
-      },
-
-      deactivateScreensaver: () => {
-        set({ isScreensaverActive: false });
-      },
-
-      createFile: (path, name, content = '') => {
-        // Normalize path by removing trailing slashes
-        const normalizedPath = path.replace(/\/+$/, '') || '/';
-
-        // Helper function to find next available desktop position
-        const findNextDesktopPosition = (existingItems: FileSystemItem[]): { x: number; y: number } => {
-          const ICON_SIZE = 80;
-          const MARGIN = 20;
-          const START_X = 100;
-          const START_Y = 100;
-          const MAX_COLUMNS = 8;
-
-          const usedPositions = existingItems.filter((item) => item.position).map((item) => item.position!);
-
-          for (let row = 0; row < 10; row++) {
-            for (let col = 0; col < MAX_COLUMNS; col++) {
-              const x = START_X + col * (ICON_SIZE + MARGIN);
-              const y = START_Y + row * (ICON_SIZE + MARGIN);
-
-              const isOccupied = usedPositions.some(
-                (pos) => Math.abs(pos.x - x) < ICON_SIZE && Math.abs(pos.y - y) < ICON_SIZE
-              );
-
-              if (!isOccupied) {
-                return { x, y };
-              }
-            }
-          }
-
-          return { x: START_X, y: START_Y };
-        };
-
-        // Helper function to get file icon based on extension
-        const getFileIcon = (fileName: string): string => {
-          const ext = fileName.split('.').pop()?.toLowerCase();
-          switch (ext) {
-            case 'txt':
-              return 'text';
-            case 'pdf':
-              return 'pdf';
-            case 'md':
-              return 'markdown';
-            case 'js':
-            case 'ts':
-              return 'code';
-            case 'html':
-            case 'css':
-              return 'web';
-            case 'png':
-            case 'jpg':
-            case 'jpeg':
-            case 'gif':
-              return 'image';
-            default:
-              return 'file';
-          }
-        };
-
-        // Helper function to update file system recursively
-        const updateFileSystemRecursively = (items: FileSystemItem[], targetPath: string): FileSystemItem[] =>
-          items.map((item) => {
-            if (item.path === targetPath && item.type === 'folder') {
-              // Check if file already exists
-              const fileExists = item.children?.some((child) => child.name === name);
-              if (fileExists) {
-                return item;
-              }
-
-              const newFile: FileSystemItem = {
-                id: `file-${Date.now()}-${Math.random()}`,
-                name,
-                type: 'file',
-                path: `${targetPath}/${name}`,
-                icon: getFileIcon(name),
-                content,
-                position: targetPath === '/Desktop' ? findNextDesktopPosition(item.children || []) : undefined,
-              };
-
-              success = true;
-              return {
-                ...item,
-                children: [...(item.children || []), newFile],
-              };
-            }
-
-            if (item.children && targetPath.startsWith(`${item.path}/`)) {
-              return {
-                ...item,
-                children: updateFileSystemRecursively(item.children, targetPath),
-              };
-            }
-
-            return item;
-          });
-
-        let success = false;
-
-        set((state) => ({
-          fileSystem: updateFileSystemRecursively(state.fileSystem, normalizedPath),
-        }));
-
-        return success;
-      },
-
-      createFolder: (path, name) => {
-        // Normalize path by removing trailing slashes
-        const normalizedPath = path.replace(/\/+$/, '') || '/';
-
-        // Helper function to find next available desktop position
-        const findNextDesktopPosition = (existingItems: FileSystemItem[]): { x: number; y: number } => {
-          const ICON_SIZE = 80;
-          const MARGIN = 20;
-          const START_X = 100;
-          const START_Y = 100;
-          const MAX_COLUMNS = 8;
-
-          const usedPositions = existingItems.filter((item) => item.position).map((item) => item.position!);
-
-          for (let row = 0; row < 10; row++) {
-            for (let col = 0; col < MAX_COLUMNS; col++) {
-              const x = START_X + col * (ICON_SIZE + MARGIN);
-              const y = START_Y + row * (ICON_SIZE + MARGIN);
-
-              const isOccupied = usedPositions.some(
-                (pos) => Math.abs(pos.x - x) < ICON_SIZE && Math.abs(pos.y - y) < ICON_SIZE
-              );
-
-              if (!isOccupied) {
-                return { x, y };
-              }
-            }
-          }
-
-          return { x: START_X, y: START_Y };
-        };
-
-        // Helper function to update file system recursively
-        const updateFileSystemRecursively = (items: FileSystemItem[], targetPath: string): FileSystemItem[] =>
-          items.map((item) => {
-            if (item.path === targetPath && item.type === 'folder') {
-              // Check if folder already exists
-              const folderExists = item.children?.some((child) => child.name === name);
-              if (folderExists) {
-                return item;
-              }
-
-              const newFolder: FileSystemItem = {
-                id: `folder-${Date.now()}-${Math.random()}`,
-                name,
-                type: 'folder',
-                path: `${targetPath}/${name}`,
-                icon: 'folder',
-                children: [],
-                position: targetPath === '/Desktop' ? findNextDesktopPosition(item.children || []) : undefined,
-              };
-
-              success = true;
-              return {
-                ...item,
-                children: [...(item.children || []), newFolder],
-              };
-            }
-
-            if (item.children && targetPath.startsWith(`${item.path}/`)) {
-              return {
-                ...item,
-                children: updateFileSystemRecursively(item.children, targetPath),
-              };
-            }
-
-            return item;
-          });
-
-        let success = false;
-
-        set((state) => ({
-          fileSystem: updateFileSystemRecursively(state.fileSystem, normalizedPath),
-        }));
-
-        return success;
-      },
-
-      removeFileSystemItem: (path) => {
-        let success = false;
-
-        set((state) => {
-          const removeFromFolder = (items: FileSystemItem[]): FileSystemItem[] =>
-            items.filter((item) => {
-              if (item.path === path) {
-                success = true;
-                return false;
-              }
-              if (item.children) {
-                item.children = removeFromFolder(item.children);
-              }
-              return true;
-            });
-
-          return {
-            fileSystem: removeFromFolder(state.fileSystem),
-          };
-        });
-
-        return success;
-      },
-
-      renameFileSystemItem: (path, newName) => {
-        // Validate new name
-        if (!newName.trim()) {
-          return false;
-        }
-
-        let success = false;
-
-        set((state) => {
-          const renameInFolder = (items: FileSystemItem[]): FileSystemItem[] =>
-            items.map((item) => {
-              if (item.path === path) {
-                // Check if sibling with same name already exists
-                const parentPath = path.substring(0, path.lastIndexOf('/')) || '/';
-                const newPath = parentPath === '/' ? `/${newName}` : `${parentPath}/${newName}`;
-
-                // Get parent folder
-                const parentFolder = state.fileSystem.find((f) => f.path === parentPath && f.type === 'folder');
-                const siblings = parentFolder?.children || [];
-
-                // Check for name conflict (excluding current item)
-                const nameExists = siblings.some((sibling) => sibling.name === newName && sibling.id !== item.id);
-
-                if (nameExists) {
-                  return item; // Don't rename if name already exists
+                if (!hasCollision) {
+                  return safePos;
                 }
 
-                success = true;
-
-                // Create updated item with new name and path
-                const updatedItem = {
-                  ...item,
-                  name: newName,
-                  path: newPath,
-                };
-
-                // If it's a folder, update all children paths recursively
-                if (item.type === 'folder' && item.children) {
-                  const updateChildrenPaths = (
-                    children: FileSystemItem[],
-                    oldParentPath: string,
-                    newParentPath: string
-                  ): FileSystemItem[] =>
-                    children.map((child) => ({
-                      ...child,
-                      path: child.path.replace(oldParentPath, newParentPath),
-                      children: child.children
-                        ? updateChildrenPaths(child.children, oldParentPath, newParentPath)
-                        : undefined,
-                    }));
-
-                  updatedItem.children = updateChildrenPaths(item.children, path, newPath);
-                }
-
-                return updatedItem;
+                safePos.y += ICON_SIZE + 10;
+                attempts++;
               }
 
-              // Recursively search in children
-              if (item.children) {
-                return {
-                  ...item,
-                  children: renameInFolder(item.children),
-                };
-              }
+              return safePos;
+            };
 
-              return item;
-            });
+            const updatedFileSystem = state.fileSystem.map((folder) => {
+              if (folder.children) {
+                const desktopItems = folder.children;
+                const draggedItem = desktopItems.find((item) => item.id === id);
 
-          return {
-            fileSystem: renameInFolder(state.fileSystem),
-          };
-        });
+                if (!draggedItem) return folder;
 
-        return success;
-      },
-
-      copyToClipboard: (paths) => {
-        const state = get();
-
-        // Helper function to find items by path
-        const findItemsByPaths = (fileSystemItems: FileSystemItem[], targetPaths: string[]): FileSystemItem[] => {
-          const foundItems: FileSystemItem[] = [];
-
-          const searchInItems = (items: FileSystemItem[]) => {
-            for (const item of items) {
-              if (targetPaths.includes(item.path)) {
-                foundItems.push({ ...item });
-              }
-              if (item.children) {
-                searchInItems(item.children);
-              }
-            }
-          };
-
-          searchInItems(fileSystemItems);
-          return foundItems;
-        };
-
-        const foundItems = findItemsByPaths(state.fileSystem, paths);
-
-        set((state) => ({
-          ...state,
-          clipboard: {
-            items: foundItems,
-            operation: 'copy',
-          },
-        }));
-      },
-
-      cutToClipboard: (paths) => {
-        const state = get();
-
-        // Helper function to find items by path
-        const findItemsByPaths = (fileSystemItems: FileSystemItem[], targetPaths: string[]): FileSystemItem[] => {
-          const foundItems: FileSystemItem[] = [];
-
-          const searchInItems = (items: FileSystemItem[]) => {
-            for (const item of items) {
-              if (targetPaths.includes(item.path)) {
-                foundItems.push({ ...item });
-              }
-              if (item.children) {
-                searchInItems(item.children);
-              }
-            }
-          };
-
-          searchInItems(fileSystemItems);
-          return foundItems;
-        };
-
-        const foundItems = findItemsByPaths(state.fileSystem, paths);
-
-        set((state) => ({
-          ...state,
-          clipboard: {
-            items: foundItems,
-            operation: 'cut',
-          },
-        }));
-      },
-
-      pasteFromClipboard: (targetPath) => {
-        const state = get();
-        const { clipboard } = state;
-
-        if (!clipboard.items.length || !clipboard.operation) {
-          return false;
-        }
-
-        let success = false;
-
-        // Helper function to generate unique name if conflict exists
-        const generateUniqueName = (baseName: string, existingNames: string[]): string => {
-          if (!existingNames.includes(baseName)) {
-            return baseName;
-          }
-
-          const nameParts = baseName.split('.');
-          const extension = nameParts.length > 1 ? `.${nameParts.pop()}` : '';
-          const nameWithoutExt = nameParts.join('.');
-
-          let counter = 1;
-          let newName = `${nameWithoutExt} (${counter})${extension}`;
-
-          while (existingNames.includes(newName)) {
-            counter++;
-            newName = `${nameWithoutExt} (${counter})${extension}`;
-          }
-
-          return newName;
-        };
-
-        // Helper function to find next available desktop position
-        const findNextDesktopPosition = (existingItems: FileSystemItem[]): { x: number; y: number } => {
-          const ICON_SIZE = 80;
-          const MARGIN = 20;
-          const START_X = 100;
-          const START_Y = 100;
-          const MAX_COLUMNS = 8;
-
-          const usedPositions = existingItems.filter((item) => item.position).map((item) => item.position!);
-
-          for (let row = 0; row < 10; row++) {
-            for (let col = 0; col < MAX_COLUMNS; col++) {
-              const x = START_X + col * (ICON_SIZE + MARGIN);
-              const y = START_Y + row * (ICON_SIZE + MARGIN);
-
-              const isOccupied = usedPositions.some(
-                (pos) => Math.abs(pos.x - x) < ICON_SIZE && Math.abs(pos.y - y) < ICON_SIZE
-              );
-
-              if (!isOccupied) {
-                return { x, y };
-              }
-            }
-          }
-
-          return { x: START_X, y: START_Y };
-        };
-
-        set((state) => {
-          const pasteToFolder = (items: FileSystemItem[]): FileSystemItem[] =>
-            items.map((item) => {
-              if (item.path === targetPath && item.type === 'folder') {
-                const existingNames = item.children?.map((child) => child.name) || [];
-                const newChildren = [...(item.children || [])];
-
-                // Add clipboard items to target folder
-                for (const clipboardItem of clipboard.items) {
-                  const uniqueName = generateUniqueName(clipboardItem.name, existingNames);
-                  const newPath = targetPath === '/' ? `/${uniqueName}` : `${targetPath}/${uniqueName}`;
-
-                  const newItem: FileSystemItem = {
-                    ...clipboardItem,
-                    id: `${clipboardItem.type}-${Date.now()}-${Math.random()}`,
-                    name: uniqueName,
-                    path: newPath,
-                    position: targetPath === '/Desktop' ? findNextDesktopPosition(newChildren) : undefined,
-                  };
-
-                  // If it's a folder, update all children paths recursively
-                  if (newItem.type === 'folder' && newItem.children) {
-                    const updateChildrenPaths = (
-                      children: FileSystemItem[],
-                      oldParentPath: string,
-                      newParentPath: string
-                    ): FileSystemItem[] =>
-                      children.map((child) => ({
-                        ...child,
-                        id: `${child.type}-${Date.now()}-${Math.random()}`,
-                        path: child.path.replace(oldParentPath, newParentPath),
-                        children: child.children
-                          ? updateChildrenPaths(child.children, oldParentPath, newParentPath)
-                          : undefined,
-                      }));
-
-                    newItem.children = updateChildrenPaths(newItem.children, clipboardItem.path, newPath);
-                  }
-
-                  newChildren.push(newItem);
-                  existingNames.push(uniqueName);
-                }
-
-                success = true;
-                return {
-                  ...item,
-                  children: newChildren,
-                };
-              }
-
-              if (item.children && targetPath.startsWith(`${item.path}/`)) {
-                return {
-                  ...item,
-                  children: pasteToFolder(item.children),
-                };
-              }
-
-              return item;
-            });
-
-          const newFileSystem = pasteToFolder(state.fileSystem);
-
-          // If it was a cut operation, remove original items
-          let finalFileSystem = newFileSystem;
-          if (clipboard.operation === 'cut' && success) {
-            const removeFromFolder = (items: FileSystemItem[]): FileSystemItem[] =>
-              items.filter((item) => {
-                const shouldRemove = clipboard.items.some((clipItem) => clipItem.path === item.path);
-                if (shouldRemove) {
-                  return false;
-                }
-                if (item.children) {
-                  item.children = removeFromFolder(item.children);
-                }
-                return true;
-              });
-
-            finalFileSystem = removeFromFolder(newFileSystem);
-          }
-
-          return {
-            ...state,
-            fileSystem: finalFileSystem,
-            clipboard: success && clipboard.operation === 'cut' ? { items: [], operation: null } : state.clipboard,
-          };
-        });
-
-        return success;
-      },
-
-      updateFileContent: (path, content) => {
-        let success = false;
-
-        const updateFileSystemRecursively = (items: FileSystemItem[]): FileSystemItem[] =>
-          items.map((item) => {
-            if (item.path === path && item.type === 'file') {
-              success = true;
-              return {
-                ...item,
-                content,
-              };
-            }
-
-            if (item.children) {
-              return {
-                ...item,
-                children: updateFileSystemRecursively(item.children),
-              };
-            }
-
-            return item;
-          });
-
-        set((state) => ({
-          fileSystem: updateFileSystemRecursively(state.fileSystem),
-        }));
-
-        return success;
-      },
-
-      saveFileAs: (folderPath, fileName, content) => {
-        // Normalize folder path
-        const normalizedFolderPath = folderPath.replace(/\/+$/, '') || '/';
-        const fullFilePath = `${normalizedFolderPath}/${fileName}`;
-
-        let success = false;
-
-        // Helper function to get file icon based on extension
-        const getFileIcon = (fileName: string): string => {
-          const extension = fileName.split('.').pop()?.toLowerCase();
-          switch (extension) {
-            case 'txt':
-              return 'text';
-            case 'html':
-            case 'htm':
-              return 'html';
-            case 'md':
-            case 'markdown':
-              return 'markdown';
-            case 'js':
-            case 'jsx':
-              return 'javascript';
-            case 'css':
-              return 'css';
-            case 'json':
-              return 'json';
-            default:
-              return 'text';
-          }
-        };
-
-        // Helper function to find next available desktop position
-        const findNextDesktopPosition = (existingItems: FileSystemItem[]): { x: number; y: number } => {
-          const ICON_SIZE = 80;
-          const MARGIN = 20;
-          const START_X = 100;
-          const START_Y = 300; // Start below existing icons
-          const MAX_COLUMNS = 8;
-
-          const usedPositions = existingItems.filter((item) => item.position).map((item) => item.position!);
-
-          for (let row = 0; row < 10; row++) {
-            for (let col = 0; col < MAX_COLUMNS; col++) {
-              const x = START_X + col * (ICON_SIZE + MARGIN);
-              const y = START_Y + row * (ICON_SIZE + MARGIN);
-
-              const isOccupied = usedPositions.some(
-                (pos) => Math.abs(pos.x - x) < ICON_SIZE && Math.abs(pos.y - y) < ICON_SIZE
-              );
-
-              if (!isOccupied) {
-                return { x, y };
-              }
-            }
-          }
-
-          return { x: START_X, y: START_Y };
-        };
-
-        // Helper function to update file system recursively
-        const updateFileSystemRecursively = (items: FileSystemItem[], targetPath: string): FileSystemItem[] =>
-          items.map((item) => {
-            if (item.path === targetPath && item.type === 'folder') {
-              // Check if file already exists
-              const fileExists = item.children?.some((child) => child.name === fileName);
-              if (fileExists) {
-                // Update existing file
-                const updatedChildren = item.children!.map((child) =>
-                  child.name === fileName ? { ...child, content } : child
+                const otherItems = desktopItems.filter((item) => item.id !== id);
+                const collisionItem = otherItems.find(
+                  (item) => item.position && checkCollision(position, item.position)
                 );
-                success = true;
+
+                let updatedChildren = [...desktopItems];
+
+                if (collisionItem && collisionItem.position) {
+                  const newCollisionPosition = findSafePosition(
+                    { x: collisionItem.position.x, y: collisionItem.position.y + ICON_SIZE + 10 },
+                    collisionItem.id,
+                    otherItems.filter((item) => item.id !== collisionItem.id)
+                  );
+
+                  updatedChildren = updatedChildren.map((item) => {
+                    if (item.id === collisionItem.id) {
+                      return { ...item, position: newCollisionPosition };
+                    }
+                    if (item.id === id) {
+                      return { ...item, position };
+                    }
+                    return item;
+                  });
+                } else {
+                  updatedChildren = updatedChildren.map((item) => (item.id === id ? { ...item, position } : item));
+                }
+
                 return {
-                  ...item,
+                  ...folder,
                   children: updatedChildren,
                 };
-              } else {
-                // Create new file
+              }
+              return folder;
+            });
+
+            return { fileSystem: updatedFileSystem };
+          });
+        },
+
+        setDragging: (isDragging, itemId) => {
+          set({ isDragging, draggedItem: itemId || null });
+        },
+
+        toggleStartMenu: () => {
+          set((state) => ({ isStartMenuOpen: !state.isStartMenuOpen }));
+        },
+
+        closeStartMenu: () => {
+          set({ isStartMenuOpen: false });
+        },
+
+        activateScreensaver: () => {
+          set({ isScreensaverActive: true, isStartMenuOpen: false });
+        },
+
+        deactivateScreensaver: () => {
+          set({ isScreensaverActive: false });
+        },
+
+        createFile: (path, name, content = '') => {
+          // Normalize path by removing trailing slashes
+          const normalizedPath = path.replace(/\/+$/, '') || '/';
+
+          // Helper function to find next available desktop position
+          const findNextDesktopPosition = (existingItems: FileSystemItem[]): { x: number; y: number } => {
+            const ICON_SIZE = 80;
+            const MARGIN = 20;
+            const START_X = 100;
+            const START_Y = 100;
+            const MAX_COLUMNS = 8;
+
+            const usedPositions = existingItems.filter((item) => item.position).map((item) => item.position!);
+
+            for (let row = 0; row < 10; row++) {
+              for (let col = 0; col < MAX_COLUMNS; col++) {
+                const x = START_X + col * (ICON_SIZE + MARGIN);
+                const y = START_Y + row * (ICON_SIZE + MARGIN);
+
+                const isOccupied = usedPositions.some(
+                  (pos) => Math.abs(pos.x - x) < ICON_SIZE && Math.abs(pos.y - y) < ICON_SIZE
+                );
+
+                if (!isOccupied) {
+                  return { x, y };
+                }
+              }
+            }
+
+            return { x: START_X, y: START_Y };
+          };
+
+          // Helper function to get file icon based on extension
+          const getFileIcon = (fileName: string): string => {
+            const ext = fileName.split('.').pop()?.toLowerCase();
+            switch (ext) {
+              case 'txt':
+                return 'text';
+              case 'pdf':
+                return 'pdf';
+              case 'md':
+                return 'markdown';
+              case 'js':
+              case 'ts':
+                return 'code';
+              case 'html':
+              case 'css':
+                return 'web';
+              case 'png':
+              case 'jpg':
+              case 'jpeg':
+              case 'gif':
+                return 'image';
+              default:
+                return 'file';
+            }
+          };
+
+          // Helper function to update file system recursively
+          const updateFileSystemRecursively = (items: FileSystemItem[], targetPath: string): FileSystemItem[] =>
+            items.map((item) => {
+              if (item.path === targetPath && item.type === 'folder') {
+                // Check if file already exists
+                const fileExists = item.children?.some((child) => child.name === name);
+                if (fileExists) {
+                  return item;
+                }
+
                 const newFile: FileSystemItem = {
                   id: `file-${Date.now()}-${Math.random()}`,
-                  name: fileName,
+                  name,
                   type: 'file',
-                  path: fullFilePath,
-                  icon: getFileIcon(fileName),
+                  path: `${targetPath}/${name}`,
+                  icon: getFileIcon(name),
                   content,
                   position: targetPath === '/Desktop' ? findNextDesktopPosition(item.children || []) : undefined,
                 };
@@ -1075,42 +567,665 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
                   children: [...(item.children || []), newFile],
                 };
               }
+
+              if (item.children && targetPath.startsWith(`${item.path}/`)) {
+                return {
+                  ...item,
+                  children: updateFileSystemRecursively(item.children, targetPath),
+                };
+              }
+
+              return item;
+            });
+
+          let success = false;
+
+          set((state) => ({
+            fileSystem: updateFileSystemRecursively(state.fileSystem, normalizedPath),
+          }));
+
+          return success;
+        },
+
+        createFolder: (path, name) => {
+          // Normalize path by removing trailing slashes
+          const normalizedPath = path.replace(/\/+$/, '') || '/';
+
+          // Helper function to find next available desktop position
+          const findNextDesktopPosition = (existingItems: FileSystemItem[]): { x: number; y: number } => {
+            const ICON_SIZE = 80;
+            const MARGIN = 20;
+            const START_X = 100;
+            const START_Y = 100;
+            const MAX_COLUMNS = 8;
+
+            const usedPositions = existingItems.filter((item) => item.position).map((item) => item.position!);
+
+            for (let row = 0; row < 10; row++) {
+              for (let col = 0; col < MAX_COLUMNS; col++) {
+                const x = START_X + col * (ICON_SIZE + MARGIN);
+                const y = START_Y + row * (ICON_SIZE + MARGIN);
+
+                const isOccupied = usedPositions.some(
+                  (pos) => Math.abs(pos.x - x) < ICON_SIZE && Math.abs(pos.y - y) < ICON_SIZE
+                );
+
+                if (!isOccupied) {
+                  return { x, y };
+                }
+              }
             }
 
-            if (item.children && targetPath.startsWith(`${item.path}/`)) {
-              return {
-                ...item,
-                children: updateFileSystemRecursively(item.children, targetPath),
-              };
-            }
+            return { x: START_X, y: START_Y };
+          };
 
-            return item;
+          // Helper function to update file system recursively
+          const updateFileSystemRecursively = (items: FileSystemItem[], targetPath: string): FileSystemItem[] =>
+            items.map((item) => {
+              if (item.path === targetPath && item.type === 'folder') {
+                // Check if folder already exists
+                const folderExists = item.children?.some((child) => child.name === name);
+                if (folderExists) {
+                  return item;
+                }
+
+                const newFolder: FileSystemItem = {
+                  id: `folder-${Date.now()}-${Math.random()}`,
+                  name,
+                  type: 'folder',
+                  path: `${targetPath}/${name}`,
+                  icon: 'folder',
+                  children: [],
+                  position: targetPath === '/Desktop' ? findNextDesktopPosition(item.children || []) : undefined,
+                };
+
+                success = true;
+                return {
+                  ...item,
+                  children: [...(item.children || []), newFolder],
+                };
+              }
+
+              if (item.children && targetPath.startsWith(`${item.path}/`)) {
+                return {
+                  ...item,
+                  children: updateFileSystemRecursively(item.children, targetPath),
+                };
+              }
+
+              return item;
+            });
+
+          let success = false;
+
+          set((state) => ({
+            fileSystem: updateFileSystemRecursively(state.fileSystem, normalizedPath),
+          }));
+
+          return success;
+        },
+
+        removeFileSystemItem: (path) => {
+          let success = false;
+
+          set((state) => {
+            const removeFromFolder = (items: FileSystemItem[]): FileSystemItem[] =>
+              items.filter((item) => {
+                if (item.path === path) {
+                  success = true;
+                  return false;
+                }
+                if (item.children) {
+                  item.children = removeFromFolder(item.children);
+                }
+                return true;
+              });
+
+            return {
+              fileSystem: removeFromFolder(state.fileSystem),
+            };
           });
 
-        set((state) => ({
-          fileSystem: updateFileSystemRecursively(state.fileSystem, normalizedFolderPath),
-        }));
+          return success;
+        },
 
-        return success;
-      },
+        renameFileSystemItem: (path, newName) => {
+          // Validate new name
+          if (!newName.trim()) {
+            return false;
+          }
 
-      clearClipboard: () => {
-        set((state) => ({
-          ...state,
-          clipboard: {
-            items: [],
-            operation: null,
-          },
-        }));
-      },
+          let success = false;
 
-      hasClipboardItems: () => {
-        const state = get();
-        return state.clipboard.items.length > 0;
-      },
-    }),
-    {
-      name: 'desktop-store',
-    }
+          set((state) => {
+            const renameInFolder = (items: FileSystemItem[]): FileSystemItem[] =>
+              items.map((item) => {
+                if (item.path === path) {
+                  // Check if sibling with same name already exists
+                  const parentPath = path.substring(0, path.lastIndexOf('/')) || '/';
+                  const newPath = parentPath === '/' ? `/${newName}` : `${parentPath}/${newName}`;
+
+                  // Get parent folder
+                  const parentFolder = state.fileSystem.find((f) => f.path === parentPath && f.type === 'folder');
+                  const siblings = parentFolder?.children || [];
+
+                  // Check for name conflict (excluding current item)
+                  const nameExists = siblings.some((sibling) => sibling.name === newName && sibling.id !== item.id);
+
+                  if (nameExists) {
+                    return item; // Don't rename if name already exists
+                  }
+
+                  success = true;
+
+                  // Create updated item with new name and path
+                  const updatedItem = {
+                    ...item,
+                    name: newName,
+                    path: newPath,
+                  };
+
+                  // If it's a folder, update all children paths recursively
+                  if (item.type === 'folder' && item.children) {
+                    const updateChildrenPaths = (
+                      children: FileSystemItem[],
+                      oldParentPath: string,
+                      newParentPath: string
+                    ): FileSystemItem[] =>
+                      children.map((child) => ({
+                        ...child,
+                        path: child.path.replace(oldParentPath, newParentPath),
+                        children: child.children
+                          ? updateChildrenPaths(child.children, oldParentPath, newParentPath)
+                          : undefined,
+                      }));
+
+                    updatedItem.children = updateChildrenPaths(item.children, path, newPath);
+                  }
+
+                  return updatedItem;
+                }
+
+                // Recursively search in children
+                if (item.children) {
+                  return {
+                    ...item,
+                    children: renameInFolder(item.children),
+                  };
+                }
+
+                return item;
+              });
+
+            return {
+              fileSystem: renameInFolder(state.fileSystem),
+            };
+          });
+
+          return success;
+        },
+
+        copyToClipboard: (paths) => {
+          const state = get();
+
+          // Helper function to find items by path
+          const findItemsByPaths = (fileSystemItems: FileSystemItem[], targetPaths: string[]): FileSystemItem[] => {
+            const foundItems: FileSystemItem[] = [];
+
+            const searchInItems = (items: FileSystemItem[]) => {
+              for (const item of items) {
+                if (targetPaths.includes(item.path)) {
+                  foundItems.push({ ...item });
+                }
+                if (item.children) {
+                  searchInItems(item.children);
+                }
+              }
+            };
+
+            searchInItems(fileSystemItems);
+            return foundItems;
+          };
+
+          const foundItems = findItemsByPaths(state.fileSystem, paths);
+
+          set((state) => ({
+            ...state,
+            clipboard: {
+              items: foundItems,
+              operation: 'copy',
+            },
+          }));
+        },
+
+        cutToClipboard: (paths) => {
+          const state = get();
+
+          // Helper function to find items by path
+          const findItemsByPaths = (fileSystemItems: FileSystemItem[], targetPaths: string[]): FileSystemItem[] => {
+            const foundItems: FileSystemItem[] = [];
+
+            const searchInItems = (items: FileSystemItem[]) => {
+              for (const item of items) {
+                if (targetPaths.includes(item.path)) {
+                  foundItems.push({ ...item });
+                }
+                if (item.children) {
+                  searchInItems(item.children);
+                }
+              }
+            };
+
+            searchInItems(fileSystemItems);
+            return foundItems;
+          };
+
+          const foundItems = findItemsByPaths(state.fileSystem, paths);
+
+          set((state) => ({
+            ...state,
+            clipboard: {
+              items: foundItems,
+              operation: 'cut',
+            },
+          }));
+        },
+
+        pasteFromClipboard: (targetPath) => {
+          const state = get();
+          const { clipboard } = state;
+
+          if (!clipboard.items.length || !clipboard.operation) {
+            return false;
+          }
+
+          let success = false;
+
+          // Helper function to generate unique name if conflict exists
+          const generateUniqueName = (baseName: string, existingNames: string[]): string => {
+            if (!existingNames.includes(baseName)) {
+              return baseName;
+            }
+
+            const nameParts = baseName.split('.');
+            const extension = nameParts.length > 1 ? `.${nameParts.pop()}` : '';
+            const nameWithoutExt = nameParts.join('.');
+
+            let counter = 1;
+            let newName = `${nameWithoutExt} (${counter})${extension}`;
+
+            while (existingNames.includes(newName)) {
+              counter++;
+              newName = `${nameWithoutExt} (${counter})${extension}`;
+            }
+
+            return newName;
+          };
+
+          // Helper function to find next available desktop position
+          const findNextDesktopPosition = (existingItems: FileSystemItem[]): { x: number; y: number } => {
+            const ICON_SIZE = 80;
+            const MARGIN = 20;
+            const START_X = 100;
+            const START_Y = 100;
+            const MAX_COLUMNS = 8;
+
+            const usedPositions = existingItems.filter((item) => item.position).map((item) => item.position!);
+
+            for (let row = 0; row < 10; row++) {
+              for (let col = 0; col < MAX_COLUMNS; col++) {
+                const x = START_X + col * (ICON_SIZE + MARGIN);
+                const y = START_Y + row * (ICON_SIZE + MARGIN);
+
+                const isOccupied = usedPositions.some(
+                  (pos) => Math.abs(pos.x - x) < ICON_SIZE && Math.abs(pos.y - y) < ICON_SIZE
+                );
+
+                if (!isOccupied) {
+                  return { x, y };
+                }
+              }
+            }
+
+            return { x: START_X, y: START_Y };
+          };
+
+          set((state) => {
+            const pasteToFolder = (items: FileSystemItem[]): FileSystemItem[] =>
+              items.map((item) => {
+                if (item.path === targetPath && item.type === 'folder') {
+                  const existingNames = item.children?.map((child) => child.name) || [];
+                  const newChildren = [...(item.children || [])];
+
+                  // Add clipboard items to target folder
+                  for (const clipboardItem of clipboard.items) {
+                    const uniqueName = generateUniqueName(clipboardItem.name, existingNames);
+                    const newPath = targetPath === '/' ? `/${uniqueName}` : `${targetPath}/${uniqueName}`;
+
+                    const newItem: FileSystemItem = {
+                      ...clipboardItem,
+                      id: `${clipboardItem.type}-${Date.now()}-${Math.random()}`,
+                      name: uniqueName,
+                      path: newPath,
+                      position: targetPath === '/Desktop' ? findNextDesktopPosition(newChildren) : undefined,
+                    };
+
+                    // If it's a folder, update all children paths recursively
+                    if (newItem.type === 'folder' && newItem.children) {
+                      const updateChildrenPaths = (
+                        children: FileSystemItem[],
+                        oldParentPath: string,
+                        newParentPath: string
+                      ): FileSystemItem[] =>
+                        children.map((child) => ({
+                          ...child,
+                          id: `${child.type}-${Date.now()}-${Math.random()}`,
+                          path: child.path.replace(oldParentPath, newParentPath),
+                          children: child.children
+                            ? updateChildrenPaths(child.children, oldParentPath, newParentPath)
+                            : undefined,
+                        }));
+
+                      newItem.children = updateChildrenPaths(newItem.children, clipboardItem.path, newPath);
+                    }
+
+                    newChildren.push(newItem);
+                    existingNames.push(uniqueName);
+                  }
+
+                  success = true;
+                  return {
+                    ...item,
+                    children: newChildren,
+                  };
+                }
+
+                if (item.children && targetPath.startsWith(`${item.path}/`)) {
+                  return {
+                    ...item,
+                    children: pasteToFolder(item.children),
+                  };
+                }
+
+                return item;
+              });
+
+            const newFileSystem = pasteToFolder(state.fileSystem);
+
+            // If it was a cut operation, remove original items
+            let finalFileSystem = newFileSystem;
+            if (clipboard.operation === 'cut' && success) {
+              const removeFromFolder = (items: FileSystemItem[]): FileSystemItem[] =>
+                items.filter((item) => {
+                  const shouldRemove = clipboard.items.some((clipItem) => clipItem.path === item.path);
+                  if (shouldRemove) {
+                    return false;
+                  }
+                  if (item.children) {
+                    item.children = removeFromFolder(item.children);
+                  }
+                  return true;
+                });
+
+              finalFileSystem = removeFromFolder(newFileSystem);
+            }
+
+            return {
+              ...state,
+              fileSystem: finalFileSystem,
+              clipboard: success && clipboard.operation === 'cut' ? { items: [], operation: null } : state.clipboard,
+            };
+          });
+
+          return success;
+        },
+
+        updateFileContent: (path, content) => {
+          let success = false;
+
+          const updateFileSystemRecursively = (items: FileSystemItem[]): FileSystemItem[] =>
+            items.map((item) => {
+              if (item.path === path && item.type === 'file') {
+                success = true;
+                return {
+                  ...item,
+                  content,
+                };
+              }
+
+              if (item.children) {
+                return {
+                  ...item,
+                  children: updateFileSystemRecursively(item.children),
+                };
+              }
+
+              return item;
+            });
+
+          set((state) => ({
+            fileSystem: updateFileSystemRecursively(state.fileSystem),
+          }));
+
+          return success;
+        },
+
+        saveFileAs: (folderPath, fileName, content) => {
+          // Normalize folder path
+          const normalizedFolderPath = folderPath.replace(/\/+$/, '') || '/';
+          const fullFilePath = `${normalizedFolderPath}/${fileName}`;
+
+          let success = false;
+
+          // Helper function to get file icon based on extension
+          const getFileIcon = (fileName: string): string => {
+            const extension = fileName.split('.').pop()?.toLowerCase();
+            switch (extension) {
+              case 'txt':
+                return 'text';
+              case 'html':
+              case 'htm':
+                return 'html';
+              case 'md':
+              case 'markdown':
+                return 'markdown';
+              case 'js':
+              case 'jsx':
+                return 'javascript';
+              case 'css':
+                return 'css';
+              case 'json':
+                return 'json';
+              default:
+                return 'text';
+            }
+          };
+
+          // Helper function to find next available desktop position
+          const findNextDesktopPosition = (existingItems: FileSystemItem[]): { x: number; y: number } => {
+            const ICON_SIZE = 80;
+            const MARGIN = 20;
+            const START_X = 100;
+            const START_Y = 300; // Start below existing icons
+            const MAX_COLUMNS = 8;
+
+            const usedPositions = existingItems.filter((item) => item.position).map((item) => item.position!);
+
+            for (let row = 0; row < 10; row++) {
+              for (let col = 0; col < MAX_COLUMNS; col++) {
+                const x = START_X + col * (ICON_SIZE + MARGIN);
+                const y = START_Y + row * (ICON_SIZE + MARGIN);
+
+                const isOccupied = usedPositions.some(
+                  (pos) => Math.abs(pos.x - x) < ICON_SIZE && Math.abs(pos.y - y) < ICON_SIZE
+                );
+
+                if (!isOccupied) {
+                  return { x, y };
+                }
+              }
+            }
+
+            return { x: START_X, y: START_Y };
+          };
+
+          // Helper function to update file system recursively
+          const updateFileSystemRecursively = (items: FileSystemItem[], targetPath: string): FileSystemItem[] =>
+            items.map((item) => {
+              if (item.path === targetPath && item.type === 'folder') {
+                // Check if file already exists
+                const fileExists = item.children?.some((child) => child.name === fileName);
+                if (fileExists) {
+                  // Update existing file
+                  const updatedChildren = item.children!.map((child) =>
+                    child.name === fileName ? { ...child, content } : child
+                  );
+                  success = true;
+                  return {
+                    ...item,
+                    children: updatedChildren,
+                  };
+                } else {
+                  // Create new file
+                  const newFile: FileSystemItem = {
+                    id: `file-${Date.now()}-${Math.random()}`,
+                    name: fileName,
+                    type: 'file',
+                    path: fullFilePath,
+                    icon: getFileIcon(fileName),
+                    content,
+                    position: targetPath === '/Desktop' ? findNextDesktopPosition(item.children || []) : undefined,
+                  };
+
+                  success = true;
+                  return {
+                    ...item,
+                    children: [...(item.children || []), newFile],
+                  };
+                }
+              }
+
+              if (item.children && targetPath.startsWith(`${item.path}/`)) {
+                return {
+                  ...item,
+                  children: updateFileSystemRecursively(item.children, targetPath),
+                };
+              }
+
+              return item;
+            });
+
+          set((state) => ({
+            fileSystem: updateFileSystemRecursively(state.fileSystem, normalizedFolderPath),
+          }));
+
+          return success;
+        },
+
+        clearClipboard: () => {
+          set((state) => ({
+            ...state,
+            clipboard: {
+              items: [],
+              operation: null,
+            },
+          }));
+        },
+
+        hasClipboardItems: () => {
+          const state = get();
+          return state.clipboard.items.length > 0;
+        },
+
+        updateSettings: (newSettings) => {
+          const state = get();
+          const updatedSettings = {
+            ...state.settings,
+            ...newSettings,
+            desktop: { ...state.settings.desktop, ...newSettings.desktop },
+            language: { ...state.settings.language, ...newSettings.language },
+            datetime: { ...state.settings.datetime, ...newSettings.datetime },
+          };
+
+          set({ settings: updatedSettings });
+
+          // Update RGB timer if settings changed
+          if (newSettings.desktop?.rgbTimer) {
+            if (updatedSettings.desktop.rgbTimer.enabled) {
+              get().startRGBTimer();
+            } else {
+              get().stopRGBTimer();
+            }
+          }
+        },
+
+        startRGBTimer: () => {
+          const { settings, rgbTimerInterval } = get();
+
+          // Clear existing timer
+          if (rgbTimerInterval) {
+            clearInterval(rgbTimerInterval);
+          }
+
+          if (!settings.desktop.rgbTimer.enabled) return;
+
+          let colorIndex = 0;
+          const interval = setInterval(() => {
+            const { settings } = get();
+            const colors = settings.desktop.rgbTimer.colors;
+
+            if (colors.length === 0) return;
+
+            const currentColor = colors[colorIndex % colors.length];
+            colorIndex++;
+
+            set((state) => ({
+              settings: {
+                ...state.settings,
+                desktop: {
+                  ...state.settings.desktop,
+                  backgroundColor: currentColor,
+                },
+              },
+            }));
+          }, settings.desktop.rgbTimer.interval);
+
+          set({ rgbTimerInterval: interval });
+        },
+
+        stopRGBTimer: () => {
+          const { rgbTimerInterval } = get();
+          if (rgbTimerInterval) {
+            clearInterval(rgbTimerInterval);
+            set({ rgbTimerInterval: null });
+          }
+        },
+
+        getBackgroundStyle: () => {
+          const { settings } = get();
+          const { desktop } = settings;
+
+          if (desktop.gradient.enabled) {
+            const { type, angle, colors } = desktop.gradient;
+            const colorStops = colors.map((stop) => `${stop.color} ${stop.position}%`).join(', ');
+
+            if (type === 'linear') {
+              return `linear-gradient(${angle}deg, ${colorStops})`;
+            } else {
+              return `radial-gradient(circle, ${colorStops})`;
+            }
+          }
+
+          return desktop.backgroundColor;
+        },
+      }),
+      {
+        name: 'desktop-store',
+        partialize: (state) => ({
+          settings: state.settings,
+          theme: state.theme,
+        }),
+      }
+    )
   )
 );

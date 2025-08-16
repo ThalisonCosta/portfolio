@@ -1,0 +1,90 @@
+{
+  "common": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "apply": "Aplicar",
+    "reset": "Redefinir",
+    "default": "Padrão",
+    "preview": "Visualizar",
+    "close": "Fechar",
+    "settings": "Configurações"
+  },
+  "desktop": {
+    "title": "Área de trabalho",
+    "background": "Plano de fundo",
+    "backgroundColor": "Cor de fundo",
+    "gradientMode": "Modo gradiente",
+    "gradientLinear": "Linear",
+    "gradientRadial": "Radial",
+    "gradientColors": "Cores do gradiente",
+    "addGradientColor": "Adicionar cor",
+    "removeGradientColor": "Remover cor",
+    "rgbTimer": "Timer RGB",
+    "enableTimer": "Habilitar mudança automática de cor",
+    "timerInterval": "Intervalo de mudança (segundos)",
+    "colorPresets": "Presets de cor",
+    "savePreset": "Salvar preset",
+    "presetName": "Nome do preset"
+  },
+  "language": {
+    "title": "Idioma e região",
+    "description": "Escolha seu idioma de exibição preferido. Isso mudará o idioma da interface para todos os aplicativos.",
+    "language": "Idioma de exibição",
+    "region": "Região",
+    "dateFormat": "Formato de data",
+    "timeFormat": "Formato de hora",
+    "numberFormat": "Formato de número",
+    "currency": "Moeda"
+  },
+  "datetime": {
+    "title": "Data e hora",
+    "description": "Selecione seu fuso horário para garantir uma visualização precisa da hora.",
+    "timezone": "Fuso horário",
+    "dateFormat": "Formato de data",
+    "dateFormatDescription": "Escolha como as datas devem ser exibidas em todo o sistema",
+    "timeFormat": "Formato de hora",
+    "timeFormatDescription": "Escolha como as horas devem ser exibidas em todo o sistema",
+    "showSeconds": "Mostrar segundos",
+    "timeDisplayOptions": "Opções de exibição de hora",
+    "hour12": "Formato de 12 horas",
+    "hour24": "Formato de 24 horas",
+    "autoUpdate": "Atualizar data e hora automaticamente",
+    "currentDateTime": "Data e hora atual",
+    "timeZone": "Selecione seu fuso horário para ajustar a hora automaticamente",
+    "includeSeconds": "Incluir segundos na exibição de hora",
+    "autoSync": "Sincronizar automaticamente com a hora do sistema"
+  },
+  "taskbar": {
+    "startMenu": "Menu iniciar",
+    "clock": "{{time, datetime}}",
+    "calendar": "Calendário",
+    "calculator": "Calculadora",
+    "terminal": "Terminal",
+    "fileExplorer": "Explorador de arquivos",
+    "textEditor": "Editor de texto",
+    "settings": "Configurações",
+    "pinned": "Fixados"
+  },
+  "contextMenu": {
+    "newFolder": "Nova pasta",
+    "newFile": "Novo arquivo de texto",
+    "paste": "Colar",
+    "refresh": "Atualizar",
+    "copy": "Copiar",
+    "cut": "Recortar",
+    "delete": "Excluir",
+    "rename": "Renomear",
+    "properties": "Propriedades"
+  },
+  "fileSystem": {
+    "createFolder": "Criar pasta",
+    "createFile": "Criar arquivo",
+    "folderName": "Nome da pasta:",
+    "fileName": "Nome do arquivo:",
+    "enterFolderName": "Digite o nome da pasta",
+    "enterFileName": "Digite o nome do arquivo",
+    "folderNameRequired": "Nome da pasta é obrigatório",
+    "fileNameRequired": "Nome do arquivo é obrigatório",
+    "invalidCharacters": "Caracteres inválidos no nome"
+  }
+}

@@ -17,7 +17,6 @@ import './Desktop.css';
  */
 export const Desktop: React.FC = () => {
   const {
-    wallpaper,
     theme,
     isScreensaverActive,
     updateIconPosition,
@@ -26,6 +25,7 @@ export const Desktop: React.FC = () => {
     createFolder,
     hasClipboardItems,
     pasteFromClipboard,
+    getBackgroundStyle,
   } = useDesktopStore();
 
   const { showContextMenu } = useContextMenu();
@@ -149,7 +149,7 @@ export const Desktop: React.FC = () => {
   return (
     <div
       className={`desktop ${theme}`}
-      style={{ backgroundImage: `url(${wallpaper})` }}
+      style={{ background: getBackgroundStyle() }}
       onClick={handleDesktopClick}
       onContextMenu={handleDesktopContextMenu}
       onDragOver={handleDragOver}

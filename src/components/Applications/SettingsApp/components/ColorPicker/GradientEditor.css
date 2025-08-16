@@ -1,0 +1,250 @@
+.gradient-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+}
+
+.gradient-editor__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gradient-editor__toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gradient-editor__toggle label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.gradient-editor__toggle input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+}
+
+.gradient-editor__type {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gradient-editor__type label {
+  font-weight: 600;
+  color: #333;
+}
+
+.gradient-editor__type select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  font-size: 14px;
+}
+
+.gradient-editor__angle {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gradient-editor__angle label {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.gradient-editor__angle input[type='range'] {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: #ddd;
+  outline: none;
+  appearance: none;
+}
+
+.gradient-editor__angle input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #0078d4;
+  cursor: pointer;
+}
+
+.gradient-editor__angle input[type='range']::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #0078d4;
+  cursor: pointer;
+  border: none;
+}
+
+.gradient-editor__preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.gradient-editor__preview-swatch {
+  width: 60px;
+  height: 30px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.gradient-editor__preview-text {
+  font-weight: 600;
+  color: #666;
+}
+
+.gradient-editor__colors {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gradient-editor__colors h4 {
+  margin: 0;
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.gradient-editor__color-stop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  background: #fafafa;
+}
+
+.gradient-editor__position {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gradient-editor__position label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+}
+
+.gradient-editor__position input[type='range'] {
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: #ddd;
+  outline: none;
+  appearance: none;
+}
+
+.gradient-editor__position input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #0078d4;
+  cursor: pointer;
+}
+
+.gradient-editor__position input[type='range']::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #0078d4;
+  cursor: pointer;
+  border: none;
+}
+
+.gradient-editor__remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.gradient-editor__remove-btn:hover {
+  background: #f0f0f0;
+}
+
+.gradient-editor__add-btn {
+  background: #0078d4;
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.gradient-editor__add-btn:hover {
+  background: #106ebe;
+}
+
+/* Dark theme support */
+.desktop.dark .gradient-editor {
+  background: #2d2d2d;
+  border-color: #555;
+}
+
+.desktop.dark .gradient-editor__type label,
+.desktop.dark .gradient-editor__angle label,
+.desktop.dark .gradient-editor__colors h4 {
+  color: #fff;
+}
+
+.desktop.dark .gradient-editor__type select {
+  background: #3d3d3d;
+  border-color: #555;
+  color: #fff;
+}
+
+.desktop.dark .gradient-editor__angle input[type='range'],
+.desktop.dark .gradient-editor__position input[type='range'] {
+  background: #555;
+}
+
+.desktop.dark .gradient-editor__preview {
+  background: #3d3d3d;
+}
+
+.desktop.dark .gradient-editor__preview-text {
+  color: #ccc;
+}
+
+.desktop.dark .gradient-editor__color-stop {
+  background: #3d3d3d;
+  border-color: #555;
+}
+
+.desktop.dark .gradient-editor__position label {
+  color: #ccc;
+}
+
+.desktop.dark .gradient-editor__remove-btn:hover {
+  background: #555;
+}

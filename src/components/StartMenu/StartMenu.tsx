@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useDesktopStore } from '../../stores/useDesktopStore';
+import { useI18n } from '../../i18n/hooks';
 import './StartMenu.css';
 
 /**
@@ -9,6 +10,7 @@ import './StartMenu.css';
  */
 export const StartMenu: React.FC = React.memo(() => {
   const { isStartMenuOpen, closeStartMenu, openWindow, activateScreensaver } = useDesktopStore();
+  const { t } = useI18n();
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -79,18 +81,18 @@ export const StartMenu: React.FC = React.memo(() => {
 
         <div className="start-menu-content">
           <div className="pinned-apps">
-            <h3 id="start-menu-title">Pinned</h3>
+            <h3 id="start-menu-title">{t('taskbar.pinned')}</h3>
             <div className="app-grid" role="grid" aria-label="Pinned applications">
               <button
                 className="app-button"
-                onClick={() => handleAppClick('File Explorer', 'explorer')}
-                aria-label="Open File Explorer"
+                onClick={() => handleAppClick(t('taskbar.fileExplorer'), 'explorer')}
+                aria-label={t('taskbar.fileExplorer')}
                 type="button"
               >
                 <span className="app-icon" aria-hidden="true">
                   📁
                 </span>
-                <span className="app-name">File Explorer</span>
+                <span className="app-name">{t('taskbar.fileExplorer')}</span>
               </button>
               <button
                 className="app-button"
@@ -127,47 +129,47 @@ export const StartMenu: React.FC = React.memo(() => {
               </button>
               <button
                 className="app-button"
-                onClick={() => handleAppClick('Settings', 'settings')}
-                aria-label="Open Settings"
+                onClick={() => handleAppClick(t('taskbar.settings'), 'settings')}
+                aria-label={t('taskbar.settings')}
                 type="button"
               >
                 <span className="app-icon" aria-hidden="true">
                   ⚙️
                 </span>
-                <span className="app-name">Settings</span>
+                <span className="app-name">{t('taskbar.settings')}</span>
               </button>
               <button
                 className="app-button"
-                onClick={() => handleAppClick('Calculator', 'calculator')}
-                aria-label="Open Calculator"
+                onClick={() => handleAppClick(t('taskbar.calculator'), 'calculator')}
+                aria-label={t('taskbar.calculator')}
                 type="button"
               >
                 <span className="app-icon" aria-hidden="true">
                   🧮
                 </span>
-                <span className="app-name">Calculator</span>
+                <span className="app-name">{t('taskbar.calculator')}</span>
               </button>
               <button
                 className="app-button"
-                onClick={() => handleAppClick('Terminal', 'terminal')}
-                aria-label="Open Terminal"
+                onClick={() => handleAppClick(t('taskbar.terminal'), 'terminal')}
+                aria-label={t('taskbar.terminal')}
                 type="button"
               >
                 <span className="app-icon" aria-hidden="true">
                   🖥️
                 </span>
-                <span className="app-name">Terminal</span>
+                <span className="app-name">{t('taskbar.terminal')}</span>
               </button>
               <button
                 className="app-button"
-                onClick={() => handleAppClick('Text Editor', 'TextEditor')}
-                aria-label="Open Text Editor"
+                onClick={() => handleAppClick(t('taskbar.textEditor'), 'TextEditor')}
+                aria-label={t('taskbar.textEditor')}
                 type="button"
               >
                 <span className="app-icon" aria-hidden="true">
                   📝
                 </span>
-                <span className="app-name">Text Editor</span>
+                <span className="app-name">{t('taskbar.textEditor')}</span>
               </button>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useDesktopStore } from '../../stores/useDesktopStore';
 import { StartMenu } from '../StartMenu/StartMenu';
 import { Calendar } from '../Calendar/Calendar';
@@ -11,11 +11,21 @@ import './Taskbar.css';
  * similar to Windows taskbar.
  */
 export const Taskbar: React.FC = React.memo(() => {
-  const { windows, minimizeWindow, bringToFront, toggleStartMenu } = useDesktopStore();
+  const { windows, minimizeWindow, bringToFront, toggleStartMenu, settings } = useDesktopStore();
 
   // Calendar state
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const dateTimeRef = useRef<HTMLDivElement>(null);
+
+  // Update time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const handleTaskbarClick = (windowId: string) => {
     const window = windows.find((w) => w.id === windowId);
@@ -27,18 +37,27 @@ export const Taskbar: React.FC = React.memo(() => {
     }
   };
 
-  const getCurrentTime = () =>
-    new Date().toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+  const getFormattedTime = () => {
+    try {
+      return new Intl.DateTimeFormat(settings.language.language, {
+        timeStyle: settings.datetime.timeFormat,
+        hour12: settings.datetime.hour12Format,
+        timeZone: settings.datetime.timezone,
+      }).format(currentTime);
+    } catch {
+      return currentTime.toLocaleTimeString();
+    }
+  };
 
-  const getCurrentDate = () => {
-    const now = new Date();
-    const day = now.getDate().toString().padStart(2, '0');
-    const month = (now.getMonth() + 1).toString().padStart(2, '0');
-    const year = now.getFullYear();
-    return `${day}/${month}/${year}`;
+  const getFormattedDate = () => {
+    try {
+      return new Intl.DateTimeFormat(settings.language.language, {
+        dateStyle: settings.datetime.dateFormat,
+        timeZone: settings.datetime.timezone,
+      }).format(currentTime);
+    } catch {
+      return currentTime.toLocaleDateString();
+    }
   };
 
   /**
@@ -108,8 +127,8 @@ export const Taskbar: React.FC = React.memo(() => {
             aria-label="Open calendar"
             title="Click to open calendar"
           >
-            <span className="clock">{getCurrentTime()}</span>
-            <span className="date">{getCurrentDate()}</span>
+            <span className="clock">{getFormattedTime()}</span>
+            <span className="date">{getFormattedDate()}</span>
           </div>
         </div>
       </div>

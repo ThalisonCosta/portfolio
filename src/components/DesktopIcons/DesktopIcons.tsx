@@ -413,6 +413,7 @@ export const DesktopIcons: React.FC = React.memo(() => {
           tabIndex={0}
           aria-label={`${item.name}, ${item.type === 'folder' ? 'folder' : 'file'}`}
           aria-describedby={`icon-description-${item.id}`}
+          data-testid={item.content === 'SettingsApp' ? 'settings-app' : undefined}
         >
           <div className="icon" aria-hidden="true">
             <img

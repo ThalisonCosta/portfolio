@@ -20,3 +20,5 @@ export const DefaultApp: React.FC<DefaultAppProps> = ({ component }) => (
     <p>This application is not yet implemented.</p>
   </div>
 );
+
+export default DefaultApp;

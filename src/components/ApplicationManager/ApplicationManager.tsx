@@ -27,7 +27,10 @@ const MarkdownViewerApp = lazy(() =>
 const CalculatorApp = lazy(() =>
   import('../Applications/CalculatorApp').then((module) => ({ default: module.CalculatorApp }))
 );
-const DefaultApp = lazy(() => import('../Applications/DefaultApp').then((module) => ({ default: module.DefaultApp })));
+const DefaultApp = lazy(() => import('../Applications/DefaultApp'));
+const SettingsApp = lazy(() =>
+  import('../Applications/SettingsApp').then((module) => ({ default: module.SettingsApp }))
+);
 
 /**
  * Props for the ApplicationManager component
@@ -85,6 +88,9 @@ export const ApplicationManager: React.FC<ApplicationManagerProps> = ({ componen
           return <MarkdownViewerApp />;
         case 'calculator':
           return <CalculatorApp />;
+        case 'SettingsApp':
+        case 'settings':
+          return <SettingsApp />;
         default:
           return <DefaultApp component={component} />;
       }

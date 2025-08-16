@@ -1,0 +1,88 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "apply": "Apply",
+    "reset": "Reset",
+    "default": "Default",
+    "preview": "Preview",
+    "close": "Close",
+    "settings": "Settings"
+  },
+  "desktop": {
+    "title": "Desktop",
+    "background": "Background",
+    "backgroundColor": "Background Color",
+    "gradientMode": "Gradient Mode",
+    "gradientLinear": "Linear",
+    "gradientRadial": "Radial",
+    "gradientColors": "Gradient Colors",
+    "addGradientColor": "Add Color",
+    "removeGradientColor": "Remove Color",
+    "rgbTimer": "RGB Timer",
+    "enableTimer": "Enable automatic color changing",
+    "timerInterval": "Change interval (seconds)",
+    "colorPresets": "Color Presets",
+    "savePreset": "Save Preset",
+    "presetName": "Preset Name"
+  },
+  "language": {
+    "title": "Language & Region",
+    "description": "Choose your preferred display language. This will change the interface language for all applications.",
+    "language": "Display Language",
+    "region": "Region",
+    "dateFormat": "Date Format",
+    "timeFormat": "Time Format",
+    "numberFormat": "Number Format",
+    "currency": "Currency"
+  },
+  "datetime": {
+    "title": "Date & Time",
+    "description": "Select your timezone to ensure accurate time display.",
+    "timezone": "Time Zone",
+    "dateFormat": "Date Format",
+    "dateFormatDescription": "Select how times should be displayed throughout the system",
+    "timeFormat": "Time Format",
+    "timeFormatDescription": "Select how dates should be displayed throughout the system",
+    "timeDisplayOptions": "Time Display Options",
+    "showSeconds": "Show Seconds",
+    "hour12": "12-hour format",
+    "hour24": "24-hour format",
+    "autoUpdate": "Automatically update date and time",
+    "includeSeconds": "Include seconds in time display",
+    "autoSync": "Automatically sync with system time"
+  },
+  "taskbar": {
+    "startMenu": "Start Menu",
+    "clock": "{{time, datetime}}",
+    "calendar": "Calendar",
+    "calculator": "Calculator",
+    "terminal": "Terminal",
+    "fileExplorer": "File Explorer",
+    "textEditor": "Text Editor",
+    "settings": "Settings",
+    "pinned": "Pinned"
+  },
+  "contextMenu": {
+    "newFolder": "New Folder",
+    "newFile": "New Text File",
+    "paste": "Paste",
+    "refresh": "Refresh",
+    "copy": "Copy",
+    "cut": "Cut",
+    "delete": "Delete",
+    "rename": "Rename",
+    "properties": "Properties"
+  },
+  "fileSystem": {
+    "createFolder": "Create Folder",
+    "createFile": "Create File",
+    "folderName": "Folder name:",
+    "fileName": "File name:",
+    "enterFolderName": "Enter folder name",
+    "enterFileName": "Enter file name",
+    "folderNameRequired": "Folder name is required",
+    "fileNameRequired": "File name is required",
+    "invalidCharacters": "Invalid characters in name"
+  }
+}

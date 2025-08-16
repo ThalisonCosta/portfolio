@@ -1,0 +1,304 @@
+.datetime-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 800px;
+}
+
+.datetime-settings__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.datetime-settings__section {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.datetime-settings__section h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.datetime-settings__description {
+  margin: 0 0 16px 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.datetime-settings__current-time {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.datetime-settings__time-display {
+  font-size: 24px;
+  font-weight: 600;
+  color: #0078d4;
+  font-family: monospace;
+}
+
+.datetime-settings__timezone-info {
+  font-size: 14px;
+  color: #666;
+}
+
+.datetime-settings__select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+}
+
+.datetime-settings__select:focus {
+  outline: none;
+  border-color: #0078d4;
+  box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
+}
+
+.datetime-settings__format-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.datetime-settings__format-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+}
+
+.datetime-settings__format-option:hover {
+  border-color: #0078d4;
+  box-shadow: 0 2px 4px rgba(0, 120, 212, 0.1);
+}
+
+.datetime-settings__format-option--active {
+  border-color: #0078d4;
+  background: #e3f2fd;
+  box-shadow: 0 2px 4px rgba(0, 120, 212, 0.2);
+}
+
+.datetime-settings__format-option input[type='radio'] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.datetime-settings__format-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.datetime-settings__format-label {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.datetime-settings__format-example {
+  color: #666;
+  font-size: 13px;
+  font-family: monospace;
+}
+
+.datetime-settings__options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.datetime-settings__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+}
+
+.datetime-settings__checkbox:hover {
+  border-color: #0078d4;
+  background: #f8f9fa;
+}
+
+.datetime-settings__checkbox input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.datetime-settings__option-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.datetime-settings__option-label {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.datetime-settings__option-example {
+  color: #666;
+  font-size: 12px;
+}
+
+.datetime-settings__preview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.datetime-settings__preview-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #e9ecef;
+}
+
+.datetime-settings__preview-item span:first-child {
+  color: #666;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.datetime-settings__preview-value {
+  color: #0078d4;
+  font-weight: 600;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .datetime-settings__current-time {
+    text-align: center;
+  }
+
+  .datetime-settings__time-display {
+    font-size: 20px;
+  }
+
+  .datetime-settings__preview-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .datetime-settings__format-option {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .datetime-settings__checkbox {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* Dark theme support */
+.desktop.dark .datetime-settings__title,
+.desktop.dark .datetime-settings__section h3 {
+  color: #fff;
+}
+
+.desktop.dark .datetime-settings__section {
+  background: #2d2d2d;
+}
+
+.desktop.dark .datetime-settings__description,
+.desktop.dark .datetime-settings__timezone-info {
+  color: #ccc;
+}
+
+.desktop.dark .datetime-settings__current-time,
+.desktop.dark .datetime-settings__preview {
+  background: #3d3d3d;
+  border-color: #555;
+}
+
+.desktop.dark .datetime-settings__time-display {
+  color: #63b3ed;
+}
+
+.desktop.dark .datetime-settings__select {
+  background: #3d3d3d;
+  border-color: #555;
+  color: #fff;
+}
+
+.desktop.dark .datetime-settings__format-option,
+.desktop.dark .datetime-settings__checkbox {
+  background: #3d3d3d;
+  border-color: #555;
+}
+
+.desktop.dark .datetime-settings__format-option:hover,
+.desktop.dark .datetime-settings__checkbox:hover {
+  border-color: #63b3ed;
+  background: #2d2d2d;
+}
+
+.desktop.dark .datetime-settings__format-option--active {
+  border-color: #63b3ed;
+  background: #1a365d;
+}
+
+.desktop.dark .datetime-settings__format-label,
+.desktop.dark .datetime-settings__option-label {
+  color: #fff;
+}
+
+.desktop.dark .datetime-settings__format-example,
+.desktop.dark .datetime-settings__option-example,
+.desktop.dark .datetime-settings__preview-item span:first-child {
+  color: #ccc;
+}
+
+.desktop.dark .datetime-settings__preview-item {
+  background: #2d2d2d;
+  border-color: #555;
+}
+
+.desktop.dark .datetime-settings__preview-value {
+  color: #63b3ed;
+}
