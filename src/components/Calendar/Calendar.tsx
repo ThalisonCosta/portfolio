@@ -25,7 +25,7 @@ interface CalendarProps {
  * - Click outside to close
  */
 export const Calendar: React.FC<CalendarProps> = ({ isVisible, onClose, position }) => {
-  const currentDate = new Date();
+  const currentDate = useMemo(() => new Date(), []);
   const currentYear = currentDate.getFullYear();
 
   // State for navigation
@@ -47,34 +47,6 @@ export const Calendar: React.FC<CalendarProps> = ({ isVisible, onClose, position
     }
   }, [isVisible]);
 
-  /**
-   * Handle keyboard shortcuts
-   */
-  useEffect(() => {
-    if (!isVisible) return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        onClose();
-      } else if (event.key === 'ArrowLeft') {
-        event.preventDefault();
-        navigateMonth(-1);
-      } else if (event.key === 'ArrowRight') {
-        event.preventDefault();
-        navigateMonth(1);
-      } else if (event.key === 'ArrowUp') {
-        event.preventDefault();
-        navigateYear(-1);
-      } else if (event.key === 'ArrowDown') {
-        event.preventDefault();
-        navigateYear(1);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isVisible, viewDate]);
 
   /**
    * Handle click outside to close
@@ -228,6 +200,35 @@ export const Calendar: React.FC<CalendarProps> = ({ isVisible, onClose, position
    * Week day names
    */
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  /**
+   * Handle keyboard shortcuts
+   */
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+      } else if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        navigateMonth(-1);
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        navigateMonth(1);
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        navigateYear(-1);
+      } else if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        navigateYear(1);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isVisible, navigateMonth, navigateYear, onClose]);
 
   if (!isVisible) return null;
 

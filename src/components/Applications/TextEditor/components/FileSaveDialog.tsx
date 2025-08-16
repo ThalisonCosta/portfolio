@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useDesktopStore, FileSystemItem } from '../../../../stores/useDesktopStore';
 
 /**
@@ -62,7 +62,7 @@ export const FileSaveDialog: React.FC<FileSaveDialogProps> = ({
   /**
    * Find folder contents by path
    */
-  const getFolderContents = (path: string): FileSystemItem[] => {
+  const getFolderContents = useCallback((path: string): FileSystemItem[] => {
     const findFolder = (items: FileSystemItem[], targetPath: string): FileSystemItem | null => {
       for (const item of items) {
         if (item.path === targetPath && item.type === 'folder') {
@@ -78,7 +78,7 @@ export const FileSaveDialog: React.FC<FileSaveDialogProps> = ({
 
     const folder = findFolder(fileSystem, path);
     return folder?.children || [];
-  };
+  }, [fileSystem]);
 
   /**
    * Get parent path
@@ -147,7 +147,7 @@ export const FileSaveDialog: React.FC<FileSaveDialogProps> = ({
   // Update current items when path changes
   useEffect(() => {
     setCurrentItems(getFolderContents(selectedPath));
-  }, [selectedPath, fileSystem]);
+  }, [selectedPath, fileSystem, getFolderContents]);
 
   // Update selected path when currentPath prop changes
   useEffect(() => {
