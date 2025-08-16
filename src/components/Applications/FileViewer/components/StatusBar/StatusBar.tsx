@@ -32,7 +32,6 @@ export const StatusBar: React.FC<StatusBarProps> = ({
     }
   };
 
-
   const statusBarStyle: React.CSSProperties = {
     display: 'flex',
     justifyContent: 'space-between',
@@ -92,21 +91,23 @@ export const StatusBar: React.FC<StatusBarProps> = ({
       {/* Left section - Position and document info */}
       <div style={sectionStyle}>
         <div style={itemStyle}>
-          <span>Ln {statusInfo.line + 1}, Col {statusInfo.column + 1}</span>
+          <span>
+            Ln {statusInfo.line + 1}, Col {statusInfo.column + 1}
+          </span>
         </div>
-        
+
         <div style={itemStyle}>
           <span>{statusInfo.totalLines} lines</span>
         </div>
-        
+
         <div style={itemStyle}>
           <span>{statusInfo.wordCount} words</span>
         </div>
-        
+
         <div style={itemStyle}>
           <span>{statusInfo.characterCount} chars</span>
         </div>
-        
+
         {statusInfo.isDirty && (
           <div style={dirtyIndicatorStyle}>
             <span>●</span>
@@ -119,15 +120,14 @@ export const StatusBar: React.FC<StatusBarProps> = ({
         <div style={itemStyle}>
           <span>{statusInfo.filename}</span>
         </div>
-        
+
         <div style={itemStyle}>
           <select
             value={statusInfo.format}
             onChange={handleFormatChange}
             style={selectStyle}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 
-                settings.theme === 'dark' ? '#404040' : '#e0e0e0';
+              e.currentTarget.style.backgroundColor = settings.theme === 'dark' ? '#404040' : '#e0e0e0';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'transparent';
@@ -138,22 +138,21 @@ export const StatusBar: React.FC<StatusBarProps> = ({
             <option value={DocumentFormat.HTML}>HTML</option>
           </select>
         </div>
-        
+
         <div style={itemStyle}>
           <span>UTF-8</span>
         </div>
-        
+
         <div style={itemStyle}>
           <span>{settings.theme === 'dark' ? '🌙' : '☀️'}</span>
         </div>
-        
+
         {onSettingsClick && (
           <button
             style={buttonStyle}
             onClick={onSettingsClick}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 
-                settings.theme === 'dark' ? '#404040' : '#e0e0e0';
+              e.currentTarget.style.backgroundColor = settings.theme === 'dark' ? '#404040' : '#e0e0e0';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'transparent';

@@ -27,11 +27,7 @@ export const TextRenderer: React.FC<TextRendererProps> = ({ content, theme }) =>
     overflow: 'auto',
   };
 
-  return (
-    <div style={textStyle}>
-      {content || 'Empty file'}
-    </div>
-  );
+  return <div style={textStyle}>{content || 'Empty file'}</div>;
 };
 
 export default TextRenderer;

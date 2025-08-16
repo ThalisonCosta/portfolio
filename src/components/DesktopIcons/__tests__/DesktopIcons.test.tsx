@@ -122,11 +122,12 @@ describe('DesktopIcons Component', () => {
 
     expect(mockActions.openWindow).toHaveBeenCalledWith({
       title: 'About.txt',
-      component: 'TextEditor',
+      component: 'FileViewer',
       isMinimized: false,
       isMaximized: false,
       position: { x: 200, y: 100 },
       size: { width: 600, height: 400 },
+      filePath: '/Desktop/About.txt',
     });
   });
 
@@ -143,6 +144,7 @@ describe('DesktopIcons Component', () => {
       isMaximized: false,
       position: { x: 200, y: 100 },
       size: { width: 600, height: 400 },
+      filePath: '/Desktop/Resume.pdf',
     });
   });
 
@@ -217,11 +219,12 @@ describe('DesktopIcons Component', () => {
 
     expect(mockActions.openWindow).toHaveBeenCalledWith({
       title: 'About.txt',
-      component: 'TextEditor',
+      component: 'FileViewer',
       isMinimized: false,
       isMaximized: false,
       position: { x: 200, y: 100 },
       size: { width: 600, height: 400 },
+      filePath: '/Desktop/About.txt',
     });
 
     // Test PDF file
@@ -235,6 +238,7 @@ describe('DesktopIcons Component', () => {
       isMaximized: false,
       position: { x: 200, y: 100 },
       size: { width: 600, height: 400 },
+      filePath: '/Desktop/Resume.pdf',
     });
   });
 
@@ -261,11 +265,12 @@ describe('DesktopIcons Component', () => {
 
     expect(mockActions.openWindow).toHaveBeenCalledWith({
       title: 'About.txt',
-      component: 'TextEditor',
+      component: 'FileViewer',
       isMinimized: false,
       isMaximized: false,
       position: { x: 200, y: 100 },
       size: { width: 600, height: 400 },
+      filePath: '/Desktop/About.txt',
     });
   });
 
@@ -279,11 +284,12 @@ describe('DesktopIcons Component', () => {
 
     expect(mockActions.openWindow).toHaveBeenCalledWith({
       title: 'About.txt',
-      component: 'TextEditor',
+      component: 'FileViewer',
       isMinimized: false,
       isMaximized: false,
       position: { x: 200, y: 100 },
       size: { width: 600, height: 400 },
+      filePath: '/Desktop/About.txt',
     });
   });
 

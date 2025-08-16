@@ -20,7 +20,7 @@ export const createNewDocument = (filename: string = 'Untitled'): DocumentInfo =
  */
 export const detectDocumentFormat = (filename: string, content?: string): DocumentFormat => {
   const extension = filename.split('.').pop()?.toLowerCase();
-  
+
   switch (extension) {
     case 'html':
     case 'htm':
@@ -47,7 +47,7 @@ export const detectDocumentFormat = (filename: string, content?: string): Docume
  */
 export const generateDefaultFilename = (format: DocumentFormat): string => {
   const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
-  
+
   switch (format) {
     case DocumentFormat.HTML:
       return `document-${timestamp}.html`;
@@ -77,28 +77,29 @@ export const validateContent = (content: string, format: DocumentFormat): { isVa
  */
 const validateHTML = (content: string): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
-  
+
   // Check for basic HTML structure
   if (content.includes('<html>') && !content.includes('</html>')) {
     errors.push('Missing closing </html> tag');
   }
-  
+
   if (content.includes('<head>') && !content.includes('</head>')) {
     errors.push('Missing closing </head> tag');
   }
-  
+
   if (content.includes('<body>') && !content.includes('</body>')) {
     errors.push('Missing closing </body> tag');
   }
-  
+
   // Check for unclosed tags (basic check)
   const openTags = content.match(/<[a-zA-Z][^>]*>/g) || [];
   const closeTags = content.match(/<\/[a-zA-Z][^>]*>/g) || [];
-  
-  if (openTags.length > closeTags.length + 5) { // Allow some self-closing tags
+
+  if (openTags.length > closeTags.length + 5) {
+    // Allow some self-closing tags
     errors.push('Potential unclosed HTML tags detected');
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors,
@@ -110,23 +111,23 @@ const validateHTML = (content: string): { isValid: boolean; errors: string[] } =
  */
 const validateMarkdown = (content: string): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
-  
+
   // Check for unmatched markdown syntax
   const boldMatches = (content.match(/\*\*/g) || []).length;
   if (boldMatches % 2 !== 0) {
     errors.push('Unmatched bold (**) syntax');
   }
-  
+
   const italicMatches = (content.match(/(?<!\*)\*(?!\*)/g) || []).length;
   if (italicMatches % 2 !== 0) {
     errors.push('Unmatched italic (*) syntax');
   }
-  
+
   const codeMatches = (content.match(/`/g) || []).length;
   if (codeMatches % 2 !== 0) {
     errors.push('Unmatched code (`) syntax');
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors,
@@ -136,8 +137,11 @@ const validateMarkdown = (content: string): { isValid: boolean; errors: string[]
 /**
  * Counts words in text content
  */
-export const countWords = (content: string): number => 
-  content.trim().split(/\s+/).filter(word => word.length > 0).length;
+export const countWords = (content: string): number =>
+  content
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word.length > 0).length;
 
 /**
  * Counts characters in text content
@@ -154,10 +158,10 @@ export const countLines = (content: string): number => content.split('\n').lengt
  */
 export const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes';
-  
+
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
+
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 };

@@ -29,7 +29,7 @@ export const LineNumbers: React.FC<LineNumbersProps> = ({
     const lines = content.split('\n');
     const totalLines = lines.length;
     const maxDigits = totalLines.toString().length;
-    
+
     return {
       lines,
       totalLines,
@@ -87,15 +87,12 @@ export const LineNumbers: React.FC<LineNumbersProps> = ({
   };
 
   return (
-    <div
-      className={`text-editor-line-numbers ${className}`}
-      style={lineNumberStyle}
-    >
+    <div className={`text-editor-line-numbers ${className}`} style={lineNumberStyle}>
       <div style={containerStyle}>
         {Array.from({ length: lineData.totalLines }, (_, index) => {
           const lineNumber = index + 1;
           const isActiveLine = cursorPosition.line === index;
-          
+
           return (
             <span
               key={lineNumber}
@@ -103,8 +100,7 @@ export const LineNumbers: React.FC<LineNumbersProps> = ({
               onClick={() => handleLineClick(lineNumber)}
               onMouseEnter={(e) => {
                 if (!isActiveLine) {
-                  e.currentTarget.style.backgroundColor = 
-                    settings.theme === 'dark' ? '#353535' : '#f0f0f0';
+                  e.currentTarget.style.backgroundColor = settings.theme === 'dark' ? '#353535' : '#f0f0f0';
                 }
               }}
               onMouseLeave={(e) => {

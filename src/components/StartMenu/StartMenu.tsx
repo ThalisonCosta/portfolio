@@ -158,6 +158,17 @@ export const StartMenu: React.FC = React.memo(() => {
                 </span>
                 <span className="app-name">Terminal</span>
               </button>
+              <button
+                className="app-button"
+                onClick={() => handleAppClick('Text Editor', 'TextEditor')}
+                aria-label="Open Text Editor"
+                type="button"
+              >
+                <span className="app-icon" aria-hidden="true">
+                  📝
+                </span>
+                <span className="app-name">Text Editor</span>
+              </button>
             </div>
           </div>
 

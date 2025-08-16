@@ -33,20 +33,16 @@ export const HTMLRenderer: React.FC<HTMLRendererProps> = ({ content, theme }) =>
   const htmlUrl = URL.createObjectURL(htmlBlob);
 
   // Clean up blob URL when component unmounts
-  React.useEffect(() => {
-    return () => {
+  React.useEffect(
+    () => () => {
       URL.revokeObjectURL(htmlUrl);
-    };
-  }, [htmlUrl]);
+    },
+    [htmlUrl]
+  );
 
   return (
     <div style={containerStyle}>
-      <iframe
-        src={htmlUrl}
-        style={iframeStyle}
-        title="HTML Content"
-        sandbox="allow-same-origin allow-scripts"
-      />
+      <iframe src={htmlUrl} style={iframeStyle} title="HTML Content" sandbox="allow-same-origin allow-scripts" />
     </div>
   );
 };

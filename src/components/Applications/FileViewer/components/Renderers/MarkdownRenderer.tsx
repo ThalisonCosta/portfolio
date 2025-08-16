@@ -32,10 +32,16 @@ const parseMarkdown = (markdown: string): string => {
   html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; height: auto;" />');
 
   // Code blocks
-  html = html.replace(/```([^`]+)```/g, '<pre style="background: #f4f4f4; padding: 12px; border-radius: 4px; overflow-x: auto;"><code>$1</code></pre>');
+  html = html.replace(
+    /```([^`]+)```/g,
+    '<pre style="background: #f4f4f4; padding: 12px; border-radius: 4px; overflow-x: auto;"><code>$1</code></pre>'
+  );
 
   // Inline code
-  html = html.replace(/`([^`]+)`/g, '<code style="background: #f4f4f4; padding: 2px 4px; border-radius: 2px;">$1</code>');
+  html = html.replace(
+    /`([^`]+)`/g,
+    '<code style="background: #f4f4f4; padding: 2px 4px; border-radius: 2px;">$1</code>'
+  );
 
   // Line breaks
   html = html.replace(/\n\n/g, '</p><p>');
@@ -50,9 +56,12 @@ const parseMarkdown = (markdown: string): string => {
 
   // Ordered lists
   html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
-  
+
   // Blockquotes
-  html = html.replace(/^> (.+)$/gm, '<blockquote style="border-left: 4px solid #ccc; margin: 0; padding-left: 16px; color: #666;">$1</blockquote>');
+  html = html.replace(
+    /^> (.+)$/gm,
+    '<blockquote style="border-left: 4px solid #ccc; margin: 0; padding-left: 16px; color: #666;">$1</blockquote>'
+  );
 
   // Horizontal rules
   html = html.replace(/^---$/gm, '<hr style="border: none; border-top: 1px solid #ccc; margin: 16px 0;" />');
@@ -79,12 +88,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, the
 
   const parsedHtml = parseMarkdown(content);
 
-  return (
-    <div 
-      style={markdownStyle}
-      dangerouslySetInnerHTML={{ __html: parsedHtml }}
-    />
-  );
+  return <div style={markdownStyle} dangerouslySetInnerHTML={{ __html: parsedHtml }} />;
 };
 
 export default MarkdownRenderer;

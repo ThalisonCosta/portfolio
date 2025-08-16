@@ -40,22 +40,28 @@ export const DesktopIcons: React.FC = React.memo(() => {
       if (item.type === 'file') {
         let component = 'FileViewer';
 
-        switch (item.name.split('.').pop()) {
-          case 'txt':
-          case 'html':
-          case 'htm':
-          case 'md':
-          case 'markdown':
-            component = 'FileViewer';
-            break;
-          case 'pdf':
-            component = 'PDFViewer';
-            break;
-          case 'lnk':
-            component = 'ContactForm';
-            break;
-          default:
-            component = 'FileViewer';
+        // Check if it's an application file
+        if (item.name.split('.').pop() === 'app' && item.content) {
+          component = item.content; // Use the content as component name
+        } else {
+          // Regular file handling
+          switch (item.name.split('.').pop()) {
+            case 'txt':
+            case 'html':
+            case 'htm':
+            case 'md':
+            case 'markdown':
+              component = 'FileViewer';
+              break;
+            case 'pdf':
+              component = 'PDFViewer';
+              break;
+            case 'lnk':
+              component = 'ContactForm';
+              break;
+            default:
+              component = 'FileViewer';
+          }
         }
 
         openWindow({
@@ -65,6 +71,7 @@ export const DesktopIcons: React.FC = React.memo(() => {
           isMaximized: false,
           position: { x: 200, y: 100 },
           size: { width: 600, height: 400 },
+          filePath: item.path,
         });
       } else if (item.type === 'folder') {
         openWindow({
@@ -146,6 +153,48 @@ export const DesktopIcons: React.FC = React.memo(() => {
   }, [selectedItem, removeFileSystemItem]);
 
   /**
+   * Check if file is editable in TextEditor
+   */
+  const isEditableInTextEditor = (fileName: string): boolean => {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    const editableExtensions = [
+      'txt',
+      'html',
+      'htm',
+      'md',
+      'markdown',
+      'js',
+      'jsx',
+      'ts',
+      'tsx',
+      'css',
+      'scss',
+      'sass',
+      'json',
+      'xml',
+    ];
+    return extension ? editableExtensions.includes(extension) : false;
+  };
+
+  /**
+   * Handle opening file with TextEditor
+   */
+  const handleOpenWithTextEditor = useCallback(
+    (item: FileSystemItem) => {
+      openWindow({
+        title: `TextEditor - ${item.name}`,
+        component: 'TextEditorApp',
+        isMinimized: false,
+        isMaximized: false,
+        position: { x: 250, y: 150 },
+        size: { width: 800, height: 600 },
+        filePath: item.path,
+      });
+    },
+    [openWindow]
+  );
+
+  /**
    * Handle icon context menu
    */
   const handleIconContextMenu = useCallback(
@@ -160,6 +209,19 @@ export const DesktopIcons: React.FC = React.memo(() => {
           icon: '📖',
           onClick: () => handleIconDoubleClick(item),
         },
+      ];
+
+      // Add "Open with TextEditor" option for editable files
+      if (item.type === 'file' && isEditableInTextEditor(item.name)) {
+        menuItems.push({
+          id: 'open-with-texteditor',
+          label: 'Abrir com TextEditor',
+          icon: '📝',
+          onClick: () => handleOpenWithTextEditor(item),
+        });
+      }
+
+      menuItems.push(
         {
           id: 'separator-1',
           label: '',
@@ -202,12 +264,20 @@ export const DesktopIcons: React.FC = React.memo(() => {
           icon: '🗑️',
           shortcut: 'Delete',
           onClick: () => handleDelete(item),
-        },
-      ];
+        }
+      );
 
       showContextMenu({ x: e.clientX, y: e.clientY }, menuItems);
     },
-    [showContextMenu, handleIconDoubleClick, handleRename, handleCopy, handleCut, handleDelete]
+    [
+      showContextMenu,
+      handleIconDoubleClick,
+      handleOpenWithTextEditor,
+      handleRename,
+      handleCopy,
+      handleCut,
+      handleDelete,
+    ]
   );
 
   const getDesktopItems = () => {
@@ -215,17 +285,55 @@ export const DesktopIcons: React.FC = React.memo(() => {
     return desktop?.children || [];
   };
 
-  const getIconForFile = (fileName: string) => {
+  const getIconForFile = (fileName: string, fileContent?: string) => {
     const extension = fileName.split('.').pop()?.toLowerCase();
+
+    // Special case for TextEditor app
+    if (extension === 'app' && fileContent === 'TextEditor') {
+      return '📝';
+    }
+
     switch (extension) {
       case 'txt':
         return '📄';
+      case 'html':
+      case 'htm':
+        return '🌐';
+      case 'md':
+      case 'markdown':
+        return '📝';
+      case 'js':
+      case 'jsx':
+      case 'ts':
+      case 'tsx':
+        return '📜';
+      case 'css':
+      case 'scss':
+      case 'sass':
+        return '🎨';
+      case 'json':
+        return '🔧';
+      case 'xml':
+        return '📋';
       case 'pdf':
         return '📋';
-      case 'md':
-        return '📝';
       case 'lnk':
         return '🔗';
+      case 'app':
+        return '🚀';
+      case 'png':
+      case 'jpg':
+      case 'jpeg':
+      case 'gif':
+      case 'svg':
+        return '🖼️';
+      case 'zip':
+      case 'rar':
+      case '7z':
+        return '📦';
+      case 'exe':
+      case 'msi':
+        return '⚙️';
       default:
         return '📄';
     }
@@ -271,7 +379,7 @@ export const DesktopIcons: React.FC = React.memo(() => {
           aria-describedby={`icon-description-${item.id}`}
         >
           <div className="icon" aria-hidden="true">
-            {item.type === 'folder' ? '📁' : getIconForFile(item.name)}
+            {item.type === 'folder' ? '📁' : getIconForFile(item.name, item.content)}
           </div>
           <div className="icon-label" id={`icon-description-${item.id}`}>
             {item.name}

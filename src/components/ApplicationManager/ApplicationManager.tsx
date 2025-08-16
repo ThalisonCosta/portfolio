@@ -1,9 +1,13 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { ErrorBoundary } from '../ErrorBoundary';
+import { useDesktopStore } from '../../stores/useDesktopStore';
 
 // Lazy load application components for better performance
 const FileViewerApp = lazy(() =>
   import('../Applications/FileViewerApp').then((module) => ({ default: module.FileViewerApp }))
+);
+const TextEditorApp = lazy(() =>
+  import('../Applications/TextEditorApp').then((module) => ({ default: module.TextEditorApp }))
 );
 const FileExplorerApp = lazy(() =>
   import('../Applications/FileExplorerApp').then((module) => ({ default: module.FileExplorerApp }))
@@ -43,7 +47,10 @@ interface ApplicationManagerProps {
  * @param props.component - The name identifier of the application to render
  * @param props.windowId - The unique ID of the containing window
  */
-export const ApplicationManager: React.FC<ApplicationManagerProps> = ({ component }) => {
+export const ApplicationManager: React.FC<ApplicationManagerProps> = ({ component, windowId }) => {
+  const { windows } = useDesktopStore();
+  const window = windows.find((w) => w.id === windowId);
+  const filePath = window?.filePath;
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -60,8 +67,9 @@ export const ApplicationManager: React.FC<ApplicationManagerProps> = ({ componen
     try {
       switch (component) {
         case 'TextEditor':
+          return <TextEditorApp filePath={filePath} />;
         case 'FileViewer':
-          return <FileViewerApp />;
+          return <FileViewerApp filePath={filePath} />;
         case 'FileExplorer':
         case 'explorer':
           return <FileExplorerApp />;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TextRenderer } from './Renderers/TextRenderer';
 import { HTMLRenderer } from './Renderers/HTMLRenderer';
 import { MarkdownRenderer } from './Renderers/MarkdownRenderer';
@@ -43,7 +43,7 @@ export const FileViewer: React.FC<FileViewerProps> = ({
 }) => {
   const [zoom, setZoom] = useState(100);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  
+
   const detectedType = fileType || detectFileType(fileName);
 
   /**
@@ -57,7 +57,7 @@ export const FileViewer: React.FC<FileViewerProps> = ({
    * Handle theme toggle
    */
   const handleThemeToggle = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   };
 
   const viewerStyle: React.CSSProperties = {
@@ -85,27 +85,12 @@ export const FileViewer: React.FC<FileViewerProps> = ({
   const renderContent = () => {
     switch (detectedType) {
       case 'html':
-        return (
-          <HTMLRenderer 
-            content={fileContent} 
-            theme={theme}
-          />
-        );
+        return <HTMLRenderer content={fileContent} theme={theme} />;
       case 'markdown':
-        return (
-          <MarkdownRenderer 
-            content={fileContent} 
-            theme={theme}
-          />
-        );
+        return <MarkdownRenderer content={fileContent} theme={theme} />;
       case 'text':
       default:
-        return (
-          <TextRenderer 
-            content={fileContent} 
-            theme={theme}
-          />
-        );
+        return <TextRenderer content={fileContent} theme={theme} />;
     }
   };
 
@@ -125,9 +110,7 @@ export const FileViewer: React.FC<FileViewerProps> = ({
       />
 
       {/* File content */}
-      <div style={contentStyle}>
-        {renderContent()}
-      </div>
+      <div style={contentStyle}>{renderContent()}</div>
     </div>
   );
 };

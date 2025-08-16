@@ -25,6 +25,8 @@ export interface WindowState {
   size: { width: number; height: number };
   /** Z-index for window stacking order */
   zIndex: number;
+  /** Optional file path for file-based applications */
+  filePath?: string;
 }
 
 /**
@@ -136,6 +138,10 @@ interface DesktopActions {
   removeFileSystemItem: (path: string) => boolean;
   /** Renames a file or folder in the file system */
   renameFileSystemItem: (path: string, newName: string) => boolean;
+  /** Updates the content of a file */
+  updateFileContent: (path: string, content: string) => boolean;
+  /** Saves file with new name and location */
+  saveFileAs: (folderPath: string, fileName: string, content: string) => boolean;
   /** Copies items to clipboard */
   copyToClipboard: (paths: string[]) => void;
   /** Cuts items to clipboard */
@@ -180,6 +186,25 @@ const defaultFileSystem: FileSystemItem[] = [
         path: '/Desktop/Contact.lnk',
         icon: 'link',
         position: { x: 300, y: 100 },
+      },
+      {
+        id: 'text-editor-app',
+        name: 'Text Editor',
+        type: 'file',
+        path: '/Desktop/Text Editor.app',
+        icon: 'app',
+        content: 'TextEditor',
+        position: { x: 100, y: 200 },
+      },
+      {
+        id: 'test-md-file',
+        name: 'Test.md',
+        type: 'file',
+        path: '/Desktop/Test.md',
+        icon: 'markdown',
+        content:
+          '# Test Markdown File\\n\\nThis is a test markdown file to verify the system works correctly.\\n\\n## Features\\n\\n- **Bold text**\\n- *Italic text*\\n- [Links](https://example.com)\\n\\n```javascript\\nconsole.log(\"Hello, World!\");\\n```\\n\\n> This is a blockquote\\n\\n---\\n\\nEnd of test file.',
+        position: { x: 400, y: 100 },
       },
     ],
   },
@@ -921,6 +946,148 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
             clipboard: success && clipboard.operation === 'cut' ? { items: [], operation: null } : state.clipboard,
           };
         });
+
+        return success;
+      },
+
+      updateFileContent: (path, content) => {
+        let success = false;
+
+        const updateFileSystemRecursively = (items: FileSystemItem[]): FileSystemItem[] =>
+          items.map((item) => {
+            if (item.path === path && item.type === 'file') {
+              success = true;
+              return {
+                ...item,
+                content,
+              };
+            }
+
+            if (item.children) {
+              return {
+                ...item,
+                children: updateFileSystemRecursively(item.children),
+              };
+            }
+
+            return item;
+          });
+
+        set((state) => ({
+          fileSystem: updateFileSystemRecursively(state.fileSystem),
+        }));
+
+        return success;
+      },
+
+      saveFileAs: (folderPath, fileName, content) => {
+        // Normalize folder path
+        const normalizedFolderPath = folderPath.replace(/\/+$/, '') || '/';
+        const fullFilePath = `${normalizedFolderPath}/${fileName}`;
+
+        let success = false;
+
+        // Helper function to get file icon based on extension
+        const getFileIcon = (fileName: string): string => {
+          const extension = fileName.split('.').pop()?.toLowerCase();
+          switch (extension) {
+            case 'txt':
+              return 'text';
+            case 'html':
+            case 'htm':
+              return 'html';
+            case 'md':
+            case 'markdown':
+              return 'markdown';
+            case 'js':
+            case 'jsx':
+              return 'javascript';
+            case 'css':
+              return 'css';
+            case 'json':
+              return 'json';
+            default:
+              return 'text';
+          }
+        };
+
+        // Helper function to find next available desktop position
+        const findNextDesktopPosition = (existingItems: FileSystemItem[]): { x: number; y: number } => {
+          const ICON_SIZE = 80;
+          const MARGIN = 20;
+          const START_X = 100;
+          const START_Y = 300; // Start below existing icons
+          const MAX_COLUMNS = 8;
+
+          const usedPositions = existingItems.filter((item) => item.position).map((item) => item.position!);
+
+          for (let row = 0; row < 10; row++) {
+            for (let col = 0; col < MAX_COLUMNS; col++) {
+              const x = START_X + col * (ICON_SIZE + MARGIN);
+              const y = START_Y + row * (ICON_SIZE + MARGIN);
+
+              const isOccupied = usedPositions.some(
+                (pos) => Math.abs(pos.x - x) < ICON_SIZE && Math.abs(pos.y - y) < ICON_SIZE
+              );
+
+              if (!isOccupied) {
+                return { x, y };
+              }
+            }
+          }
+
+          return { x: START_X, y: START_Y };
+        };
+
+        // Helper function to update file system recursively
+        const updateFileSystemRecursively = (items: FileSystemItem[], targetPath: string): FileSystemItem[] =>
+          items.map((item) => {
+            if (item.path === targetPath && item.type === 'folder') {
+              // Check if file already exists
+              const fileExists = item.children?.some((child) => child.name === fileName);
+              if (fileExists) {
+                // Update existing file
+                const updatedChildren = item.children!.map((child) =>
+                  child.name === fileName ? { ...child, content } : child
+                );
+                success = true;
+                return {
+                  ...item,
+                  children: updatedChildren,
+                };
+              } else {
+                // Create new file
+                const newFile: FileSystemItem = {
+                  id: `file-${Date.now()}-${Math.random()}`,
+                  name: fileName,
+                  type: 'file',
+                  path: fullFilePath,
+                  icon: getFileIcon(fileName),
+                  content,
+                  position: targetPath === '/Desktop' ? findNextDesktopPosition(item.children || []) : undefined,
+                };
+
+                success = true;
+                return {
+                  ...item,
+                  children: [...(item.children || []), newFile],
+                };
+              }
+            }
+
+            if (item.children && targetPath.startsWith(`${item.path}/`)) {
+              return {
+                ...item,
+                children: updateFileSystemRecursively(item.children, targetPath),
+              };
+            }
+
+            return item;
+          });
+
+        set((state) => ({
+          fileSystem: updateFileSystemRecursively(state.fileSystem, normalizedFolderPath),
+        }));
 
         return success;
       },

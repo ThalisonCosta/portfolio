@@ -1,19 +1,14 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { 
-  EditorState, 
-  EditorSettings, 
-  DocumentInfo, 
-  DocumentFormat, 
-  Position, 
+import {
+  EditorState,
+  EditorSettings,
+  DocumentInfo,
+  DocumentFormat,
+  Position,
   TextRange,
-  FindReplaceOptions
+  FindReplaceOptions,
 } from '../types/textEditor.types';
-import { 
-  createNewDocument, 
-  countWords,
-  countCharacters,
-  countLines
-} from '../utils/fileUtils';
+import { createNewDocument, countWords, countCharacters, countLines } from '../utils/fileUtils';
 import { autoDetectFormat } from '../utils/formatDetection';
 
 /**
@@ -57,7 +52,7 @@ export const useTextEditor = () => {
    * Creates a new document
    */
   const addToHistory = useCallback((content: string) => {
-    setEditorState(prev => {
+    setEditorState((prev) => {
       const newHistory = [...prev.undoHistory, content];
       if (newHistory.length > prev.maxHistorySize) {
         newHistory.shift();
@@ -71,23 +66,26 @@ export const useTextEditor = () => {
     });
   }, []);
 
-  const createDocument = useCallback((filename?: string, format?: DocumentFormat) => {
-    const newDoc = createNewDocument(filename);
-    if (format) {
-      newDoc.format = format;
-    }
+  const createDocument = useCallback(
+    (filename?: string, format?: DocumentFormat) => {
+      const newDoc = createNewDocument(filename);
+      if (format) {
+        newDoc.format = format;
+      }
 
-    setEditorState(prev => ({
-      ...prev,
-      openDocuments: [...prev.openDocuments, newDoc],
-      activeDocumentIndex: prev.openDocuments.length,
-      currentDocument: newDoc,
-      cursorPosition: { line: 0, column: 0 },
-      selection: null,
-    }));
+      setEditorState((prev) => ({
+        ...prev,
+        openDocuments: [...prev.openDocuments, newDoc],
+        activeDocumentIndex: prev.openDocuments.length,
+        currentDocument: newDoc,
+        cursorPosition: { line: 0, column: 0 },
+        selection: null,
+      }));
 
-    addToHistory(newDoc.content);
-  }, [addToHistory]);
+      addToHistory(newDoc.content);
+    },
+    [addToHistory]
+  );
 
   /**
    * Schedules auto-save
@@ -108,31 +106,34 @@ export const useTextEditor = () => {
   /**
    * Updates the current document content
    */
-  const updateContent = useCallback((content: string) => {
-    if (!editorState.currentDocument) return;
+  const updateContent = useCallback(
+    (content: string) => {
+      if (!editorState.currentDocument) return;
 
-    const updatedDoc: DocumentInfo = {
-      ...editorState.currentDocument,
-      content,
-      isDirty: true,
-      lastModified: new Date(),
-      format: autoDetectFormat(content) || editorState.currentDocument.format,
-    };
-
-    setEditorState(prev => {
-      const newDocs = [...prev.openDocuments];
-      newDocs[prev.activeDocumentIndex] = updatedDoc;
-
-      return {
-        ...prev,
-        currentDocument: updatedDoc,
-        openDocuments: newDocs,
+      const updatedDoc: DocumentInfo = {
+        ...editorState.currentDocument,
+        content,
+        isDirty: true,
+        lastModified: new Date(),
+        format: autoDetectFormat(content) || editorState.currentDocument.format,
       };
-    });
 
-    addToHistory(content);
-    scheduleAutoSave();
-  }, [editorState.currentDocument, addToHistory, scheduleAutoSave]);
+      setEditorState((prev) => {
+        const newDocs = [...prev.openDocuments];
+        newDocs[prev.activeDocumentIndex] = updatedDoc;
+
+        return {
+          ...prev,
+          currentDocument: updatedDoc,
+          openDocuments: newDocs,
+        };
+      });
+
+      addToHistory(content);
+      scheduleAutoSave();
+    },
+    [editorState.currentDocument, addToHistory, scheduleAutoSave]
+  );
 
   /**
    * Undo last change
@@ -143,7 +144,7 @@ export const useTextEditor = () => {
     const currentContent = editorState.currentDocument.content;
     const previousContent = editorState.undoHistory[editorState.undoHistory.length - 2];
 
-    setEditorState(prev => ({
+    setEditorState((prev) => ({
       ...prev,
       undoHistory: prev.undoHistory.slice(0, -1),
       redoHistory: [...prev.redoHistory, currentContent],
@@ -160,7 +161,7 @@ export const useTextEditor = () => {
 
     const redoContent = editorState.redoHistory[editorState.redoHistory.length - 1];
 
-    setEditorState(prev => ({
+    setEditorState((prev) => ({
       ...prev,
       redoHistory: prev.redoHistory.slice(0, -1),
     }));
@@ -171,46 +172,52 @@ export const useTextEditor = () => {
   /**
    * Switches to a different open document
    */
-  const switchDocument = useCallback((index: number) => {
-    if (index < 0 || index >= editorState.openDocuments.length) return;
+  const switchDocument = useCallback(
+    (index: number) => {
+      if (index < 0 || index >= editorState.openDocuments.length) return;
 
-    setEditorState(prev => ({
-      ...prev,
-      activeDocumentIndex: index,
-      currentDocument: prev.openDocuments[index],
-      cursorPosition: { line: 0, column: 0 },
-      selection: null,
-    }));
-  }, [editorState.openDocuments]);
+      setEditorState((prev) => ({
+        ...prev,
+        activeDocumentIndex: index,
+        currentDocument: prev.openDocuments[index],
+        cursorPosition: { line: 0, column: 0 },
+        selection: null,
+      }));
+    },
+    [editorState.openDocuments]
+  );
 
   /**
    * Closes a document
    */
-  const closeDocument = useCallback((index: number) => {
-    if (index < 0 || index >= editorState.openDocuments.length) return;
+  const closeDocument = useCallback(
+    (index: number) => {
+      if (index < 0 || index >= editorState.openDocuments.length) return;
 
-    const newDocs = editorState.openDocuments.filter((_, i) => i !== index);
-    let newActiveIndex = editorState.activeDocumentIndex;
+      const newDocs = editorState.openDocuments.filter((_, i) => i !== index);
+      let newActiveIndex = editorState.activeDocumentIndex;
 
-    if (index === editorState.activeDocumentIndex) {
-      newActiveIndex = Math.max(0, index - 1);
-    } else if (index < editorState.activeDocumentIndex) {
-      newActiveIndex = editorState.activeDocumentIndex - 1;
-    }
+      if (index === editorState.activeDocumentIndex) {
+        newActiveIndex = Math.max(0, index - 1);
+      } else if (index < editorState.activeDocumentIndex) {
+        newActiveIndex = editorState.activeDocumentIndex - 1;
+      }
 
-    setEditorState(prev => ({
-      ...prev,
-      openDocuments: newDocs,
-      activeDocumentIndex: newDocs.length > 0 ? newActiveIndex : -1,
-      currentDocument: newDocs.length > 0 ? newDocs[newActiveIndex] : null,
-    }));
-  }, [editorState.openDocuments, editorState.activeDocumentIndex]);
+      setEditorState((prev) => ({
+        ...prev,
+        openDocuments: newDocs,
+        activeDocumentIndex: newDocs.length > 0 ? newActiveIndex : -1,
+        currentDocument: newDocs.length > 0 ? newDocs[newActiveIndex] : null,
+      }));
+    },
+    [editorState.openDocuments, editorState.activeDocumentIndex]
+  );
 
   /**
    * Updates cursor position
    */
   const updateCursorPosition = useCallback((position: Position) => {
-    setEditorState(prev => ({
+    setEditorState((prev) => ({
       ...prev,
       cursorPosition: position,
     }));
@@ -220,7 +227,7 @@ export const useTextEditor = () => {
    * Updates text selection
    */
   const updateSelection = useCallback((selection: TextRange | null) => {
-    setEditorState(prev => ({
+    setEditorState((prev) => ({
       ...prev,
       selection,
     }));
@@ -230,7 +237,7 @@ export const useTextEditor = () => {
    * Toggles preview visibility
    */
   const togglePreview = useCallback(() => {
-    setEditorState(prev => ({
+    setEditorState((prev) => ({
       ...prev,
       isPreviewVisible: !prev.isPreviewVisible,
     }));
@@ -240,7 +247,7 @@ export const useTextEditor = () => {
    * Shows/hides find and replace dialog
    */
   const toggleFindReplace = useCallback((visible?: boolean) => {
-    setEditorState(prev => ({
+    setEditorState((prev) => ({
       ...prev,
       isFindReplaceVisible: visible !== undefined ? visible : !prev.isFindReplaceVisible,
     }));
@@ -250,7 +257,7 @@ export const useTextEditor = () => {
    * Updates find text
    */
   const updateFindText = useCallback((text: string) => {
-    setEditorState(prev => ({
+    setEditorState((prev) => ({
       ...prev,
       findText: text,
     }));
@@ -260,7 +267,7 @@ export const useTextEditor = () => {
    * Updates replace text
    */
   const updateReplaceText = useCallback((text: string) => {
-    setEditorState(prev => ({
+    setEditorState((prev) => ({
       ...prev,
       replaceText: text,
     }));
@@ -270,12 +277,11 @@ export const useTextEditor = () => {
    * Updates editor settings
    */
   const updateSettings = useCallback((newSettings: Partial<EditorSettings>) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
       ...newSettings,
     }));
   }, []);
-
 
   /**
    * Gets document statistics
@@ -307,11 +313,14 @@ export const useTextEditor = () => {
   /**
    * Cleanup on unmount
    */
-  useEffect(() => () => {
-    if (autoSaveTimeoutRef.current) {
-      clearTimeout(autoSaveTimeoutRef.current);
-    }
-  }, []);
+  useEffect(
+    () => () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    },
+    []
+  );
 
   // Initialize with a new document if none exists
   useEffect(() => {
@@ -325,7 +334,7 @@ export const useTextEditor = () => {
     editorState,
     settings,
     findReplaceOptions,
-    
+
     // Actions
     createDocument,
     updateContent,
@@ -341,10 +350,10 @@ export const useTextEditor = () => {
     updateReplaceText,
     updateSettings,
     setFindReplaceOptions,
-    
+
     // Computed values
     getDocumentStats,
-    
+
     // Getters
     canUndo: editorState.undoHistory.length > 1,
     canRedo: editorState.redoHistory.length > 0,

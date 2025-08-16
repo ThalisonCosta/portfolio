@@ -29,19 +29,19 @@ const HTML_PATTERNS = [
  * Markdown patterns for detection
  */
 const MARKDOWN_PATTERNS = [
-  /^#{1,6}\s+/m,           // Headers
-  /^\*\s+/m,               // Unordered list
-  /^\d+\.\s+/m,            // Ordered list
-  /\*\*[^*]+\*\*/,         // Bold
-  /\*[^*]+\*/,             // Italic
-  /`[^`]+`/,               // Inline code
-  /```[\s\S]*?```/,        // Code blocks
-  /^>\s+/m,               // Blockquotes
+  /^#{1,6}\s+/m, // Headers
+  /^\*\s+/m, // Unordered list
+  /^\d+\.\s+/m, // Ordered list
+  /\*\*[^*]+\*\*/, // Bold
+  /\*[^*]+\*/, // Italic
+  /`[^`]+`/, // Inline code
+  /```[\s\S]*?```/, // Code blocks
+  /^>\s+/m, // Blockquotes
   /\[([^\]]+)\]\(([^)]+)\)/, // Links
   /!\[([^\]]*)\]\(([^)]+)\)/, // Images
-  /^-{3,}$/m,             // Horizontal rule
-  /^={3,}$/m,             // Horizontal rule alternative
-  /\|.+\|/,                // Tables
+  /^-{3,}$/m, // Horizontal rule
+  /^={3,}$/m, // Horizontal rule alternative
+  /\|.+\|/, // Tables
 ];
 
 /**
@@ -96,7 +96,7 @@ const calculateHTMLScore = (content: string): number => {
   // Check tag balance (basic)
   const openTags = (content.match(/<[a-zA-Z][^>]*>/g) || []).length;
   const closeTags = (content.match(/<\/[a-zA-Z][^>]*>/g) || []).length;
-  
+
   if (openTags > 0 && Math.abs(openTags - closeTags) <= 3) {
     score += 2;
   }
@@ -137,7 +137,9 @@ const calculateMarkdownScore = (content: string): number => {
 /**
  * Suggests format based on content analysis
  */
-export const suggestFormat = (content: string): {
+export const suggestFormat = (
+  content: string
+): {
   suggested: DocumentFormat;
   confidence: number;
   reasons: string[];
@@ -145,12 +147,12 @@ export const suggestFormat = (content: string): {
   const htmlScore = calculateHTMLScore(content);
   const markdownScore = calculateMarkdownScore(content);
   const totalScore = htmlScore + markdownScore;
-  
+
   const reasons: string[] = [];
 
   if (htmlScore > markdownScore) {
     const confidence = totalScore > 0 ? (htmlScore / totalScore) * 100 : 0;
-    
+
     if (htmlScore > 0) {
       reasons.push(`HTML tags detected (${htmlScore} matches)`);
       if (content.includes('<!DOCTYPE')) reasons.push('DOCTYPE declaration found');
@@ -163,10 +165,10 @@ export const suggestFormat = (content: string): {
       reasons,
     };
   }
-  
+
   if (markdownScore > 0) {
     const confidence = totalScore > 0 ? (markdownScore / totalScore) * 100 : 0;
-    
+
     reasons.push(`Markdown syntax detected (${markdownScore} matches)`);
     if (content.includes('#')) reasons.push('Markdown headers found');
     if (content.includes('**') || content.includes('*')) reasons.push('Markdown formatting found');
