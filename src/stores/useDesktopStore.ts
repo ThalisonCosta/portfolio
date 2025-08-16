@@ -681,8 +681,9 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
                 return true;
               });
 
+            const updatedFileSystem = removeFromFolder(state.fileSystem);
             return {
-              fileSystem: removeFromFolder(state.fileSystem),
+              fileSystem: updatedFileSystem,
             };
           });
 
@@ -757,8 +758,9 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
                 return item;
               });
 
+            const updatedFileSystem = renameInFolder(state.fileSystem);
             return {
-              fileSystem: renameInFolder(state.fileSystem),
+              fileSystem: updatedFileSystem,
             };
           });
 

@@ -10,6 +10,31 @@
   user-select: none;
 }
 
+/* Developer mode for easier element inspection */
+.desktop.developer-mode {
+  user-select: auto;
+  pointer-events: auto;
+}
+
+.desktop.developer-mode::before {
+  pointer-events: none;
+}
+
+/* Visual indicator when developer mode is active */
+.desktop.developer-mode::after {
+  content: 'DEV MODE ACTIVE - Press F12 to toggle';
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 99999;
+  pointer-events: none;
+}
+
 .desktop.light {
   --bg-primary: #ffffff;
   --bg-secondary: #f5f5f5;

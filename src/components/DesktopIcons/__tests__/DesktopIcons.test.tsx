@@ -10,6 +10,12 @@ const mockActions = {
   setDragging: jest.fn(),
 };
 
+// Mock handlers for the new props
+const mockHandlers = {
+  onRename: jest.fn(),
+  onDelete: jest.fn(),
+};
+
 const mockFileSystem = [
   {
     id: 'desktop',
@@ -77,7 +83,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('renders desktop icons from file system', () => {
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     expect(screen.getByText('About.txt')).toBeInTheDocument();
     expect(screen.getByText('Resume.pdf')).toBeInTheDocument();
@@ -85,7 +91,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('displays correct icons for different file types', () => {
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     const icons = screen.getAllByText(/📄|📋|📁/);
     expect(icons).toHaveLength(3);
@@ -99,7 +105,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('positions icons correctly based on position data', () => {
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     const aboutMeIcon = screen.getByText('About.txt').closest('.desktop-icon') as HTMLElement;
     if (aboutMeIcon) {
@@ -115,7 +121,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('double-clicking file icon opens appropriate application', () => {
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
     if (textFileIcon) fireEvent.doubleClick(textFileIcon);
@@ -132,7 +138,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('double-clicking PDF file opens PDF viewer', () => {
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     const pdfIcon = screen.getByText('Resume.pdf').closest('.desktop-icon');
     if (pdfIcon) fireEvent.doubleClick(pdfIcon);
@@ -149,7 +155,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('double-clicking folder opens file explorer', () => {
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     const folderIcon = screen.getByText('Projects').closest('.desktop-icon');
     if (folderIcon) fireEvent.doubleClick(folderIcon);
@@ -165,7 +171,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('drag start sets dragging state', () => {
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     const icon = screen.getByText('About.txt').closest('.desktop-icon');
 
@@ -184,7 +190,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('has drag end handler for clearing state', () => {
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     const icon = screen.getByText('About.txt').closest('.desktop-icon');
     expect(icon).toBeInTheDocument();
@@ -196,7 +202,7 @@ describe('DesktopIcons Component', () => {
   test('handles icons with no position data', () => {
     // This test validates the default positioning behavior
     // Since we're using a static mock, we test with the existing mock data
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     // Test that all icons have the desktop-icon class and inline positioning
     const icons = screen.getAllByText(/About\.txt|Resume\.pdf|Projects/).map((text) => text.closest('.desktop-icon'));
@@ -211,7 +217,7 @@ describe('DesktopIcons Component', () => {
 
   test('handles different file extensions correctly', () => {
     // Test file extension handling with existing mock data
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     // Test text file (.txt)
     const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
@@ -243,7 +249,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('right-clicking icon shows context menu', () => {
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
     if (textFileIcon) {
@@ -256,7 +262,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('keyboard navigation opens file on Enter key', () => {
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
     if (textFileIcon) {
@@ -275,7 +281,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('keyboard navigation opens file on Space key', () => {
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
     if (textFileIcon) {
@@ -294,7 +300,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('has proper accessibility attributes', () => {
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     const container = screen.getByRole('grid');
     expect(container).toHaveAttribute('aria-label', 'Desktop icons');
@@ -310,7 +316,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('handles drag and drop operations', () => {
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
 
@@ -332,7 +338,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('shows rename dialog and handles rename', () => {
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     // This tests the rename dialog functionality indirectly
     // The actual dialog interaction would require more complex setup
@@ -341,7 +347,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('shows delete dialog and handles deletion', () => {
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     // This tests the delete dialog functionality indirectly
     const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
@@ -349,7 +355,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('handles copy operation', () => {
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     // Test context menu integration for copy operation
     const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
@@ -361,7 +367,7 @@ describe('DesktopIcons Component', () => {
   });
 
   test('handles cut operation', () => {
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     // Test context menu integration for cut operation
     const textFileIcon = screen.getByText('About.txt').closest('.desktop-icon');
@@ -421,7 +427,7 @@ describe('DesktopIcons Component', () => {
       ],
     });
 
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     // Verify different file types are rendered
     expect(screen.getByText('test.txt')).toBeInTheDocument();
@@ -445,7 +451,7 @@ describe('DesktopIcons Component', () => {
       ],
     });
 
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     const container = screen.getByRole('grid');
     expect(container).toBeInTheDocument();
@@ -461,7 +467,7 @@ describe('DesktopIcons Component', () => {
       fileSystem: [], // No desktop folder
     });
 
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     const container = screen.getByRole('grid');
     expect(container).toBeInTheDocument();
@@ -495,7 +501,7 @@ describe('DesktopIcons Component', () => {
       ],
     });
 
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     const folderIcon = screen.getByText('TestFolder').closest('.desktop-icon');
     if (folderIcon) {
@@ -521,7 +527,7 @@ describe('DesktopIcons Component', () => {
       draggedItem: 'desktop-file-1',
     });
 
-    render(<DesktopIcons />, { wrapper: TestWrapper });
+    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     // Verify component renders during drag state
     const container = screen.getByRole('grid');

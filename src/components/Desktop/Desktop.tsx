@@ -1,11 +1,12 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Taskbar } from '../Taskbar/Taskbar';
 import { WindowManager } from '../WindowManager/WindowManager';
 import { DesktopIcons } from '../DesktopIcons/DesktopIcons';
 import { SnakeGame } from '../SnakeGame/SnakeGame';
-import { useDesktopStore } from '../../stores/useDesktopStore';
+import { useDesktopStore, type FileSystemItem } from '../../stores/useDesktopStore';
 import { useContextMenu } from '../../hooks/useContextMenu';
 import { InputDialog } from '../InputDialog';
+import { ConfirmDialog } from '../ConfirmDialog';
 import type { ContextMenuItem } from '../ContextMenu';
 import './Desktop.css';
 
@@ -26,6 +27,9 @@ export const Desktop: React.FC = () => {
     hasClipboardItems,
     pasteFromClipboard,
     getBackgroundStyle,
+    removeFileSystemItem,
+    renameFileSystemItem,
+    fileSystem,
   } = useDesktopStore();
 
   const { showContextMenu } = useContextMenu();
@@ -33,6 +37,83 @@ export const Desktop: React.FC = () => {
   // Dialog states
   const [showNewFolderDialog, setShowNewFolderDialog] = useState(false);
   const [showNewFileDialog, setShowNewFileDialog] = useState(false);
+
+  // Modal states for file operations
+  const [showRenameDialog, setShowRenameDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<FileSystemItem | null>(null);
+
+  // Developer mode state
+  const [isDeveloperMode, setIsDeveloperMode] = useState(false);
+
+  /**
+   * Handle F12 key press to toggle developer mode for easier element inspection
+   */
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'F12') {
+        event.preventDefault();
+        setIsDeveloperMode((prev) => !prev);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  /**
+   * Handle rename operation
+   */
+  const handleRename = useCallback((item: FileSystemItem) => {
+    setSelectedItem(item);
+    setShowRenameDialog(true);
+  }, []);
+
+  /**
+   * Handle delete operation
+   */
+  const handleDelete = useCallback((item: FileSystemItem) => {
+    setSelectedItem(item);
+    setShowDeleteDialog(true);
+  }, []);
+
+  /**
+   * Handle rename confirmation
+   */
+  const handleRenameConfirm = useCallback(
+    (newName: string) => {
+      if (selectedItem) {
+        const success = renameFileSystemItem(selectedItem.path, newName);
+        if (success) {
+          setShowRenameDialog(false);
+          setSelectedItem(null);
+        } else {
+          console.warn(`Failed to rename ${selectedItem.name} to ${newName}. Name may already exist.`);
+        }
+      }
+    },
+    [selectedItem, renameFileSystemItem]
+  );
+
+  /**
+   * Handle delete confirmation
+   */
+  const handleDeleteConfirm = useCallback(() => {
+    if (selectedItem) {
+      const success = removeFileSystemItem(selectedItem.path);
+      if (success) {
+        setShowDeleteDialog(false);
+        setSelectedItem(null);
+      } else {
+        console.error(`Failed to delete ${selectedItem.name}. Item may not exist.`);
+        setShowDeleteDialog(false);
+        setSelectedItem(null);
+      }
+    }
+  }, [selectedItem, removeFileSystemItem]);
 
   /**
    * Handle new folder creation
@@ -148,14 +229,14 @@ export const Desktop: React.FC = () => {
 
   return (
     <div
-      className={`desktop ${theme}`}
+      className={`desktop ${theme} ${isDeveloperMode ? 'developer-mode' : ''}`}
       style={{ background: getBackgroundStyle() }}
       onClick={handleDesktopClick}
       onContextMenu={handleDesktopContextMenu}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
-      <DesktopIcons />
+      <DesktopIcons onRename={handleRename} onDelete={handleDelete} />
       <WindowManager />
       <Taskbar />
 
@@ -192,6 +273,58 @@ export const Desktop: React.FC = () => {
           if (value.includes('/') || value.includes('\\')) return 'Invalid characters in file name';
           return null;
         }}
+      />
+
+      {/* File Operation Modals */}
+      {/* Rename Dialog */}
+      <InputDialog
+        isVisible={showRenameDialog}
+        title={`Rename ${selectedItem?.type === 'folder' ? 'Folder' : 'File'}`}
+        label="New name:"
+        placeholder="Enter new name"
+        initialValue={selectedItem?.name || ''}
+        onConfirm={handleRenameConfirm}
+        onCancel={() => {
+          setShowRenameDialog(false);
+          setSelectedItem(null);
+        }}
+        validate={(value) => {
+          if (!value.trim()) return 'Name is required';
+          if (value.includes('/') || value.includes('\\')) return 'Invalid characters in name';
+
+          // Check for duplicate names in the same directory
+          if (selectedItem) {
+            const desktop = fileSystem.find((item) => item.path === '/Desktop');
+            const siblings = desktop?.children || [];
+            const nameExists = siblings.some((sibling) => sibling.name === value && sibling.id !== selectedItem.id);
+            if (nameExists) {
+              return 'A file or folder with this name already exists';
+            }
+          }
+
+          return null;
+        }}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isVisible={showDeleteDialog}
+        title={`Delete ${selectedItem?.type === 'folder' ? 'Folder' : 'File'}`}
+        message={`Are you sure you want to delete "${selectedItem?.name}"?`}
+        details={
+          selectedItem?.type === 'folder'
+            ? 'This will permanently delete the folder and all its contents.'
+            : 'This will permanently delete the file.'
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+        destructive={true}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => {
+          setShowDeleteDialog(false);
+          setSelectedItem(null);
+        }}
+        items={selectedItem ? [selectedItem.name] : []}
       />
     </div>
   );

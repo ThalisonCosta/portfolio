@@ -1,8 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { useDesktopStore, type FileSystemItem } from '../../stores/useDesktopStore';
 import { useContextMenu } from '../../hooks/useContextMenu';
-import { InputDialog } from '../InputDialog';
-import { ConfirmDialog } from '../ConfirmDialog';
 import type { ContextMenuItem } from '../ContextMenu';
 import './DesktopIcons.css';
 
@@ -23,30 +21,24 @@ import linkIcon from '../../assets/icons/link.svg';
 import defaultIcon from '../../assets/icons/default.svg';
 
 /**
+ * Props for DesktopIcons component
+ */
+interface DesktopIconsProps {
+  onRename: (item: FileSystemItem) => void;
+  onDelete: (item: FileSystemItem) => void;
+}
+
+/**
  * DesktopIcons component that renders draggable icons on the desktop.
  * Handles icon interactions like double-click to open applications,
  * drag and drop positioning, and visual feedback for drag operations.
  * Provides right-click context menu for CRUD operations.
  */
-export const DesktopIcons: React.FC = React.memo(() => {
-  const {
-    fileSystem,
-    openWindow,
-    setDragging,
-    isDragging,
-    draggedItem,
-    copyToClipboard,
-    cutToClipboard,
-    removeFileSystemItem,
-    renameFileSystemItem,
-  } = useDesktopStore();
+export const DesktopIcons: React.FC<DesktopIconsProps> = React.memo(({ onRename, onDelete }) => {
+  const { fileSystem, openWindow, setDragging, isDragging, draggedItem, copyToClipboard, cutToClipboard } =
+    useDesktopStore();
 
   const { showContextMenu } = useContextMenu();
-
-  // Dialog states
-  const [showRenameDialog, setShowRenameDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<FileSystemItem | null>(null);
 
   /**
    * Handle icon double click
@@ -122,51 +114,6 @@ export const DesktopIcons: React.FC = React.memo(() => {
     },
     [cutToClipboard]
   );
-
-  /**
-   * Handle rename operation
-   */
-  const handleRename = useCallback((item: FileSystemItem) => {
-    setSelectedItem(item);
-    setShowRenameDialog(true);
-  }, []);
-
-  /**
-   * Handle delete operation
-   */
-  const handleDelete = useCallback((item: FileSystemItem) => {
-    setSelectedItem(item);
-    setShowDeleteDialog(true);
-  }, []);
-
-  /**
-   * Handle rename confirmation
-   */
-  const handleRenameConfirm = useCallback(
-    (newName: string) => {
-      if (selectedItem) {
-        const success = renameFileSystemItem(selectedItem.path, newName);
-        if (success) {
-          setShowRenameDialog(false);
-          setSelectedItem(null);
-        }
-      }
-    },
-    [selectedItem, renameFileSystemItem]
-  );
-
-  /**
-   * Handle delete confirmation
-   */
-  const handleDeleteConfirm = useCallback(() => {
-    if (selectedItem) {
-      const success = removeFileSystemItem(selectedItem.path);
-      if (success) {
-        setShowDeleteDialog(false);
-        setSelectedItem(null);
-      }
-    }
-  }, [selectedItem, removeFileSystemItem]);
 
   /**
    * Check if file is editable in TextEditor
@@ -248,7 +195,7 @@ export const DesktopIcons: React.FC = React.memo(() => {
           label: 'Rename',
           icon: '✏️',
           shortcut: 'F2',
-          onClick: () => handleRename(item),
+          onClick: () => onRename(item),
         },
         {
           id: 'separator-2',
@@ -279,21 +226,13 @@ export const DesktopIcons: React.FC = React.memo(() => {
           label: 'Delete',
           icon: '🗑️',
           shortcut: 'Delete',
-          onClick: () => handleDelete(item),
+          onClick: () => onDelete(item),
         }
       );
 
       showContextMenu({ x: e.clientX, y: e.clientY }, menuItems);
     },
-    [
-      showContextMenu,
-      handleIconDoubleClick,
-      handleOpenWithTextEditor,
-      handleRename,
-      handleCopy,
-      handleCut,
-      handleDelete,
-    ]
+    [showContextMenu, handleIconDoubleClick, handleOpenWithTextEditor, onRename, handleCopy, handleCut, onDelete]
   );
 
   const getDesktopItems = () => {
@@ -428,46 +367,6 @@ export const DesktopIcons: React.FC = React.memo(() => {
           </div>
         </div>
       ))}
-
-      {/* Rename Dialog */}
-      <InputDialog
-        isVisible={showRenameDialog}
-        title={`Rename ${selectedItem?.type === 'folder' ? 'Folder' : 'File'}`}
-        label="New name:"
-        placeholder="Enter new name"
-        initialValue={selectedItem?.name || ''}
-        onConfirm={handleRenameConfirm}
-        onCancel={() => {
-          setShowRenameDialog(false);
-          setSelectedItem(null);
-        }}
-        validate={(value) => {
-          if (!value.trim()) return 'Name is required';
-          if (value.includes('/') || value.includes('\\')) return 'Invalid characters in name';
-          return null;
-        }}
-      />
-
-      {/* Delete Confirmation Dialog */}
-      <ConfirmDialog
-        isVisible={showDeleteDialog}
-        title={`Delete ${selectedItem?.type === 'folder' ? 'Folder' : 'File'}`}
-        message={`Are you sure you want to delete "${selectedItem?.name}"?`}
-        details={
-          selectedItem?.type === 'folder'
-            ? 'This will permanently delete the folder and all its contents.'
-            : 'This will permanently delete the file.'
-        }
-        confirmText="Delete"
-        cancelText="Cancel"
-        destructive={true}
-        onConfirm={handleDeleteConfirm}
-        onCancel={() => {
-          setShowDeleteDialog(false);
-          setSelectedItem(null);
-        }}
-        items={selectedItem ? [selectedItem.name] : []}
-      />
     </div>
   );
 });
