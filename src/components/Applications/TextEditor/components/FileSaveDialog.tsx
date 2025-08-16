@@ -62,23 +62,26 @@ export const FileSaveDialog: React.FC<FileSaveDialogProps> = ({
   /**
    * Find folder contents by path
    */
-  const getFolderContents = useCallback((path: string): FileSystemItem[] => {
-    const findFolder = (items: FileSystemItem[], targetPath: string): FileSystemItem | null => {
-      for (const item of items) {
-        if (item.path === targetPath && item.type === 'folder') {
-          return item;
+  const getFolderContents = useCallback(
+    (path: string): FileSystemItem[] => {
+      const findFolder = (items: FileSystemItem[], targetPath: string): FileSystemItem | null => {
+        for (const item of items) {
+          if (item.path === targetPath && item.type === 'folder') {
+            return item;
+          }
+          if (item.children) {
+            const found = findFolder(item.children, targetPath);
+            if (found) return found;
+          }
         }
-        if (item.children) {
-          const found = findFolder(item.children, targetPath);
-          if (found) return found;
-        }
-      }
-      return null;
-    };
+        return null;
+      };
 
-    const folder = findFolder(fileSystem, path);
-    return folder?.children || [];
-  }, [fileSystem]);
+      const folder = findFolder(fileSystem, path);
+      return folder?.children || [];
+    },
+    [fileSystem]
+  );
 
   /**
    * Get parent path

@@ -47,7 +47,6 @@ export const Calendar: React.FC<CalendarProps> = ({ isVisible, onClose, position
     }
   }, [isVisible]);
 
-
   /**
    * Handle click outside to close
    */
