@@ -44,9 +44,18 @@
 }
 
 .icon {
-  font-size: 32px;
   margin-bottom: 4px;
   filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.5));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-image {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  pointer-events: none;
 }
 
 .icon-label {
@@ -68,9 +77,9 @@
     padding: 6px;
   }
 
-  .icon {
-    font-size: 28px;
-    margin-bottom: 3px;
+  .icon-image {
+    width: 28px;
+    height: 28px;
   }
 
   .icon-label {
@@ -86,9 +95,9 @@
     padding: 7px;
   }
 
-  .icon {
-    font-size: 30px;
-    margin-bottom: 3px;
+  .icon-image {
+    width: 30px;
+    height: 30px;
   }
 
   .icon-label {
@@ -103,9 +112,9 @@
     padding: 10px;
   }
 
-  .icon {
-    font-size: 36px;
-    margin-bottom: 5px;
+  .icon-image {
+    width: 36px;
+    height: 36px;
   }
 
   .icon-label {

@@ -6,6 +6,22 @@ import { ConfirmDialog } from '../ConfirmDialog';
 import type { ContextMenuItem } from '../ContextMenu';
 import './DesktopIcons.css';
 
+// Icon imports
+import folderIcon from '../../assets/icons/folder.svg';
+import textIcon from '../../assets/icons/text.svg';
+import htmlIcon from '../../assets/icons/html.svg';
+import markdownIcon from '../../assets/icons/markdown.svg';
+import javascriptIcon from '../../assets/icons/javascript.svg';
+import cssIcon from '../../assets/icons/css.svg';
+import jsonIcon from '../../assets/icons/json.svg';
+import pdfIcon from '../../assets/icons/pdf.svg';
+import imageIcon from '../../assets/icons/image.svg';
+import archiveIcon from '../../assets/icons/archive.svg';
+import appIcon from '../../assets/icons/app.svg';
+import texteditorIcon from '../../assets/icons/texteditor.svg';
+import linkIcon from '../../assets/icons/link.svg';
+import defaultIcon from '../../assets/icons/default.svg';
+
 /**
  * DesktopIcons component that renders draggable icons on the desktop.
  * Handles icon interactions like double-click to open applications,
@@ -285,65 +301,85 @@ export const DesktopIcons: React.FC = React.memo(() => {
     return desktop?.children || [];
   };
 
-  const getIconForFile = (fileName: string, fileContent?: string) => {
+  const getIconForFile = (fileName: string, fileContent?: string): string => {
     const extension = fileName.split('.').pop()?.toLowerCase();
 
     // Special case for TextEditor app
     if (extension === 'app' && fileContent === 'TextEditor') {
-      return '📝';
+      return texteditorIcon;
     }
 
     switch (extension) {
       case 'txt':
-        return '📄';
+        return textIcon;
       case 'html':
       case 'htm':
-        return '🌐';
+        return htmlIcon;
       case 'md':
       case 'markdown':
-        return '📝';
+        return markdownIcon;
       case 'js':
       case 'jsx':
       case 'ts':
       case 'tsx':
-        return '📜';
+        return javascriptIcon;
       case 'css':
       case 'scss':
       case 'sass':
-        return '🎨';
+        return cssIcon;
       case 'json':
-        return '🔧';
+        return jsonIcon;
       case 'xml':
-        return '📋';
+        return textIcon;
       case 'pdf':
-        return '📋';
+        return pdfIcon;
       case 'lnk':
-        return '🔗';
+        return linkIcon;
       case 'app':
-        return '🚀';
+        return appIcon;
       case 'png':
       case 'jpg':
       case 'jpeg':
       case 'gif':
       case 'svg':
-        return '🖼️';
+        return imageIcon;
       case 'zip':
       case 'rar':
       case '7z':
-        return '📦';
+        return archiveIcon;
       case 'exe':
       case 'msi':
-        return '⚙️';
+        return appIcon;
       default:
-        return '📄';
+        return defaultIcon;
     }
   };
 
   const handleDragStart = (e: React.DragEvent, item: FileSystemItem) => {
+    // Determine if this is an app or regular file
+    const isApp = item.name.endsWith('.app') && item.content;
+
     setDragging(true, item.id);
 
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', item.id);
+    if (isApp) {
+      // For app files, set drag data for pinning to taskbar
+      e.dataTransfer.effectAllowed = 'copy';
+      e.dataTransfer.setData(
+        'application/json',
+        JSON.stringify({
+          type: 'desktop-app',
+          appInfo: {
+            name: item.name.replace('.app', ''),
+            component: item.content,
+            icon: getIconForFile(item.name, item.content),
+          },
+        })
+      );
+    } else {
+      // For regular files, use move for repositioning
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', item.id);
+    }
   };
 
   const handleDragEnd = () => {
@@ -379,7 +415,12 @@ export const DesktopIcons: React.FC = React.memo(() => {
           aria-describedby={`icon-description-${item.id}`}
         >
           <div className="icon" aria-hidden="true">
-            {item.type === 'folder' ? '📁' : getIconForFile(item.name, item.content)}
+            <img
+              src={item.type === 'folder' ? folderIcon : getIconForFile(item.name, item.content)}
+              alt=""
+              className="icon-image"
+              draggable={false}
+            />
           </div>
           <div className="icon-label" id={`icon-description-${item.id}`}>
             {item.name}

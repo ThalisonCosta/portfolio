@@ -41,8 +41,10 @@ export interface FileSystemItem {
   type: 'file' | 'folder';
   /** Full path to the item */
   path: string;
-  /** Icon identifier for display */
+  /** Icon identifier for display (legacy emoji support) */
   icon: string;
+  /** Path to icon image file */
+  iconPath?: string;
   /** File content (only for files) */
   content?: string;
   /** Child items (only for folders) */

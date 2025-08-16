@@ -279,7 +279,7 @@ export const FileOpenDialog: React.FC<FileOpenDialogProps> = ({
                     if (item.type === 'folder') return '📁';
                     if (item.name.endsWith('.txt')) return '📄';
                     if (item.name.endsWith('.html') || item.name.endsWith('.htm')) return '🌐';
-                    if (item.name.endsWith('.md')) return '📝';
+                    if (item.name.endsWith('.md')) return 'ℹ️';
                     if (item.name.endsWith('.js') || item.name.endsWith('.jsx')) return '📜';
                     if (item.name.endsWith('.css')) return '🎨';
                     if (item.name.endsWith('.json')) return '🔧';
