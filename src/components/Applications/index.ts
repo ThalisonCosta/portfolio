@@ -7,3 +7,4 @@ export { CalculatorApp } from './CalculatorApp';
 export { TextEditorApp } from './TextEditorApp';
 export { DefaultApp } from './DefaultApp';
 export { SettingsApp } from './SettingsApp';
+export { AboutApp } from './AboutApp';

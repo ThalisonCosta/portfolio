@@ -31,6 +31,9 @@ const SettingsApp = lazy(() =>
 const ProjectsApp = lazy(() =>
   import('../Applications/ProjectsApp').then((module) => ({ default: module.ProjectsApp }))
 );
+const AboutApp = lazy(() =>
+  import('../Applications/AboutApp').then((module) => ({ default: module.AboutApp }))
+);
 
 /**
  * Props for the ApplicationManager component
@@ -91,6 +94,9 @@ export const ApplicationManager: React.FC<ApplicationManagerProps> = ({ componen
           return <SettingsApp />;
         case 'projects':
           return <ProjectsApp />;
+        case 'AboutApp':
+        case 'about':
+          return <AboutApp />;
         default:
           return <DefaultApp component={component} />;
       }

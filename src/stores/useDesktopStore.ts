@@ -196,6 +196,14 @@ const defaultFileSystem: FileSystemItem[] = [
         position: { x: 300, y: 100 },
       },
       {
+        id: 'about',
+        name: 'About.lnk',
+        type: 'file',
+        path: '/Desktop/About.lnk',
+        icon: 'link',
+        position: { x: 200, y: 100 },
+      },
+      {
         id: 'text-editor-app',
         name: 'Text Editor',
         type: 'file',

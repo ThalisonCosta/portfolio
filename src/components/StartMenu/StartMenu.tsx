@@ -118,6 +118,17 @@ export const StartMenu: React.FC = React.memo(() => {
               </button>
               <button
                 className="app-button"
+                onClick={() => handleAppClick('About', 'about')}
+                aria-label="Open About"
+                type="button"
+              >
+                <span className="app-icon" aria-hidden="true">
+                  👨‍💻
+                </span>
+                <span className="app-name">About</span>
+              </button>
+              <button
+                className="app-button"
                 onClick={() => handleAppClick('Contact', 'contact')}
                 aria-label="Open Contact"
                 type="button"
