@@ -81,7 +81,7 @@ export const ProjectsApp: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'stars' | 'forks' | 'updated' | 'name'>('stars');
-  const [refreshing, setRefreshing] = useState(false);
+  const [_, setRefreshing] = useState(false);
 
   const USERNAME = 'ThalisonCosta';
   const GITHUB_API_BASE = 'https://api.github.com';
@@ -306,7 +306,7 @@ export const ProjectsApp: React.FC = () => {
   /**
    * Calculate repository statistics
    */
-  const stats = useMemo(() => {
+  useMemo(() => {
     const totalStars = repositories.reduce((sum, repo) => sum + repo.stargazers_count, 0);
     const totalForks = repositories.reduce((sum, repo) => sum + repo.forks_count, 0);
     const languageCount = availableLanguages.length;
@@ -363,24 +363,6 @@ export const ProjectsApp: React.FC = () => {
 
   return (
     <div className={`projects-app ${theme}`}>
-      {/* Header */}
-      <div className="projects-header">
-        <div className="projects-title-section">
-          <h1 className="projects-title">Projects</h1>
-          <div className="projects-subtitle">
-            {stats.totalRepos} repositories • {stats.totalStars} stars • {stats.pinnedCount} pinned
-          </div>
-        </div>
-        <button
-          className={`projects-refresh-btn ${refreshing ? 'refreshing' : ''}`}
-          onClick={handleRefresh}
-          disabled={refreshing}
-          title="Refresh repositories"
-        >
-          🔄
-        </button>
-      </div>
-
       {/* Profile Section */}
       {userProfile && (
         <div className="projects-profile">
