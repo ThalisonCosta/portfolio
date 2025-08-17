@@ -19,10 +19,6 @@ jest.mock('../../Applications/ContactFormApp', () => ({
   ContactFormApp: () => <div data-testid="contact-form">Contact Form App</div>,
 }));
 
-jest.mock('../../Applications/PDFViewerApp', () => ({
-  PDFViewerApp: () => <div data-testid="pdf-viewer">PDF Viewer App</div>,
-}));
-
 jest.mock('../../Applications/MarkdownViewerApp', () => ({
   MarkdownViewerApp: () => <div data-testid="markdown-viewer">Markdown Viewer App</div>,
 }));
@@ -79,14 +75,6 @@ describe('ApplicationManager Component', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('contact-form')).toBeInTheDocument();
-    });
-  });
-
-  test('renders PDFViewer application', async () => {
-    render(<ApplicationManager component="PDFViewer" windowId="test-window" />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('pdf-viewer')).toBeInTheDocument();
     });
   });
 

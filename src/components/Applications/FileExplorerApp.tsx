@@ -753,8 +753,6 @@ function getFileIcon(fileName: string): string {
     case 'txt':
     case 'md':
       return '📄';
-    case 'pdf':
-      return '📕';
     case 'doc':
     case 'docx':
       return '📘';

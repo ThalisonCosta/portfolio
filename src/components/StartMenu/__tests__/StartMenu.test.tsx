@@ -61,7 +61,6 @@ describe('StartMenu Component', () => {
   test('renders recommended items', () => {
     render(<StartMenu />);
 
-    expect(screen.getByText('Resume.pdf')).toBeInTheDocument();
     expect(screen.getByText('Recently modified')).toBeInTheDocument();
     expect(screen.getByText('Portfolio Project')).toBeInTheDocument();
     expect(screen.getByText('Recently opened')).toBeInTheDocument();

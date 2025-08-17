@@ -440,18 +440,15 @@ describe('useDesktopStore', () => {
     test('creates file with different extensions and correct icons', () => {
       const { createFile } = useDesktopStore.getState();
 
-      createFile('/Desktop', 'document.pdf');
       createFile('/Desktop', 'notes.md');
       createFile('/Desktop', 'contact.lnk');
 
       const { fileSystem } = useDesktopStore.getState();
       const desktop = fileSystem.find((item) => item.path === '/Desktop');
 
-      const pdfFile = desktop?.children?.find((child) => child.name === 'document.pdf');
       const mdFile = desktop?.children?.find((child) => child.name === 'notes.md');
       const lnkFile = desktop?.children?.find((child) => child.name === 'contact.lnk');
 
-      expect(pdfFile?.icon).toBe('pdf');
       expect(mdFile?.icon).toBe('markdown');
       expect(lnkFile?.icon).toBe('file'); // .lnk files use 'file' icon by default
     });
@@ -583,7 +580,7 @@ describe('useDesktopStore', () => {
 
       expect(hasClipboardItems()).toBe(false);
 
-      copyToClipboard(['/Desktop/About.txt', '/Desktop/Resume.pdf']);
+      copyToClipboard(['/Desktop/About.txt']);
 
       const { clipboard } = useDesktopStore.getState();
       expect(clipboard.operation).toBe('copy');
@@ -593,11 +590,6 @@ describe('useDesktopStore', () => {
       expect(clipboard.items[0]).toMatchObject({
         name: 'About.txt',
         path: '/Desktop/About.txt',
-        type: 'file',
-      });
-      expect(clipboard.items[1]).toMatchObject({
-        name: 'Resume.pdf',
-        path: '/Desktop/Resume.pdf',
         type: 'file',
       });
 

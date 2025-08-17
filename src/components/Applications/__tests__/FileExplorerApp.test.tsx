@@ -23,14 +23,6 @@ jest.mock('../../../stores/useDesktopStore', () => ({
             content: 'Welcome to my portfolio!',
             position: { x: 100, y: 100 },
           },
-          {
-            id: 'resume',
-            name: 'Resume.pdf',
-            type: 'file',
-            path: '/Desktop/Resume.pdf',
-            icon: 'pdf',
-            position: { x: 200, y: 100 },
-          },
         ],
       },
       {
@@ -109,7 +101,6 @@ describe('FileExplorerApp Component', () => {
     renderFileExplorer();
 
     expect(screen.getByText('About.txt')).toBeInTheDocument();
-    expect(screen.getByText('Resume.pdf')).toBeInTheDocument();
   });
 
   test('shows sidebar with folder tree', () => {

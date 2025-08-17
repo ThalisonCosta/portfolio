@@ -18,9 +18,6 @@ const TerminalApp = lazy(() =>
 const ContactFormApp = lazy(() =>
   import('../Applications/ContactFormApp').then((module) => ({ default: module.ContactFormApp }))
 );
-const PDFViewerApp = lazy(() =>
-  import('../Applications/PDFViewerApp').then((module) => ({ default: module.PDFViewerApp }))
-);
 const MarkdownViewerApp = lazy(() =>
   import('../Applications/MarkdownViewerApp').then((module) => ({ default: module.MarkdownViewerApp }))
 );
@@ -85,8 +82,6 @@ export const ApplicationManager: React.FC<ApplicationManagerProps> = ({ componen
         case 'ContactForm':
         case 'contact':
           return <ContactFormApp />;
-        case 'PDFViewer':
-          return <PDFViewerApp />;
         case 'MarkdownViewer':
           return <MarkdownViewerApp />;
         case 'calculator':

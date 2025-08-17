@@ -177,15 +177,6 @@ export const StartMenu: React.FC = React.memo(() => {
           <div className="recommended-section">
             <h3>Recommended</h3>
             <div className="recommended-items" role="list" aria-label="Recommended items">
-              <div className="recommended-item" role="listitem" tabIndex={0} aria-label="Resume.pdf, recently modified">
-                <span className="recommended-icon" aria-hidden="true">
-                  📄
-                </span>
-                <div className="recommended-info">
-                  <span className="recommended-name">Resume.pdf</span>
-                  <span className="recommended-desc">Recently modified</span>
-                </div>
-              </div>
               <div
                 className="recommended-item"
                 role="listitem"

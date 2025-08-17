@@ -188,14 +188,6 @@ const defaultFileSystem: FileSystemItem[] = [
         position: { x: 100, y: 100 },
       },
       {
-        id: 'resume',
-        name: 'Resume.pdf',
-        type: 'file',
-        path: '/Desktop/Resume.pdf',
-        icon: 'pdf',
-        position: { x: 200, y: 100 },
-      },
-      {
         id: 'contact',
         name: 'Contact.lnk',
         type: 'file',
@@ -521,8 +513,6 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
             switch (ext) {
               case 'txt':
                 return 'text';
-              case 'pdf':
-                return 'pdf';
               case 'md':
                 return 'markdown';
               case 'js':

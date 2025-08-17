@@ -12,7 +12,6 @@ import markdownIcon from '../../assets/icons/markdown.svg';
 import javascriptIcon from '../../assets/icons/javascript.svg';
 import cssIcon from '../../assets/icons/css.svg';
 import jsonIcon from '../../assets/icons/json.svg';
-import pdfIcon from '../../assets/icons/pdf.svg';
 import imageIcon from '../../assets/icons/image.svg';
 import archiveIcon from '../../assets/icons/archive.svg';
 import appIcon from '../../assets/icons/app.svg';
@@ -60,9 +59,6 @@ export const DesktopIcons: React.FC<DesktopIconsProps> = React.memo(({ onRename,
             case 'md':
             case 'markdown':
               component = 'FileViewer';
-              break;
-            case 'pdf':
-              component = 'PDFViewer';
               break;
             case 'lnk':
               component = 'ContactForm';
@@ -270,8 +266,6 @@ export const DesktopIcons: React.FC<DesktopIconsProps> = React.memo(({ onRename,
         return jsonIcon;
       case 'xml':
         return textIcon;
-      case 'pdf':
-        return pdfIcon;
       case 'lnk':
         return linkIcon;
       case 'app':

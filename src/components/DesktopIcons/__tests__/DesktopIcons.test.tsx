@@ -33,14 +33,7 @@ const mockFileSystem = [
         content: 'About content...',
         position: { x: 100, y: 100 },
       },
-      {
-        id: 'resume',
-        name: 'Resume.pdf',
-        type: 'file',
-        path: '/Desktop/Resume.pdf',
-        icon: 'pdf',
-        position: { x: 200, y: 100 },
-      },
+
       {
         id: 'projects',
         name: 'Projects',
@@ -86,7 +79,6 @@ describe('DesktopIcons Component', () => {
     render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     expect(screen.getByText('About.txt')).toBeInTheDocument();
-    expect(screen.getByText('Resume.pdf')).toBeInTheDocument();
     expect(screen.getByText('Projects')).toBeInTheDocument();
   });
 
@@ -101,7 +93,6 @@ describe('DesktopIcons Component', () => {
 
     // Check that file icons are present
     expect(screen.getByText('📄')).toBeInTheDocument(); // .txt file
-    expect(screen.getByText('📋')).toBeInTheDocument(); // .pdf file
   });
 
   test('positions icons correctly based on position data', () => {
@@ -111,12 +102,6 @@ describe('DesktopIcons Component', () => {
     if (aboutMeIcon) {
       expect(aboutMeIcon.style.left).toBe('100px');
       expect(aboutMeIcon.style.top).toBe('100px');
-    }
-
-    const resumeIcon = screen.getByText('Resume.pdf').closest('.desktop-icon') as HTMLElement;
-    if (resumeIcon) {
-      expect(resumeIcon.style.left).toBe('200px');
-      expect(resumeIcon.style.top).toBe('100px');
     }
   });
 
@@ -134,23 +119,6 @@ describe('DesktopIcons Component', () => {
       position: { x: 200, y: 100 },
       size: { width: 600, height: 400 },
       filePath: '/Desktop/About.txt',
-    });
-  });
-
-  test('double-clicking PDF file opens PDF viewer', () => {
-    render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
-
-    const pdfIcon = screen.getByText('Resume.pdf').closest('.desktop-icon');
-    if (pdfIcon) fireEvent.doubleClick(pdfIcon);
-
-    expect(mockActions.openWindow).toHaveBeenCalledWith({
-      title: 'Resume.pdf',
-      component: 'PDFViewer',
-      isMinimized: false,
-      isMaximized: false,
-      position: { x: 200, y: 100 },
-      size: { width: 600, height: 400 },
-      filePath: '/Desktop/Resume.pdf',
     });
   });
 
@@ -205,7 +173,7 @@ describe('DesktopIcons Component', () => {
     render(<DesktopIcons {...mockHandlers} />, { wrapper: TestWrapper });
 
     // Test that all icons have the desktop-icon class and inline positioning
-    const icons = screen.getAllByText(/About\.txt|Resume\.pdf|Projects/).map((text) => text.closest('.desktop-icon'));
+    const icons = screen.getAllByText(/About\.txt|Projects/).map((text) => text.closest('.desktop-icon'));
 
     icons.forEach((icon) => {
       expect(icon).toHaveClass('desktop-icon');
@@ -231,20 +199,6 @@ describe('DesktopIcons Component', () => {
       position: { x: 200, y: 100 },
       size: { width: 600, height: 400 },
       filePath: '/Desktop/About.txt',
-    });
-
-    // Test PDF file
-    const pdfIcon = screen.getByText('Resume.pdf').closest('.desktop-icon');
-    if (pdfIcon) fireEvent.doubleClick(pdfIcon);
-
-    expect(mockActions.openWindow).toHaveBeenCalledWith({
-      title: 'Resume.pdf',
-      component: 'PDFViewer',
-      isMinimized: false,
-      isMaximized: false,
-      position: { x: 200, y: 100 },
-      size: { width: 600, height: 400 },
-      filePath: '/Desktop/Resume.pdf',
     });
   });
 
@@ -399,14 +353,6 @@ describe('DesktopIcons Component', () => {
               position: { x: 50, y: 50 },
             },
             {
-              id: 'test-pdf',
-              name: 'test.pdf',
-              type: 'file',
-              path: '/Desktop/test.pdf',
-              icon: 'file',
-              position: { x: 150, y: 50 },
-            },
-            {
               id: 'test-md',
               name: 'test.md',
               type: 'file',
@@ -431,7 +377,6 @@ describe('DesktopIcons Component', () => {
 
     // Verify different file types are rendered
     expect(screen.getByText('test.txt')).toBeInTheDocument();
-    expect(screen.getByText('test.pdf')).toBeInTheDocument();
     expect(screen.getByText('test.md')).toBeInTheDocument();
     expect(screen.getByText('test.xyz')).toBeInTheDocument();
   });
