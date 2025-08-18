@@ -32,9 +32,7 @@ export const AboutApp: React.FC = () => {
         {/* Header Section */}
         <header className="about-header">
           <div className="about-avatar">
-            <div className="avatar-placeholder">
-              👨‍💻
-            </div>
+            <div className="avatar-placeholder">👨‍💻</div>
           </div>
           <div className="about-basic-info">
             <h1 className="about-name">Thalison Costa</h1>
@@ -46,15 +44,11 @@ export const AboutApp: React.FC = () => {
         <section className="about-section">
           <h2 className="section-title">Contact Information</h2>
           <div className="contact-links">
-            <a 
-              href="mailto:thalisoncosta123@gmail.com"
-              className="contact-link"
-              aria-label="Send email"
-            >
+            <a href="mailto:thalisoncosta123@gmail.com" className="contact-link" aria-label="Send email">
               <span className="contact-icon">📧</span>
               <span>thalisoncosta123@gmail.com</span>
             </a>
-            <a 
+            <a
               href="https://github.com/ThalisonCosta"
               target="_blank"
               rel="noopener noreferrer"
@@ -64,7 +58,7 @@ export const AboutApp: React.FC = () => {
               <span className="contact-icon">🐙</span>
               <span>GitHub Profile</span>
             </a>
-            <a 
+            <a
               href="https://www.linkedin.com/in/thalison-costa/"
               target="_blank"
               rel="noopener noreferrer"
@@ -81,19 +75,11 @@ export const AboutApp: React.FC = () => {
         <section className="about-section">
           <h2 className="section-title">Curriculum Vitae</h2>
           <div className="cv-actions">
-            <button 
-              onClick={handlePreviewCV}
-              className="cv-button cv-preview"
-              aria-label="Preview CV in browser"
-            >
+            <button onClick={handlePreviewCV} className="cv-button cv-preview" aria-label="Preview CV in browser">
               <span className="button-icon">👁️</span>
               View CV
             </button>
-            <button 
-              onClick={handleDownloadCV}
-              className="cv-button cv-download"
-              aria-label="Download CV as PDF"
-            >
+            <button onClick={handleDownloadCV} className="cv-button cv-download" aria-label="Download CV as PDF">
               <span className="button-icon">⬇️</span>
               Download CV
             </button>
@@ -139,12 +125,12 @@ export const AboutApp: React.FC = () => {
           <h2 className="section-title">About Me</h2>
           <div className="about-description">
             <p>
-              Passionate software developer with experience in full-stack development.
-              I enjoy creating innovative solutions and learning new technologies.
+              Passionate software developer with experience in full-stack development. I enjoy creating innovative
+              solutions and learning new technologies.
             </p>
             <p>
-              Currently working on various projects involving React, TypeScript, and modern web technologies.
-              Always eager to collaborate on interesting projects and share knowledge with the community.
+              Currently working on various projects involving React, TypeScript, and modern web technologies. Always
+              eager to collaborate on interesting projects and share knowledge with the community.
             </p>
           </div>
         </section>
