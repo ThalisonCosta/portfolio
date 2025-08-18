@@ -27,7 +27,8 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0, windowX: 0, windowY: 0 });
+  const [resizeDirection, setResizeDirection] = useState('');
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
@@ -44,18 +45,21 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
   );
 
   const handleResizeMouseDown = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.MouseEvent, direction: string) => {
       e.stopPropagation();
       bringToFront(windowState.id);
       setIsResizing(true);
+      setResizeDirection(direction);
       setResizeStart({
         x: e.clientX,
         y: e.clientY,
         width: windowState.size.width,
         height: windowState.size.height,
+        windowX: windowState.position.x,
+        windowY: windowState.position.y,
       });
     },
-    [windowState.id, windowState.size, bringToFront]
+    [windowState.id, windowState.size, windowState.position, bringToFront]
   );
 
   const handleMouseMove = useCallback(
@@ -73,14 +77,68 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
         const minWidth = windowState.component === 'calculator' ? 280 : 300;
         const minHeight = windowState.component === 'calculator' ? 430 : 200;
 
-        const newWidth = Math.max(minWidth, resizeStart.width + deltaX);
-        const newHeight = Math.max(minHeight, resizeStart.height + deltaY);
+        let newWidth = resizeStart.width;
+        let newHeight = resizeStart.height;
+        let newX = resizeStart.windowX;
+        let newY = resizeStart.windowY;
+
+        // Handle different resize directions
+        switch (resizeDirection) {
+          case 'right':
+            newWidth = Math.max(minWidth, resizeStart.width + deltaX);
+            break;
+          case 'left':
+            newWidth = Math.max(minWidth, resizeStart.width - deltaX);
+            newX = Math.min(resizeStart.windowX + deltaX, resizeStart.windowX + resizeStart.width - minWidth);
+            break;
+          case 'bottom':
+            newHeight = Math.max(minHeight, resizeStart.height + deltaY);
+            break;
+          case 'top':
+            newHeight = Math.max(minHeight, resizeStart.height - deltaY);
+            newY = Math.min(resizeStart.windowY + deltaY, resizeStart.windowY + resizeStart.height - minHeight);
+            break;
+          case 'bottom-right':
+            newWidth = Math.max(minWidth, resizeStart.width + deltaX);
+            newHeight = Math.max(minHeight, resizeStart.height + deltaY);
+            break;
+          case 'bottom-left':
+            newWidth = Math.max(minWidth, resizeStart.width - deltaX);
+            newHeight = Math.max(minHeight, resizeStart.height + deltaY);
+            newX = Math.min(resizeStart.windowX + deltaX, resizeStart.windowX + resizeStart.width - minWidth);
+            break;
+          case 'top-right':
+            newWidth = Math.max(minWidth, resizeStart.width + deltaX);
+            newHeight = Math.max(minHeight, resizeStart.height - deltaY);
+            newY = Math.min(resizeStart.windowY + deltaY, resizeStart.windowY + resizeStart.height - minHeight);
+            break;
+          case 'top-left':
+            newWidth = Math.max(minWidth, resizeStart.width - deltaX);
+            newHeight = Math.max(minHeight, resizeStart.height - deltaY);
+            newX = Math.min(resizeStart.windowX + deltaX, resizeStart.windowX + resizeStart.width - minWidth);
+            newY = Math.min(resizeStart.windowY + deltaY, resizeStart.windowY + resizeStart.height - minHeight);
+            break;
+          default:
+            // Default case for bottom-right (original behavior)
+            newWidth = Math.max(minWidth, resizeStart.width + deltaX);
+            newHeight = Math.max(minHeight, resizeStart.height + deltaY);
+            break;
+        }
+
+        // Apply boundary constraints
+        newX = Math.max(0, Math.min(window.innerWidth - newWidth, newX));
+        newY = Math.max(0, Math.min(window.innerHeight - newHeight - 48, newY)); // 48px for taskbar
+
         updateWindowSize(windowState.id, { width: newWidth, height: newHeight });
+        if (newX !== resizeStart.windowX || newY !== resizeStart.windowY) {
+          updateWindowPosition(windowState.id, { x: newX, y: newY });
+        }
       }
     },
     [
       isDragging,
       isResizing,
+      resizeDirection,
       windowState.id,
       windowState.isMaximized,
       windowState.isResizable,
@@ -96,6 +154,7 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
     setIsResizing(false);
+    setResizeDirection('');
   }, []);
 
   useEffect(() => {
@@ -196,19 +255,67 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
       </div>
 
       {!windowState.isMaximized && windowState.isResizable !== false && (
-        <div
-          className="window-resize-handle"
-          onMouseDown={handleResizeMouseDown}
-          role="button"
-          aria-label="Resize window"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              // Focus handling for keyboard resize could be implemented here
-            }
-          }}
-        />
+        <>
+          {/* Edge handles */}
+          <div
+            className="resize-handle resize-handle-top"
+            onMouseDown={(e) => handleResizeMouseDown(e, 'top')}
+            role="button"
+            aria-label="Resize window from top"
+            tabIndex={0}
+          />
+          <div
+            className="resize-handle resize-handle-right"
+            onMouseDown={(e) => handleResizeMouseDown(e, 'right')}
+            role="button"
+            aria-label="Resize window from right"
+            tabIndex={0}
+          />
+          <div
+            className="resize-handle resize-handle-bottom"
+            onMouseDown={(e) => handleResizeMouseDown(e, 'bottom')}
+            role="button"
+            aria-label="Resize window from bottom"
+            tabIndex={0}
+          />
+          <div
+            className="resize-handle resize-handle-left"
+            onMouseDown={(e) => handleResizeMouseDown(e, 'left')}
+            role="button"
+            aria-label="Resize window from left"
+            tabIndex={0}
+          />
+
+          {/* Corner handles */}
+          <div
+            className="resize-handle resize-handle-top-left"
+            onMouseDown={(e) => handleResizeMouseDown(e, 'top-left')}
+            role="button"
+            aria-label="Resize window from top-left"
+            tabIndex={0}
+          />
+          <div
+            className="resize-handle resize-handle-top-right"
+            onMouseDown={(e) => handleResizeMouseDown(e, 'top-right')}
+            role="button"
+            aria-label="Resize window from top-right"
+            tabIndex={0}
+          />
+          <div
+            className="resize-handle resize-handle-bottom-left"
+            onMouseDown={(e) => handleResizeMouseDown(e, 'bottom-left')}
+            role="button"
+            aria-label="Resize window from bottom-left"
+            tabIndex={0}
+          />
+          <div
+            className="resize-handle resize-handle-bottom-right"
+            onMouseDown={(e) => handleResizeMouseDown(e, 'bottom-right')}
+            role="button"
+            aria-label="Resize window from bottom-right"
+            tabIndex={0}
+          />
+        </>
       )}
     </div>
   );

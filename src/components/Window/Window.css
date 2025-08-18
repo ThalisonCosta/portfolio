@@ -86,12 +86,80 @@
   position: relative;
 }
 
-.window-resize-handle {
+/* Resize handles for all 8 directions */
+.resize-handle {
   position: absolute;
+  background: transparent;
+  z-index: 10;
+}
+
+.resize-handle:hover {
+  background: rgba(0, 120, 212, 0.1);
+}
+
+/* Edge handles */
+.resize-handle-top {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  cursor: n-resize;
+}
+
+.resize-handle-right {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 4px;
+  cursor: e-resize;
+}
+
+.resize-handle-bottom {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  cursor: s-resize;
+}
+
+.resize-handle-left {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+  cursor: w-resize;
+}
+
+/* Corner handles */
+.resize-handle-top-left {
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  cursor: nw-resize;
+}
+
+.resize-handle-top-right {
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  cursor: ne-resize;
+}
+
+.resize-handle-bottom-left {
+  bottom: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  cursor: sw-resize;
+}
+
+.resize-handle-bottom-right {
   bottom: 0;
   right: 0;
-  width: 16px;
-  height: 16px;
+  width: 8px;
+  height: 8px;
   cursor: se-resize;
   background: linear-gradient(
     -45deg,
@@ -106,7 +174,7 @@
   );
 }
 
-.window-resize-handle:hover {
+.resize-handle-bottom-right:hover {
   background: linear-gradient(
     -45deg,
     transparent 30%,
@@ -145,9 +213,22 @@
     font-size: 12px;
   }
 
-  .window-resize-handle {
-    width: 20px;
-    height: 20px;
+  .resize-handle-top,
+  .resize-handle-bottom {
+    height: 6px;
+  }
+
+  .resize-handle-left,
+  .resize-handle-right {
+    width: 6px;
+  }
+
+  .resize-handle-top-left,
+  .resize-handle-top-right,
+  .resize-handle-bottom-left,
+  .resize-handle-bottom-right {
+    width: 12px;
+    height: 12px;
   }
 }
 
@@ -173,9 +254,22 @@
     font-size: 11px;
   }
 
-  .window-resize-handle {
-    width: 18px;
-    height: 18px;
+  .resize-handle-top,
+  .resize-handle-bottom {
+    height: 5px;
+  }
+
+  .resize-handle-left,
+  .resize-handle-right {
+    width: 5px;
+  }
+
+  .resize-handle-top-left,
+  .resize-handle-top-right,
+  .resize-handle-bottom-left,
+  .resize-handle-bottom-right {
+    width: 10px;
+    height: 10px;
   }
 }
 
