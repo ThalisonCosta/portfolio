@@ -90,7 +90,12 @@ export const Taskbar: React.FC = React.memo(() => {
   return (
     <>
       <div className="taskbar">
-        <div className="taskbar-left">
+        <div className="taskbar-left"></div>
+
+        <div className="taskbar-center">
+          <button className="start-button" onClick={toggleStartMenu} aria-label="Start menu">
+            <img src={win11Logo} alt="Windows 11" className="start-icon" />
+          </button>
           <div className="taskbar-apps">
             {windows.slice(0, 8).map((window) => (
               <button
@@ -105,12 +110,6 @@ export const Taskbar: React.FC = React.memo(() => {
               </button>
             ))}
           </div>
-        </div>
-
-        <div className="taskbar-center">
-          <button className="start-button" onClick={toggleStartMenu} aria-label="Start menu">
-            <img src={win11Logo} alt="Windows 11" className="start-icon" />
-          </button>
         </div>
 
         <div className="taskbar-right">

@@ -24,7 +24,6 @@
   display: flex;
   align-items: center;
   gap: 2px;
-  margin-right: 8px;
 }
 
 .start-button {
@@ -72,6 +71,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
 }
 
 .taskbar-item {
@@ -170,8 +170,8 @@
     padding: 0 12px;
   }
 
-  .taskbar-apps {
-    margin-right: 4px;
+  .taskbar-center {
+    gap: 6px;
   }
 
   .taskbar-item {
@@ -206,6 +206,10 @@
 @media (max-width: 480px) {
   .taskbar {
     padding: 0 8px;
+  }
+
+  .taskbar-center {
+    gap: 4px;
   }
 
   .taskbar-item {
