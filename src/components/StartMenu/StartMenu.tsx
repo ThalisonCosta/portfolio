@@ -4,6 +4,27 @@ import { useI18n } from '../../i18n/hooks';
 import './StartMenu.css';
 
 /**
+ * Maps component names to their corresponding icons
+ */
+const getComponentIcon = (componentName: string): string => {
+  const iconMap: Record<string, string> = {
+    explorer: '📁',
+    about: '👨‍💻',
+    projects: '💼',
+    contact: '📧',
+    settings: '⚙️',
+    calculator: '🧮',
+    terminal: '🖥️',
+    TextEditor: '📝',
+    SettingsApp: '⚙️',
+    FileExplorer: '📁',
+    FileViewer: '📄',
+    TextEditorApp: '📝',
+  };
+  return iconMap[componentName] || '📄';
+};
+
+/**
  * StartMenu component that displays a Windows-like start menu with pinned applications,
  * recommended items, and power options. Handles click-outside behavior to close the menu
  * and provides application launching functionality.
@@ -42,6 +63,7 @@ export const StartMenu: React.FC = React.memo(() => {
     const windowConfig = {
       title: appName,
       component,
+      icon: getComponentIcon(component),
       isMinimized: false,
       isMaximized: false,
       position: { x: 100 + offset, y: 100 + offset },

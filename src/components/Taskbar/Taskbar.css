@@ -76,19 +76,17 @@
 
 .taskbar-item {
   height: 32px;
-  min-width: 40px;
-  max-width: 120px;
+  width: 40px;
   background: transparent;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  padding: 0 8px;
+  padding: 0;
   color: var(--text-primary);
-  font-size: 12px;
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s ease;
 }
 
@@ -102,6 +100,12 @@
   background: var(--accent);
   color: white;
   transform: scale(0.98);
+}
+
+.taskbar-icon {
+  font-size: 16px;
+  line-height: 1;
+  display: block;
 }
 
 .taskbar-right {
@@ -171,10 +175,12 @@
   }
 
   .taskbar-item {
-    min-width: 32px;
-    max-width: 80px;
-    padding: 0 6px;
-    font-size: 11px;
+    width: 36px;
+    height: 30px;
+  }
+
+  .taskbar-icon {
+    font-size: 14px;
   }
 
   .start-button {
@@ -203,9 +209,12 @@
   }
 
   .taskbar-item {
-    min-width: 28px;
-    max-width: 60px;
-    font-size: 10px;
+    width: 32px;
+    height: 28px;
+  }
+
+  .taskbar-icon {
+    font-size: 12px;
   }
 
   .start-button {

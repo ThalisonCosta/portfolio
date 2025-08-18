@@ -13,6 +13,8 @@ export interface WindowState {
   title: string;
   /** Component name to render inside the window */
   component: string;
+  /** Icon to display in the taskbar */
+  icon?: string;
   /** Whether the window is currently open */
   isOpen: boolean;
   /** Whether the window is minimized to the taskbar */

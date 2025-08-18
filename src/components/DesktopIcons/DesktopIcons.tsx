@@ -28,6 +28,27 @@ interface DesktopIconsProps {
 }
 
 /**
+ * Maps component names to their corresponding icons
+ */
+const getComponentIcon = (componentName: string): string => {
+  const iconMap: Record<string, string> = {
+    explorer: '📁',
+    about: '👨‍💻',
+    projects: '💼',
+    contact: '📧',
+    settings: '⚙️',
+    calculator: '🧮',
+    terminal: '🖥️',
+    TextEditor: '📝',
+    SettingsApp: '⚙️',
+    FileExplorer: '📁',
+    FileViewer: '📄',
+    TextEditorApp: '📝',
+  };
+  return iconMap[componentName] || '📄';
+};
+
+/**
  * DesktopIcons component that renders draggable icons on the desktop.
  * Handles icon interactions like double-click to open applications,
  * drag and drop positioning, and visual feedback for drag operations.
@@ -71,6 +92,7 @@ export const DesktopIcons: React.FC<DesktopIconsProps> = React.memo(({ onRename,
         openWindow({
           title: item.name,
           component,
+          icon: getComponentIcon(component),
           isMinimized: false,
           isMaximized: false,
           position: { x: 200, y: 100 },
@@ -81,6 +103,7 @@ export const DesktopIcons: React.FC<DesktopIconsProps> = React.memo(({ onRename,
         openWindow({
           title: `File Explorer - ${item.name}`,
           component: 'FileExplorer',
+          icon: getComponentIcon('FileExplorer'),
           isMinimized: false,
           isMaximized: false,
           position: { x: 150, y: 80 },
@@ -143,6 +166,7 @@ export const DesktopIcons: React.FC<DesktopIconsProps> = React.memo(({ onRename,
       openWindow({
         title: `TextEditor - ${item.name}`,
         component: 'TextEditorApp',
+        icon: getComponentIcon('TextEditorApp'),
         isMinimized: false,
         isMaximized: false,
         position: { x: 250, y: 150 },

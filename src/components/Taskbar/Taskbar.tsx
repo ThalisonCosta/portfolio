@@ -99,7 +99,9 @@ export const Taskbar: React.FC = React.memo(() => {
                 onClick={() => handleTaskbarClick(window.id)}
                 title={window.title}
               >
-                {window.title}
+                <span className="taskbar-icon" aria-hidden="true">
+                  {window.icon || '📄'}
+                </span>
               </button>
             ))}
           </div>
