@@ -61,7 +61,8 @@
     "fileExplorer": "File Explorer",
     "textEditor": "Text Editor",
     "settings": "Settings",
-    "pinned": "Pinned"
+    "pinned": "Pinned",
+    "recommended": "Recommended"
   },
   "contextMenu": {
     "newFolder": "New Folder",

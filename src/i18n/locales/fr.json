@@ -61,7 +61,8 @@
     "fileExplorer": "Explorateur de fichiers",
     "textEditor": "Éditeur de texte",
     "settings": "Paramètres",
-    "pinned": "Épinglées"
+    "pinned": "Épinglées",
+    "recommended": "Recommandées"
   },
   "contextMenu": {
     "newFolder": "Nouveau dossier",

@@ -107,28 +107,6 @@ export const StartMenu: React.FC = React.memo(() => {
             <div className="app-grid" role="grid" aria-label="Pinned applications">
               <button
                 className="app-button"
-                onClick={() => handleAppClick(t('taskbar.fileExplorer'), 'explorer')}
-                aria-label={t('taskbar.fileExplorer')}
-                type="button"
-              >
-                <span className="app-icon" aria-hidden="true">
-                  📁
-                </span>
-                <span className="app-name">{t('taskbar.fileExplorer')}</span>
-              </button>
-              <button
-                className="app-button"
-                onClick={() => handleAppClick('About', 'about')}
-                aria-label="Open About"
-                type="button"
-              >
-                <span className="app-icon" aria-hidden="true">
-                  📄
-                </span>
-                <span className="app-name">About</span>
-              </button>
-              <button
-                className="app-button"
                 onClick={() => handleAppClick('Projects', 'projects')}
                 aria-label="Open Projects"
                 type="button"
@@ -148,28 +126,6 @@ export const StartMenu: React.FC = React.memo(() => {
                   👨‍💻
                 </span>
                 <span className="app-name">About</span>
-              </button>
-              <button
-                className="app-button"
-                onClick={() => handleAppClick('Contact', 'contact')}
-                aria-label="Open Contact"
-                type="button"
-              >
-                <span className="app-icon" aria-hidden="true">
-                  📧
-                </span>
-                <span className="app-name">Contact</span>
-              </button>
-              <button
-                className="app-button"
-                onClick={() => handleAppClick(t('taskbar.settings'), 'settings')}
-                aria-label={t('taskbar.settings')}
-                type="button"
-              >
-                <span className="app-icon" aria-hidden="true">
-                  ⚙️
-                </span>
-                <span className="app-name">{t('taskbar.settings')}</span>
               </button>
               <button
                 className="app-button"
@@ -204,11 +160,22 @@ export const StartMenu: React.FC = React.memo(() => {
                 </span>
                 <span className="app-name">{t('taskbar.textEditor')}</span>
               </button>
+              <button
+                className="app-button"
+                onClick={() => handleAppClick(t('taskbar.settings'), 'settings')}
+                aria-label={t('taskbar.settings')}
+                type="button"
+              >
+                <span className="app-icon" aria-hidden="true">
+                  ⚙️
+                </span>
+                <span className="app-name">{t('taskbar.settings')}</span>
+              </button>
             </div>
           </div>
 
           <div className="recommended-section">
-            <h3>Recommended</h3>
+            <h3>{t('taskbar.recommended')}</h3>
             <div className="recommended-items" role="list" aria-label="Recommended items">
               <div
                 className="recommended-item"

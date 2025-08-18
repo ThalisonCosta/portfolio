@@ -61,7 +61,8 @@
     "fileExplorer": "Explorador de archivos",
     "textEditor": "Editor de texto",
     "settings": "Configuración",
-    "pinned": "Ancladas"
+    "pinned": "Ancladas",
+    "recommended": "Recomendados"
   },
   "contextMenu": {
     "newFolder": "Nueva carpeta",

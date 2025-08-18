@@ -63,7 +63,8 @@
     "fileExplorer": "Explorador de arquivos",
     "textEditor": "Editor de texto",
     "settings": "Configurações",
-    "pinned": "Fixados"
+    "pinned": "Fixados",
+    "recommended": "Recomendados"
   },
   "contextMenu": {
     "newFolder": "Nova pasta",
