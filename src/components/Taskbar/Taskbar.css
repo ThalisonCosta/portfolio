@@ -88,6 +88,7 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+  position: relative;
 }
 
 .taskbar-item:hover {
@@ -95,10 +96,7 @@
   transform: scale(1.02);
 }
 
-.taskbar-item:active,
-.taskbar-item.active {
-  background: var(--accent);
-  color: white;
+.taskbar-item:active {
   transform: scale(0.98);
 }
 
@@ -106,6 +104,36 @@
   font-size: 16px;
   line-height: 1;
   display: block;
+}
+
+.pinned-item {
+  /* Pinned items share the same styling as regular taskbar items */
+  /* This class can be used for future customizations if needed */
+}
+
+/* Windows 11-style bottom dash indicators */
+.taskbar-item.open::after {
+  content: '';
+  position: absolute;
+  bottom: 1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 2px;
+  background: #666;
+  border-radius: 3px;
+}
+
+.taskbar-item.focused::after {
+  content: '';
+  position: absolute;
+  bottom: 1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 3px;
+  background: #0078d4;
+  border-radius: 3px;
 }
 
 .taskbar-right {
