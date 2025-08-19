@@ -38,11 +38,11 @@ describe('ProjectsApp Component', () => {
     expect(screen.getByText('Featured')).toBeInTheDocument();
 
     // Check project cards
-    expect(screen.getByText('Qualvaiser')).toBeInTheDocument();
+    expect(screen.getByText('QualVaiSer')).toBeInTheDocument();
     expect(screen.getByText('Windows Desktop Portfolio')).toBeInTheDocument();
 
     // Check project descriptions
-    expect(screen.getByText(/Modern financial management platform/)).toBeInTheDocument();
+    expect(screen.getByText(/Torne seu Chá de Bebê ainda mais especial/)).toBeInTheDocument();
     expect(screen.getByText(/Interactive Windows 11-inspired portfolio/)).toBeInTheDocument();
   });
 
@@ -91,10 +91,10 @@ describe('ProjectsApp Component', () => {
     const searchInput = screen.getByPlaceholderText('Search projects, technologies...');
     expect(searchInput).toBeInTheDocument();
 
-    // Search for "Qualvaiser"
-    await user.type(searchInput, 'Qualvaiser');
+    // Search for "QualVaiSer"
+    await user.type(searchInput, 'QualVaiSer');
 
-    expect(screen.getByText('Qualvaiser')).toBeInTheDocument();
+    expect(screen.getByText('QualVaiSer')).toBeInTheDocument();
     expect(screen.queryByText('Windows Desktop Portfolio')).not.toBeInTheDocument();
 
     // Clear search and search for "React"
@@ -102,7 +102,7 @@ describe('ProjectsApp Component', () => {
     await user.type(searchInput, 'React');
 
     // Both projects use React
-    expect(screen.getByText('Qualvaiser')).toBeInTheDocument();
+    expect(screen.getByText('QualVaiSer')).toBeInTheDocument();
     expect(screen.getByText('Windows Desktop Portfolio')).toBeInTheDocument();
 
     // Search for non-existent term
@@ -123,7 +123,7 @@ describe('ProjectsApp Component', () => {
     // Filter by web category (both projects are web)
     await user.selectOptions(categorySelect, 'web');
 
-    expect(screen.getByText('Qualvaiser')).toBeInTheDocument();
+    expect(screen.getByText('QualVaiSer')).toBeInTheDocument();
     expect(screen.getByText('Windows Desktop Portfolio')).toBeInTheDocument();
   });
 
@@ -137,15 +137,15 @@ describe('ProjectsApp Component', () => {
     // Sort by name
     await user.selectOptions(sortSelect, 'name');
 
-    const projectCards = screen.getAllByText(/Qualvaiser|Windows Desktop Portfolio/);
-    // Should be sorted alphabetically: Qualvaiser, Windows Desktop Portfolio
-    expect(projectCards[0]).toHaveTextContent('Qualvaiser');
+    const projectCards = screen.getAllByText(/QualVaiSer|Windows Desktop Portfolio/);
+    // Should be sorted alphabetically: QualVaiSer, Windows Desktop Portfolio
+    expect(projectCards[0]).toHaveTextContent('QualVaiSer');
 
     // Sort by recent
     await user.selectOptions(sortSelect, 'recent');
 
     // Both projects should still be visible
-    expect(screen.getByText('Qualvaiser')).toBeInTheDocument();
+    expect(screen.getByText('QualVaiSer')).toBeInTheDocument();
     expect(screen.getByText('Windows Desktop Portfolio')).toBeInTheDocument();
   });
 
@@ -156,7 +156,7 @@ describe('ProjectsApp Component', () => {
 
     render(<ProjectsApp />);
 
-    const qualvaiserCard = screen.getByText('Qualvaiser').closest('.projects-project-card');
+    const qualvaiserCard = screen.getByText('QualVaiSer').closest('.projects-project-card');
     expect(qualvaiserCard).toBeInTheDocument();
 
     fireEvent.click(qualvaiserCard!);
@@ -196,7 +196,7 @@ describe('ProjectsApp Component', () => {
     expect(featuresHeaders).toHaveLength(2);
 
     // Check for specific features
-    expect(screen.getByText('Real-time expense tracking')).toBeInTheDocument();
+    expect(screen.getByText('Criação de bolões personalizados para chá de bebê')).toBeInTheDocument();
     expect(screen.getByText('Windows 11-style interface')).toBeInTheDocument();
     expect(screen.getByText('Interactive desktop environment')).toBeInTheDocument();
   });

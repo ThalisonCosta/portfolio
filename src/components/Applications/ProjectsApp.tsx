@@ -28,10 +28,11 @@ export interface RealProject {
 const REAL_PROJECTS: RealProject[] = [
   {
     id: 'qualvaiser',
-    name: 'Qualvaiser',
-    description: 'Modern financial management platform with intuitive interface and powerful analytics',
+    name: 'QualVaiSer',
+    description:
+      'Torne seu Chá de Bebê ainda mais especial! Crie um bolão divertido para seu chá de bebê! Seus convidados fazem palpites sobre sexo, data de nascimento, peso e altura do bebê. Uma forma única de tornar a espera ainda mais emocionante! 💕',
     longDescription:
-      'Qualvaiser is a comprehensive financial management platform designed to help users track expenses, manage budgets, and gain insights into their financial habits. Built with modern web technologies and a focus on user experience.',
+      'QualVaiSer é uma plataforma interativa para criar bolões de chá de bebê, onde os convidados podem fazer seus palpites sobre o bebê que está chegando. A aplicação permite que os organizadores criem apostas divertidas sobre sexo, data de nascimento, peso e altura do bebê, criando uma experiência única e envolvente para todos os participantes.',
     websiteUrl: 'https://qualvaiser.com/',
     technologies: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'AWS'],
     category: 'web',
@@ -40,11 +41,11 @@ const REAL_PROJECTS: RealProject[] = [
     dateCreated: '2023-01-15',
     dateUpdated: '2024-12-15',
     features: [
-      'Real-time expense tracking',
-      'Budget management',
-      'Financial analytics dashboard',
-      'Multi-currency support',
-      'Data export and reporting',
+      'Criação de bolões personalizados para chá de bebê',
+      'Palpites sobre sexo, data, peso e altura do bebê',
+      'Interface intuitiva e divertida',
+      'Acompanhamento em tempo real dos palpites',
+      'Relatórios e ranking dos participantes',
     ],
     sourceCodeUrl: undefined,
   },
@@ -120,7 +121,8 @@ export const ProjectsApp: React.FC = () => {
       // Then sort by selected criteria
       switch (sortBy) {
         case 'featured':
-          return a.featured === b.featured ? 0 : a.featured ? -1 : 1;
+          if (a.featured === b.featured) return 0;
+          return a.featured ? -1 : 1;
         case 'recent':
           return new Date(b.dateUpdated).getTime() - new Date(a.dateUpdated).getTime();
         case 'name':
@@ -252,7 +254,9 @@ export const ProjectsApp: React.FC = () => {
 
               <div className="projects-project-status">
                 <span className={`projects-status-indicator ${project.status}`}>
-                  {project.status === 'live' ? '🟢' : project.status === 'development' ? '🟡' : '🔴'}
+                  {project.status === 'live' && '🟢'}
+                  {project.status === 'development' && '🟡'}
+                  {project.status === 'archived' && '🔴'}
                   {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
                 </span>
               </div>
@@ -263,7 +267,7 @@ export const ProjectsApp: React.FC = () => {
                   {project.sourceCodeUrl && (
                     <button
                       className="projects-source-btn"
-                      onClick={(e) => handleSourceCodeClick(e, project.sourceCodeUrl!)}
+                      onClick={(e) => handleSourceCodeClick(e, project.sourceCodeUrl || '')}
                       title="View Source Code"
                     >
                       💻
@@ -272,48 +276,46 @@ export const ProjectsApp: React.FC = () => {
                 </div>
               </div>
 
-              <p className="projects-project-description">{project.description}</p>
+              <div className="projects-project-content">
+                <p className="projects-project-description">{project.description}</p>
 
-              {project.longDescription && (
-                <div className="projects-project-features">
-                  <h4>Key Features:</h4>
-                  <ul>
-                    {project.features.slice(0, 3).map((feature: string, index: number) => (
-                      <li key={index}>{feature}</li>
-                    ))}
-                    {project.features.length > 3 && (
-                      <li className="projects-more-features">+{project.features.length - 3} more features</li>
-                    )}
-                  </ul>
-                </div>
-              )}
-
-              <div className="projects-project-footer">
-                <div className="projects-project-category">
-                  <span className="projects-category-tag">{project.category}</span>
-                </div>
-                <div className="projects-project-updated">
-                  Updated {new Date(project.dateUpdated).toLocaleDateString()}
-                </div>
-              </div>
-
-              <div className="projects-project-technologies">
-                {project.technologies.slice(0, 4).map((tech: string) => (
-                  <span
-                    key={tech}
-                    className="projects-tech-tag"
-                    style={{ backgroundColor: getTechnologyColor(tech) + '20', color: getTechnologyColor(tech) }}
-                  >
-                    {tech}
-                  </span>
-                ))}
-                {project.technologies.length > 4 && (
-                  <span className="projects-tech-more">+{project.technologies.length - 4}</span>
+                {project.longDescription && (
+                  <div className="projects-project-features">
+                    <h4>Key Features:</h4>
+                    <ul>
+                      {project.features.map((feature: string, index: number) => (
+                        <li key={index}>{feature}</li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
               </div>
 
-              <div className="projects-website-preview">
-                <div className="projects-preview-placeholder">🌐 Click to visit website</div>
+              <div className="projects-project-bottom">
+                <div className="projects-project-footer">
+                  <div className="projects-project-category">
+                    <span className="projects-category-tag">{project.category}</span>
+                  </div>
+                  <div className="projects-project-updated">
+                    Updated {new Date(project.dateUpdated).toLocaleDateString()}
+                  </div>
+                </div>
+
+                <div className="projects-project-technologies">
+                  {project.technologies.map((tech: string) => (
+                    <span
+                      key={tech}
+                      className="projects-tech-tag"
+                      style={{ backgroundColor: `${getTechnologyColor(tech)}20`, color: getTechnologyColor(tech) }}
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="projects-website-preview">
+                  <div className="projects-preview-placeholder">🌐 Click to visit website</div>
+                </div>
               </div>
             </div>
           ))
