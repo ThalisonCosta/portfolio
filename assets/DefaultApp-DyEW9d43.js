@@ -1,0 +1,1 @@
+import{j as e}from"./index-CfIfUREF.js";const s=({component:t})=>e.jsxs("div",{style:{padding:"16px",height:"100%",overflow:"auto"},children:[e.jsx("h3",{children:t}),e.jsx("p",{children:"This application is not yet implemented."})]});export{s as DefaultApp,s as default};
