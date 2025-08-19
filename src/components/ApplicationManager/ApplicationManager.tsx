@@ -181,7 +181,41 @@ export const ApplicationManager: React.FC<ApplicationManagerProps> = ({ componen
 
   return (
     <div className="application-container">
-      <ErrorBoundary>
+      <ErrorBoundary
+        fallback={
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              flexDirection: 'column',
+              gap: '16px',
+              padding: '20px',
+              textAlign: 'center',
+            }}
+          >
+            <div style={{ fontSize: '48px' }}>⚠️</div>
+            <h3 style={{ margin: 0, color: '#d13438' }}>Application Load Error</h3>
+            <p style={{ margin: 0, color: '#666' }}>
+              Failed to load {component}. This might be due to a network issue or missing chunk files.
+            </p>
+            <button
+              onClick={() => globalThis.location?.reload()}
+              style={{
+                padding: '8px 16px',
+                background: '#0078d4',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              Refresh Page
+            </button>
+          </div>
+        }
+      >
         <Suspense
           fallback={
             <div
