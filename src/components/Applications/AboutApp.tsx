@@ -294,8 +294,9 @@ export const AboutApp: React.FC = () => {
    * Handle CV download
    */
   const handleDownloadCV = () => {
+    const baseUrl = import.meta.env.BASE_URL;
     const link = document.createElement('a');
-    link.href = '/cv.pdf';
+    link.href = `${baseUrl}cv.pdf`;
     link.download = 'Thalison_Costa_CV.pdf';
     link.click();
   };
@@ -304,7 +305,8 @@ export const AboutApp: React.FC = () => {
    * Handle CV preview in new tab
    */
   const handlePreviewCV = () => {
-    window.open('/cv.pdf', '_blank', 'noopener,noreferrer');
+    const baseUrl = import.meta.env.BASE_URL;
+    window.open(`${baseUrl}cv.pdf`, '_blank', 'noopener,noreferrer');
   };
 
   return (
