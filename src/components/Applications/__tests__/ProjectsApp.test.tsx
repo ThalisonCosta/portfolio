@@ -1,7 +1,7 @@
 /** @jsxImportSource react */
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ProjectsApp, type GitHubRepository, type GitHubUser, type PinnedRepository } from '../ProjectsApp';
+import { ProjectsApp } from '../ProjectsApp';
 
 // Mock useDesktopStore
 const mockUseDesktopStore = {
@@ -12,98 +12,8 @@ jest.mock('../../../stores/useDesktopStore', () => ({
   useDesktopStore: () => mockUseDesktopStore,
 }));
 
-// Mock fetch
-const mockFetch = jest.fn();
-global.fetch = mockFetch;
-
-// Mock data
-const mockGitHubUser: GitHubUser = {
-  login: 'ThalisonCosta',
-  name: 'Thalison Costa',
-  bio: 'Full Stack Developer',
-  avatar_url: 'https://avatars.githubusercontent.com/u/123456',
-  public_repos: 25,
-  followers: 100,
-  following: 50,
-  company: 'Tech Company',
-  location: 'Brazil',
-  blog: 'https://example.com',
-  html_url: 'https://github.com/ThalisonCosta',
-};
-
-const mockRepositories: GitHubRepository[] = [
-  {
-    id: 1,
-    name: 'awesome-project',
-    full_name: 'ThalisonCosta/awesome-project',
-    description: 'An awesome React project',
-    html_url: 'https://github.com/ThalisonCosta/awesome-project',
-    stargazers_count: 50,
-    forks_count: 10,
-    language: 'TypeScript',
-    topics: ['react', 'typescript', 'frontend'],
-    updated_at: '2024-01-15T10:00:00Z',
-    created_at: '2023-12-01T10:00:00Z',
-    pushed_at: '2024-01-15T10:00:00Z',
-    homepage: 'https://awesome-project.com',
-    archived: false,
-    disabled: false,
-    fork: false,
-  },
-  {
-    id: 2,
-    name: 'backend-api',
-    full_name: 'ThalisonCosta/backend-api',
-    description: 'Node.js API server',
-    html_url: 'https://github.com/ThalisonCosta/backend-api',
-    stargazers_count: 25,
-    forks_count: 5,
-    language: 'JavaScript',
-    topics: ['nodejs', 'api', 'backend'],
-    updated_at: '2024-01-10T10:00:00Z',
-    created_at: '2023-11-01T10:00:00Z',
-    pushed_at: '2024-01-10T10:00:00Z',
-    homepage: null,
-    archived: false,
-    disabled: false,
-    fork: false,
-  },
-  {
-    id: 3,
-    name: 'fork-project',
-    full_name: 'ThalisonCosta/fork-project',
-    description: 'Forked repository',
-    html_url: 'https://github.com/ThalisonCosta/fork-project',
-    stargazers_count: 0,
-    forks_count: 0,
-    language: 'Python',
-    topics: [],
-    updated_at: '2024-01-05T10:00:00Z',
-    created_at: '2023-10-01T10:00:00Z',
-    pushed_at: '2024-01-05T10:00:00Z',
-    homepage: null,
-    archived: false,
-    disabled: false,
-    fork: true, // This should be filtered out
-  },
-];
-
-const mockPinnedRepos: PinnedRepository[] = [
-  {
-    owner: 'ThalisonCosta',
-    repo: 'awesome-project',
-    description: 'An awesome React project',
-    language: 'TypeScript',
-    languageColor: '#2b7489',
-    stars: 50,
-    forks: 10,
-    link: 'https://github.com/ThalisonCosta/awesome-project',
-  },
-];
-
 describe('ProjectsApp Component', () => {
   beforeEach(() => {
-    mockFetch.mockClear();
     // Mock console methods to avoid noise in tests
     jest.spyOn(console, 'error').mockImplementation(() => {});
     jest.spyOn(console, 'warn').mockImplementation(() => {});
@@ -113,186 +23,164 @@ describe('ProjectsApp Component', () => {
     jest.restoreAllMocks();
   });
 
-  const setupSuccessfulFetch = () => {
-    mockFetch
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockGitHubUser),
-      }) // User profile
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockPinnedRepos),
-      }) // Pinned repos
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockRepositories),
-      }); // Repositories
-  };
-
-  test('displays loading state initially', () => {
-    mockFetch.mockImplementation(() => new Promise(() => {})); // Never resolves
+  test('renders projects showcase correctly', () => {
     render(<ProjectsApp />);
 
-    expect(screen.getByText('Loading GitHub repositories...')).toBeInTheDocument();
-    expect(document.querySelector('.projects-loading-spinner')).toBeInTheDocument();
+    // Check header content
+    expect(screen.getByText('My Projects')).toBeInTheDocument();
+    expect(screen.getByText('A showcase of my real-world applications and development work')).toBeInTheDocument();
+
+    // Check statistics - use more specific selectors
+    const statNumbers = screen.getAllByText('2');
+    expect(statNumbers).toHaveLength(3); // Total projects, Live, Featured
+    expect(screen.getByText('Projects')).toBeInTheDocument();
+    expect(screen.getByText('Live')).toBeInTheDocument();
+    expect(screen.getByText('Featured')).toBeInTheDocument();
+
+    // Check project cards
+    expect(screen.getByText('Qualvaiser')).toBeInTheDocument();
+    expect(screen.getByText('Windows Desktop Portfolio')).toBeInTheDocument();
+
+    // Check project descriptions
+    expect(screen.getByText(/Modern financial management platform/)).toBeInTheDocument();
+    expect(screen.getByText(/Interactive Windows 11-inspired portfolio/)).toBeInTheDocument();
   });
 
-  test('renders user profile and repositories after loading', async () => {
-    setupSuccessfulFetch();
+  test('displays featured badges correctly', () => {
     render(<ProjectsApp />);
 
-    // Wait for loading to complete
-    await waitFor(() => {
-      expect(screen.queryByText('Loading GitHub repositories...')).not.toBeInTheDocument();
-    });
-
-    // Check user profile
-    expect(screen.getByText('Thalison Costa')).toBeInTheDocument();
-    expect(screen.getByText('Full Stack Developer')).toBeInTheDocument();
-    expect(
-      screen.getByText((_, element) => {
-        return !!(element?.className === 'projects-stat' && element?.textContent?.includes('25 repositories'));
-      })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText((_, element) => {
-        return !!(element?.className === 'projects-stat' && element?.textContent?.includes('100 followers'));
-      })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText((_, element) => {
-        return !!(element?.className === 'projects-stat' && element?.textContent?.includes('50 following'));
-      })
-    ).toBeInTheDocument();
-
-    // Check repository cards (should exclude forks)
-    expect(screen.getByText('awesome-project')).toBeInTheDocument();
-    expect(screen.getByText('backend-api')).toBeInTheDocument();
-    expect(screen.queryByText('fork-project')).not.toBeInTheDocument();
-
-    // Check pinned badge
-    expect(screen.getByText('📌 Pinned')).toBeInTheDocument();
+    // Both projects should be featured
+    const featuredBadges = screen.getAllByText('⭐ Featured');
+    expect(featuredBadges).toHaveLength(2);
   });
 
-  test('displays error state when API calls fail', async () => {
-    mockFetch.mockRejectedValue(new Error('API Error'));
+  test('displays project status indicators', () => {
     render(<ProjectsApp />);
 
-    await waitFor(() => {
-      expect(screen.getByText('Failed to Load Projects')).toBeInTheDocument();
-      expect(screen.getByText(/API Error/)).toBeInTheDocument();
-    });
+    // Both projects should be live
+    const liveStatuses = screen.getAllByText(/Live/);
+    expect(liveStatuses.length).toBeGreaterThanOrEqual(2);
+  });
 
-    expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
+  test('displays technology tags with colors', () => {
+    render(<ProjectsApp />);
+
+    // Check for technology tags - there are multiple React and TypeScript tags
+    const reactTags = screen.getAllByText('React');
+    expect(reactTags.length).toBeGreaterThanOrEqual(1);
+
+    const typescriptTags = screen.getAllByText('TypeScript');
+    expect(typescriptTags.length).toBeGreaterThanOrEqual(1);
+
+    expect(screen.getByText('Node.js')).toBeInTheDocument();
+    expect(screen.getByText('Vite')).toBeInTheDocument();
+
+    // Check that technology tags have style attributes (colors)
+    const techTags = document.querySelectorAll('.projects-tech-tag');
+    expect(techTags.length).toBeGreaterThan(0);
+
+    techTags.forEach((tag) => {
+      expect(tag).toHaveAttribute('style');
+    });
   });
 
   test('handles search functionality correctly', async () => {
-    setupSuccessfulFetch();
     const user = userEvent.setup();
     render(<ProjectsApp />);
 
-    await waitFor(() => {
-      expect(screen.queryByText('Loading GitHub repositories...')).not.toBeInTheDocument();
-    });
-
-    const searchInput = screen.getByPlaceholderText('Search repositories...');
+    const searchInput = screen.getByPlaceholderText('Search projects, technologies...');
     expect(searchInput).toBeInTheDocument();
 
-    // Search for "awesome"
-    await user.type(searchInput, 'awesome');
+    // Search for "Qualvaiser"
+    await user.type(searchInput, 'Qualvaiser');
 
-    await waitFor(() => {
-      expect(screen.getByText('awesome-project')).toBeInTheDocument();
-      expect(screen.queryByText('backend-api')).not.toBeInTheDocument();
-    });
+    expect(screen.getByText('Qualvaiser')).toBeInTheDocument();
+    expect(screen.queryByText('Windows Desktop Portfolio')).not.toBeInTheDocument();
 
-    // Clear search
+    // Clear search and search for "React"
+    await user.clear(searchInput);
+    await user.type(searchInput, 'React');
+
+    // Both projects use React
+    expect(screen.getByText('Qualvaiser')).toBeInTheDocument();
+    expect(screen.getByText('Windows Desktop Portfolio')).toBeInTheDocument();
+
+    // Search for non-existent term
     await user.clear(searchInput);
     await user.type(searchInput, 'nonexistent');
 
-    await waitFor(() => {
-      expect(screen.getByText('No repositories found')).toBeInTheDocument();
-      expect(screen.getByText('Try adjusting your search or filter criteria')).toBeInTheDocument();
-    });
+    expect(screen.getByText('No projects found')).toBeInTheDocument();
+    expect(screen.getByText('Try adjusting your search or filter criteria')).toBeInTheDocument();
   });
 
-  test('handles language filtering correctly', async () => {
-    setupSuccessfulFetch();
+  test('handles category filtering correctly', async () => {
     const user = userEvent.setup();
     render(<ProjectsApp />);
 
-    await waitFor(() => {
-      expect(screen.queryByText('Loading GitHub repositories...')).not.toBeInTheDocument();
-    });
+    const categorySelect = screen.getByDisplayValue('All Categories');
+    expect(categorySelect).toBeInTheDocument();
 
-    const languageSelect = screen.getByDisplayValue('All Languages');
-    expect(languageSelect).toBeInTheDocument();
+    // Filter by web category (both projects are web)
+    await user.selectOptions(categorySelect, 'web');
 
-    // Filter by TypeScript
-    await user.selectOptions(languageSelect, 'TypeScript');
-
-    await waitFor(() => {
-      expect(screen.getByText('awesome-project')).toBeInTheDocument();
-      expect(screen.queryByText('backend-api')).not.toBeInTheDocument();
-    });
-
-    // Filter by JavaScript
-    await user.selectOptions(languageSelect, 'JavaScript');
-
-    await waitFor(() => {
-      expect(screen.queryByText('awesome-project')).not.toBeInTheDocument();
-      expect(screen.getByText('backend-api')).toBeInTheDocument();
-    });
+    expect(screen.getByText('Qualvaiser')).toBeInTheDocument();
+    expect(screen.getByText('Windows Desktop Portfolio')).toBeInTheDocument();
   });
 
   test('handles sorting functionality correctly', async () => {
-    setupSuccessfulFetch();
     const user = userEvent.setup();
     render(<ProjectsApp />);
 
-    await waitFor(() => {
-      expect(screen.queryByText('Loading GitHub repositories...')).not.toBeInTheDocument();
-    });
-
-    const sortSelect = screen.getByDisplayValue('Sort by Stars');
+    const sortSelect = screen.getByDisplayValue('Sort by Featured');
     expect(sortSelect).toBeInTheDocument();
 
     // Sort by name
     await user.selectOptions(sortSelect, 'name');
 
-    await waitFor(() => {
-      const repoCards = screen.getAllByText(/awesome-project|backend-api/);
-      expect(repoCards[0]).toHaveTextContent('awesome-project'); // Should be first alphabetically
-    });
+    const projectCards = screen.getAllByText(/Qualvaiser|Windows Desktop Portfolio/);
+    // Should be sorted alphabetically: Qualvaiser, Windows Desktop Portfolio
+    expect(projectCards[0]).toHaveTextContent('Qualvaiser');
 
-    // Sort by forks
-    await user.selectOptions(sortSelect, 'forks');
+    // Sort by recent
+    await user.selectOptions(sortSelect, 'recent');
 
-    await waitFor(() => {
-      const repoCards = screen.getAllByText(/awesome-project|backend-api/);
-      expect(repoCards[0]).toHaveTextContent('awesome-project'); // Has more forks
-    });
+    // Both projects should still be visible
+    expect(screen.getByText('Qualvaiser')).toBeInTheDocument();
+    expect(screen.getByText('Windows Desktop Portfolio')).toBeInTheDocument();
   });
 
-  test('opens repository in new tab when clicked', async () => {
-    setupSuccessfulFetch();
+  test('opens project website in new tab when clicked', async () => {
     const mockOpen = jest.fn();
     const originalOpen = window.open;
     window.open = mockOpen;
 
     render(<ProjectsApp />);
 
-    await waitFor(() => {
-      expect(screen.queryByText('Loading GitHub repositories...')).not.toBeInTheDocument();
-    });
+    const qualvaiserCard = screen.getByText('Qualvaiser').closest('.projects-project-card');
+    expect(qualvaiserCard).toBeInTheDocument();
 
-    const repoCard = screen.getByText('awesome-project').closest('.projects-repo-card');
-    expect(repoCard).toBeInTheDocument();
+    fireEvent.click(qualvaiserCard!);
 
-    fireEvent.click(repoCard!);
+    expect(mockOpen).toHaveBeenCalledWith('https://qualvaiser.com/', '_blank', 'noopener,noreferrer');
+
+    window.open = originalOpen;
+  });
+
+  test('opens source code link correctly', async () => {
+    const mockOpen = jest.fn();
+    const originalOpen = window.open;
+    window.open = mockOpen;
+
+    render(<ProjectsApp />);
+
+    // Only Windows Desktop Portfolio has source code URL
+    const sourceButtons = screen.getAllByTitle('View Source Code');
+    expect(sourceButtons).toHaveLength(1);
+
+    fireEvent.click(sourceButtons[0]);
 
     expect(mockOpen).toHaveBeenCalledWith(
-      'https://github.com/ThalisonCosta/awesome-project',
+      'https://github.com/ThalisonCosta/windows-desktop-portfolio',
       '_blank',
       'noopener,noreferrer'
     );
@@ -300,132 +188,61 @@ describe('ProjectsApp Component', () => {
     window.open = originalOpen;
   });
 
-  test('refresh button triggers data reload', async () => {
-    setupSuccessfulFetch();
-    const user = userEvent.setup();
+  test('displays project features correctly', () => {
     render(<ProjectsApp />);
 
-    await waitFor(() => {
-      expect(screen.queryByText('Loading GitHub repositories...')).not.toBeInTheDocument();
-    });
+    // Check for key features sections
+    const featuresHeaders = screen.getAllByText('Key Features:');
+    expect(featuresHeaders).toHaveLength(2);
 
-    // Setup second fetch call for refresh
-    setupSuccessfulFetch();
-
-    const refreshButton = screen.getByTitle('Refresh repositories');
-    expect(refreshButton).toBeInTheDocument();
-
-    await user.click(refreshButton);
-
-    // Should call API again
-    expect(mockFetch).toHaveBeenCalledTimes(6); // 3 initial + 3 refresh
+    // Check for specific features
+    expect(screen.getByText('Real-time expense tracking')).toBeInTheDocument();
+    expect(screen.getByText('Windows 11-style interface')).toBeInTheDocument();
+    expect(screen.getByText('Interactive desktop environment')).toBeInTheDocument();
   });
 
-  test('displays repository statistics correctly', async () => {
-    setupSuccessfulFetch();
+  test('displays updated dates correctly', () => {
     render(<ProjectsApp />);
 
-    await waitFor(() => {
-      expect(screen.queryByText('Loading GitHub repositories...')).not.toBeInTheDocument();
-    });
+    // Check that updated dates are displayed - use getAllByText for multiple elements
+    const updatedTexts = screen.getAllByText(/Updated.*2024/);
+    expect(updatedTexts.length).toBe(2);
 
-    // Check statistics in header (should exclude forks) - uses total repo count from API
-    expect(
-      screen.getByText((_, element) => {
-        return !!(element?.className === 'projects-subtitle' && element?.textContent?.includes('3 repositories'));
-      })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText((_, element) => {
-        return !!(element?.className === 'projects-subtitle' && element?.textContent?.includes('75 stars'));
-      })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText((_, element) => {
-        return !!(element?.className === 'projects-subtitle' && element?.textContent?.includes('1 pinned'));
-      })
-    ).toBeInTheDocument();
+    // Check that there are update date elements
+    const updatedElements = document.querySelectorAll('.projects-project-updated');
+    expect(updatedElements.length).toBe(2);
   });
 
-  test('handles repository topics display', async () => {
-    setupSuccessfulFetch();
+  test('applies theme classes correctly', () => {
     render(<ProjectsApp />);
 
-    await waitFor(() => {
-      expect(screen.queryByText('Loading GitHub repositories...')).not.toBeInTheDocument();
-    });
-
-    // Check topics are displayed
-    expect(screen.getByText('react')).toBeInTheDocument();
-    expect(screen.getByText('typescript')).toBeInTheDocument();
-    expect(screen.getByText('frontend')).toBeInTheDocument();
-    expect(screen.getByText('nodejs')).toBeInTheDocument();
-    expect(screen.getByText('api')).toBeInTheDocument();
-    expect(screen.getByText('backend')).toBeInTheDocument();
-  });
-
-  test('handles language colors correctly', async () => {
-    setupSuccessfulFetch();
-    render(<ProjectsApp />);
-
-    await waitFor(() => {
-      expect(screen.queryByText('Loading GitHub repositories...')).not.toBeInTheDocument();
-    });
-
-    // Check that language dots exist and have colors
-    const languageDots = document.querySelectorAll('.projects-language-dot');
-    expect(languageDots.length).toBeGreaterThan(0);
-
-    // Check that dots have background colors
-    languageDots.forEach((dot) => {
-      const style = window.getComputedStyle(dot);
-      expect(style.backgroundColor).toBeTruthy();
-    });
-  });
-
-  test('displays correct updated dates', async () => {
-    setupSuccessfulFetch();
-    render(<ProjectsApp />);
-
-    await waitFor(() => {
-      expect(screen.queryByText('Loading GitHub repositories...')).not.toBeInTheDocument();
-    });
-
-    // Check that updated dates are displayed
-    expect(screen.getByText(/Updated 1\/15\/2024/)).toBeInTheDocument();
-    expect(screen.getByText(/Updated 1\/10\/2024/)).toBeInTheDocument();
-  });
-
-  test('applies theme classes correctly', async () => {
-    setupSuccessfulFetch();
-    render(<ProjectsApp />);
-
-    await waitFor(() => {
-      expect(screen.queryByText('Loading GitHub repositories...')).not.toBeInTheDocument();
-    });
-
-    const appContainer = screen.getByText('Projects').closest('.projects-app');
+    const appContainer = screen.getByText('My Projects').closest('.projects-app');
     expect(appContainer).toHaveClass('light');
   });
 
-  test('handles accessibility attributes correctly', async () => {
-    setupSuccessfulFetch();
+  test('displays website preview placeholders', () => {
     render(<ProjectsApp />);
 
-    await waitFor(() => {
-      expect(screen.queryByText('Loading GitHub repositories...')).not.toBeInTheDocument();
-    });
+    const previewPlaceholders = screen.getAllByText('🌐 Click to visit website');
+    expect(previewPlaceholders).toHaveLength(2);
+  });
+
+  test('shows project categories correctly', () => {
+    render(<ProjectsApp />);
+
+    const categoryTags = screen.getAllByText('web');
+    expect(categoryTags).toHaveLength(2); // Both projects are web category
+  });
+
+  test('handles accessibility attributes correctly', () => {
+    render(<ProjectsApp />);
 
     // Check search input accessibility
-    const searchInput = screen.getByPlaceholderText('Search repositories...');
+    const searchInput = screen.getByPlaceholderText('Search projects, technologies...');
     expect(searchInput).toHaveAttribute('type', 'text');
 
-    // Check refresh button accessibility
-    const refreshButton = screen.getByTitle('Refresh repositories');
-    expect(refreshButton).toBeInTheDocument();
-
-    // Check avatar accessibility
-    const avatar = screen.getByAltText('Thalison Costa avatar');
-    expect(avatar).toBeInTheDocument();
+    // Check source code button accessibility
+    const sourceButton = screen.getByTitle('View Source Code');
+    expect(sourceButton).toBeInTheDocument();
   });
 });
