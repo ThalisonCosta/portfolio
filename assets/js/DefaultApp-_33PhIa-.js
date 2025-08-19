@@ -1,1 +1,0 @@
-import{j as t}from"./applications-BDtjm6YT.js";import"./store-D0AIDEkW.js";const s=({component:e})=>t.jsxs("div",{style:{padding:"16px",height:"100%",overflow:"auto"},children:[t.jsx("h3",{children:e}),t.jsx("p",{children:"This application is not yet implemented."})]});export{s as DefaultApp,s as default};

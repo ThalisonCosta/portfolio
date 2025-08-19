@@ -1,4 +1,4 @@
-import{c as vt}from"./store-D0AIDEkW.js";function Ct(n){return n&&n.__esModule&&Object.prototype.hasOwnProperty.call(n,"default")?n.default:n}var pe={exports:{}},re={};/**
+import{c as vt}from"./store-Dw7aLwSK.js";function Ct(n){return n&&n.__esModule&&Object.prototype.hasOwnProperty.call(n,"default")?n.default:n}var pe={exports:{}},re={};/**
  * @license React
  * react-jsx-runtime.production.js
  *
@@ -247,6 +247,94 @@ Content-Type: text/html
             padding: 12px 16px;
           }
         }
+
+        /* iPhone and small device specific breakpoints */
+        @media (max-width: 414px) {
+          .terminal-app {
+            font-size: 14px;
+          }
+
+          .terminal-header {
+            padding: 10px 14px;
+            gap: 6px;
+          }
+
+          .terminal-input-container {
+            padding: 10px 14px;
+          }
+
+          .terminal-output {
+            padding: 10px 14px;
+            line-height: 1.4;
+          }
+
+          .terminal-input {
+            font-size: 14px;
+            padding: 8px 0;
+            min-height: 44px; /* Apple HIG minimum touch target */
+          }
+
+          .terminal-line {
+            margin-bottom: 4px;
+            word-break: break-all;
+            overflow-wrap: break-word;
+          }
+        }
+
+        @media (max-width: 375px) {
+          .terminal-app {
+            font-size: 13px;
+          }
+
+          .terminal-header {
+            padding: 8px 12px;
+            gap: 4px;
+          }
+
+          .terminal-input-container {
+            padding: 8px 12px;
+          }
+
+          .terminal-output {
+            padding: 8px 12px;
+            line-height: 1.3;
+          }
+
+          .terminal-input {
+            font-size: 13px;
+            padding: 6px 0;
+          }
+        }
+
+        @media (max-width: 320px) {
+          .terminal-app {
+            font-size: 12px;
+          }
+
+          .terminal-header {
+            padding: 6px 10px;
+            gap: 2px;
+          }
+
+          .terminal-input-container {
+            padding: 6px 10px;
+          }
+
+          .terminal-output {
+            padding: 6px 10px;
+            line-height: 1.2;
+          }
+
+          .terminal-input {
+            font-size: 12px;
+            padding: 4px 0;
+          }
+
+          .terminal-line {
+            margin-bottom: 2px;
+            font-size: 11px;
+          }
+        }
         
         /* High contrast mode support */
         @media (prefers-contrast: high) {
@@ -459,6 +547,88 @@ Content-Type: text/html
           .btn {
             height: 40px;
             font-size: 0.9rem;
+          }
+
+          .calculator-buttons {
+            gap: 4px;
+          }
+        }
+
+        /* iPhone and small device specific breakpoints */
+        @media (max-width: 414px) {
+          .calculator {
+            padding: 10px;
+          }
+
+          .calculator-display {
+            padding: 14px 12px;
+            margin-bottom: 10px;
+          }
+
+          .display-value {
+            font-size: 2rem;
+          }
+
+          .history-display {
+            font-size: 0.85rem;
+          }
+
+          .btn {
+            height: 52px; /* Larger touch targets for iPhone */
+            font-size: 1.1rem;
+            min-height: 44px; /* Apple HIG minimum */
+          }
+
+          .calculator-buttons {
+            gap: 6px;
+          }
+        }
+
+        @media (max-width: 375px) {
+          .calculator {
+            padding: 8px;
+          }
+
+          .calculator-display {
+            padding: 12px 10px;
+            margin-bottom: 8px;
+          }
+
+          .display-value {
+            font-size: 1.8rem;
+          }
+
+          .btn {
+            height: 48px;
+            font-size: 1rem;
+          }
+
+          .calculator-buttons {
+            gap: 5px;
+          }
+        }
+
+        @media (max-width: 320px) {
+          .calculator {
+            padding: 6px;
+          }
+
+          .calculator-display {
+            padding: 10px 8px;
+            margin-bottom: 6px;
+          }
+
+          .display-value {
+            font-size: 1.6rem;
+          }
+
+          .history-display {
+            font-size: 0.8rem;
+          }
+
+          .btn {
+            height: 44px;
+            font-size: 0.95rem;
           }
 
           .calculator-buttons {
