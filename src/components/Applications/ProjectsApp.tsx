@@ -55,7 +55,7 @@ const REAL_PROJECTS: RealProject[] = [
     description: 'Interactive Windows 11-inspired portfolio website with desktop environment simulation',
     longDescription:
       'A unique portfolio website that simulates a Windows 11 desktop environment, complete with applications, file system, terminal, and interactive features. Built with React and TypeScript.',
-    websiteUrl: window.location.origin,
+    websiteUrl: `${window.location.origin}/portfolio`,
     technologies: ['React', 'TypeScript', 'CSS3', 'Vite', 'Playwright'],
     category: 'web',
     featured: true,
