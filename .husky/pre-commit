@@ -1,0 +1,27 @@
+#!/bin/sh
+# Pre-commit hook: run build, lint, and prettier checks
+
+echo "🔍 Running pre-commit checks..."
+
+# Run build first
+echo "🏗️  Building project..."
+npm run build || {
+  echo "❌ Build failed! Fix build errors before committing."
+  exit 1
+}
+
+# Run ESLint
+echo "🔍 Running ESLint..."
+npm run lint || {
+  echo "❌ ESLint found issues! Run 'npm run lint:fix' to auto-fix or fix manually."
+  exit 1
+}
+
+# Run Prettier check
+echo "✨ Checking code formatting..."
+npm run prettier:check || {
+  echo "❌ Code formatting issues found! Run 'npm run prettier:write' to fix."
+  exit 1
+}
+
+echo "✅ All pre-commit checks passed!"
