@@ -188,19 +188,144 @@
   );
 }
 
-/* Responsive Design for Windows */
+/* Mobile-First Responsive Window Management */
 
-/* Mobile devices (portrait) */
-@media (max-width: 767px) and (orientation: portrait) {
+/* Mobile devices (portrait and small screens) */
+@media (max-width: 768px) {
   .window {
     min-width: 280px;
     min-height: 180px;
-    border-radius: 6px;
+    border-radius: 8px;
+    /* Ensure windows stay within viewport */
+    max-width: calc(100vw - 20px) !important;
+    max-height: calc(100vh - 80px) !important;
+    /* Prevent windows from going off-screen */
+    left: max(10px, min(calc(100vw - 290px), var(--window-left, 10px))) !important;
+    top: max(10px, min(calc(100vh - 190px), var(--window-top, 10px))) !important;
+  }
+
+  .window[data-component='calculator'] {
+    min-width: 250px;
+    min-height: 350px;
+    max-width: calc(100vw - 20px) !important;
+    max-height: calc(100vh - 80px) !important;
+  }
+
+  .window.maximized {
+    border-radius: 0;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100vw !important;
+    height: calc(100vh - 60px) !important;
+    max-width: none !important;
+    max-height: none !important;
   }
 
   .window-header {
-    height: 40px;
-    padding: 0 12px;
+    height: 48px;
+    padding: 0 16px;
+    /* Make header more touch-friendly */
+    min-height: 44px;
+  }
+
+  .window-title {
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .window-controls {
+    gap: 8px;
+  }
+
+  .window-control {
+    width: 44px;
+    height: 36px;
+    font-size: 14px;
+    /* Apple HIG minimum touch target */
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 6px;
+    /* Better touch feedback */
+    transition: all 0.2s ease;
+  }
+
+  .window-control:active {
+    transform: scale(0.95);
+    background: var(--bg-quaternary);
+  }
+
+  /* Enhanced touch targets for resize handles */
+  .resize-handle-top,
+  .resize-handle-bottom {
+    height: 12px;
+    /* Visual indicator for touch */
+    background: linear-gradient(
+      to bottom,
+      transparent 30%,
+      rgba(0, 120, 212, 0.1) 30%,
+      rgba(0, 120, 212, 0.1) 70%,
+      transparent 70%
+    );
+  }
+
+  .resize-handle-left,
+  .resize-handle-right {
+    width: 12px;
+    /* Visual indicator for touch */
+    background: linear-gradient(
+      to right,
+      transparent 30%,
+      rgba(0, 120, 212, 0.1) 30%,
+      rgba(0, 120, 212, 0.1) 70%,
+      transparent 70%
+    );
+  }
+
+  .resize-handle-top-left,
+  .resize-handle-top-right,
+  .resize-handle-bottom-left,
+  .resize-handle-bottom-right {
+    width: 16px;
+    height: 16px;
+    /* Visual corner indicators */
+    border-radius: 2px;
+    background: rgba(0, 120, 212, 0.15);
+  }
+
+  /* Active states for touch */
+  .resize-handle:active {
+    background: rgba(0, 120, 212, 0.3) !important;
+  }
+
+  /* Content area adjustments */
+  .window-content {
+    /* Ensure content doesn't overflow on mobile */
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* iPhone and small mobile breakpoints */
+@media (max-width: 414px) {
+  .window {
+    min-width: 250px;
+    min-height: 160px;
+    border-radius: 6px;
+    /* Force proper positioning on very small screens */
+    max-width: calc(100vw - 16px) !important;
+    max-height: calc(100vh - 76px) !important;
+    left: max(8px, min(calc(100vw - 258px), var(--window-left, 8px))) !important;
+    top: max(8px, min(calc(100vh - 168px), var(--window-top, 8px))) !important;
+  }
+
+  .window[data-component='calculator'] {
+    min-width: 230px;
+    min-height: 320px;
+  }
+
+  .window-header {
+    height: 44px;
+    padding: 0 14px;
   }
 
   .window-title {
@@ -210,30 +335,76 @@
   .window-control {
     width: 40px;
     height: 32px;
-    font-size: 12px;
-  }
-
-  .resize-handle-top,
-  .resize-handle-bottom {
-    height: 6px;
-  }
-
-  .resize-handle-left,
-  .resize-handle-right {
-    width: 6px;
-  }
-
-  .resize-handle-top-left,
-  .resize-handle-top-right,
-  .resize-handle-bottom-left,
-  .resize-handle-bottom-right {
-    width: 12px;
-    height: 12px;
+    font-size: 13px;
+    min-width: 40px;
+    min-height: 40px;
   }
 }
 
-/* Mobile devices (landscape) and tablets (portrait) */
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (max-width: 375px) {
+  .window {
+    min-width: 230px;
+    min-height: 150px;
+    max-width: calc(100vw - 14px) !important;
+    max-height: calc(100vh - 74px) !important;
+    left: max(7px, min(calc(100vw - 237px), var(--window-left, 7px))) !important;
+    top: max(7px, min(calc(100vh - 157px), var(--window-top, 7px))) !important;
+  }
+
+  .window[data-component='calculator'] {
+    min-width: 210px;
+    min-height: 300px;
+  }
+
+  .window-header {
+    height: 42px;
+    padding: 0 12px;
+  }
+
+  .window-control {
+    width: 38px;
+    height: 30px;
+    font-size: 12px;
+    min-width: 38px;
+    min-height: 38px;
+  }
+}
+
+@media (max-width: 320px) {
+  .window {
+    min-width: 200px;
+    min-height: 140px;
+    max-width: calc(100vw - 12px) !important;
+    max-height: calc(100vh - 72px) !important;
+    left: max(6px, min(calc(100vw - 206px), var(--window-left, 6px))) !important;
+    top: max(6px, min(calc(100vh - 146px), var(--window-top, 6px))) !important;
+  }
+
+  .window[data-component='calculator'] {
+    min-width: 190px;
+    min-height: 280px;
+  }
+
+  .window-header {
+    height: 40px;
+    padding: 0 10px;
+  }
+
+  .window-title {
+    font-size: 13px;
+  }
+
+  .window-control {
+    width: 36px;
+    height: 28px;
+    font-size: 11px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+}
+
+/* Tablets and larger screens */
+@media (min-width: 769px) and (max-width: 1023px) {
   .window {
     min-width: 320px;
     min-height: 200px;
