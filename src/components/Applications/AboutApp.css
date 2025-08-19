@@ -294,6 +294,176 @@
   }
 }
 
+/* iPhone and small device specific breakpoints */
+@media (max-width: 414px) {
+  .about-container {
+    padding: 10px;
+    gap: 20px;
+  }
+
+  .about-header {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .avatar-placeholder {
+    width: 70px;
+    height: 70px;
+    font-size: 28px;
+  }
+
+  .about-name {
+    font-size: 22px;
+  }
+
+  .about-title {
+    font-size: 15px;
+  }
+
+  .about-section {
+    padding: 16px;
+  }
+
+  .contact-link {
+    padding: 12px 14px;
+    font-size: 15px;
+    min-height: 44px; /* Apple HIG minimum touch target */
+  }
+
+  .cv-button {
+    padding: 12px 20px;
+    font-size: 15px;
+    min-height: 44px;
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .cv-actions {
+    gap: 8px;
+  }
+
+  .skills-tag {
+    padding: 6px 12px;
+    font-size: 13px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+  }
+
+  .github-toggle-btn {
+    padding: 10px 16px;
+    font-size: 15px;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 375px) {
+  .about-container {
+    padding: 8px;
+    gap: 16px;
+  }
+
+  .about-header {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .avatar-placeholder {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+
+  .about-name {
+    font-size: 20px;
+  }
+
+  .about-title {
+    font-size: 14px;
+  }
+
+  .about-section {
+    padding: 14px;
+  }
+
+  .section-title {
+    font-size: 16px;
+  }
+
+  .contact-link {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .skills-grid {
+    gap: 8px;
+  }
+
+  .skills-tag {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 320px) {
+  .about-container {
+    padding: 6px;
+    gap: 14px;
+  }
+
+  .about-header {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .avatar-placeholder {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+
+  .about-name {
+    font-size: 18px;
+  }
+
+  .about-title {
+    font-size: 13px;
+  }
+
+  .about-location {
+    font-size: 12px;
+  }
+
+  .about-section {
+    padding: 12px;
+  }
+
+  .section-title {
+    font-size: 15px;
+  }
+
+  .contact-link {
+    padding: 8px 10px;
+    font-size: 13px;
+    gap: 8px;
+  }
+
+  .cv-button {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .skills-tag {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .github-toggle-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+}
+
 /* GitHub Projects Section */
 .github-section-header {
   display: flex;

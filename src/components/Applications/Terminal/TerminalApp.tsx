@@ -373,6 +373,94 @@ export const TerminalApp: React.FC<TerminalAppProps> = ({ initialOS = 'linux', s
             padding: 12px 16px;
           }
         }
+
+        /* iPhone and small device specific breakpoints */
+        @media (max-width: 414px) {
+          .terminal-app {
+            font-size: 14px;
+          }
+
+          .terminal-header {
+            padding: 10px 14px;
+            gap: 6px;
+          }
+
+          .terminal-input-container {
+            padding: 10px 14px;
+          }
+
+          .terminal-output {
+            padding: 10px 14px;
+            line-height: 1.4;
+          }
+
+          .terminal-input {
+            font-size: 14px;
+            padding: 8px 0;
+            min-height: 44px; /* Apple HIG minimum touch target */
+          }
+
+          .terminal-line {
+            margin-bottom: 4px;
+            word-break: break-all;
+            overflow-wrap: break-word;
+          }
+        }
+
+        @media (max-width: 375px) {
+          .terminal-app {
+            font-size: 13px;
+          }
+
+          .terminal-header {
+            padding: 8px 12px;
+            gap: 4px;
+          }
+
+          .terminal-input-container {
+            padding: 8px 12px;
+          }
+
+          .terminal-output {
+            padding: 8px 12px;
+            line-height: 1.3;
+          }
+
+          .terminal-input {
+            font-size: 13px;
+            padding: 6px 0;
+          }
+        }
+
+        @media (max-width: 320px) {
+          .terminal-app {
+            font-size: 12px;
+          }
+
+          .terminal-header {
+            padding: 6px 10px;
+            gap: 2px;
+          }
+
+          .terminal-input-container {
+            padding: 6px 10px;
+          }
+
+          .terminal-output {
+            padding: 6px 10px;
+            line-height: 1.2;
+          }
+
+          .terminal-input {
+            font-size: 12px;
+            padding: 4px 0;
+          }
+
+          .terminal-line {
+            margin-bottom: 2px;
+            font-size: 11px;
+          }
+        }
         
         /* High contrast mode support */
         @media (prefers-contrast: high) {

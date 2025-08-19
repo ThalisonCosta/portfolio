@@ -115,6 +115,100 @@
   }
 }
 
+/* iPhone and small device specific breakpoints */
+@media (max-width: 414px) {
+  .settings-app__header {
+    padding: 12px 16px;
+  }
+
+  .settings-app__title {
+    font-size: 20px;
+  }
+
+  .settings-app__nav {
+    padding: 12px 8px;
+    gap: 6px;
+  }
+
+  .settings-app__tab {
+    padding: 14px 16px;
+    font-size: 15px;
+    min-height: 44px; /* Apple HIG minimum touch target */
+    border-radius: 8px;
+    margin: 0 8px;
+  }
+
+  .settings-app__tab-icon {
+    font-size: 18px;
+    min-width: 24px;
+  }
+
+  .settings-app__main {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 375px) {
+  .settings-app__header {
+    padding: 10px 14px;
+  }
+
+  .settings-app__title {
+    font-size: 18px;
+  }
+
+  .settings-app__nav {
+    padding: 10px 6px;
+    gap: 4px;
+  }
+
+  .settings-app__tab {
+    padding: 12px 14px;
+    font-size: 14px;
+    margin: 0 6px;
+  }
+
+  .settings-app__tab-icon {
+    font-size: 16px;
+    min-width: 20px;
+  }
+
+  .settings-app__main {
+    padding: 14px;
+  }
+}
+
+@media (max-width: 320px) {
+  .settings-app__header {
+    padding: 8px 12px;
+  }
+
+  .settings-app__title {
+    font-size: 16px;
+    gap: 6px;
+  }
+
+  .settings-app__nav {
+    padding: 8px 4px;
+    gap: 2px;
+  }
+
+  .settings-app__tab {
+    padding: 10px 12px;
+    font-size: 13px;
+    margin: 0 4px;
+  }
+
+  .settings-app__tab-icon {
+    font-size: 14px;
+    min-width: 18px;
+  }
+
+  .settings-app__main {
+    padding: 12px;
+  }
+}
+
 /* Dark theme support */
 .desktop.dark .settings-app {
   background: #1e1e1e;

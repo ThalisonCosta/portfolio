@@ -615,6 +615,88 @@ export const CalculatorApp: React.FC = () => {
             gap: 4px;
           }
         }
+
+        /* iPhone and small device specific breakpoints */
+        @media (max-width: 414px) {
+          .calculator {
+            padding: 10px;
+          }
+
+          .calculator-display {
+            padding: 14px 12px;
+            margin-bottom: 10px;
+          }
+
+          .display-value {
+            font-size: 2rem;
+          }
+
+          .history-display {
+            font-size: 0.85rem;
+          }
+
+          .btn {
+            height: 52px; /* Larger touch targets for iPhone */
+            font-size: 1.1rem;
+            min-height: 44px; /* Apple HIG minimum */
+          }
+
+          .calculator-buttons {
+            gap: 6px;
+          }
+        }
+
+        @media (max-width: 375px) {
+          .calculator {
+            padding: 8px;
+          }
+
+          .calculator-display {
+            padding: 12px 10px;
+            margin-bottom: 8px;
+          }
+
+          .display-value {
+            font-size: 1.8rem;
+          }
+
+          .btn {
+            height: 48px;
+            font-size: 1rem;
+          }
+
+          .calculator-buttons {
+            gap: 5px;
+          }
+        }
+
+        @media (max-width: 320px) {
+          .calculator {
+            padding: 6px;
+          }
+
+          .calculator-display {
+            padding: 10px 8px;
+            margin-bottom: 6px;
+          }
+
+          .display-value {
+            font-size: 1.6rem;
+          }
+
+          .history-display {
+            font-size: 0.8rem;
+          }
+
+          .btn {
+            height: 44px;
+            font-size: 0.95rem;
+          }
+
+          .calculator-buttons {
+            gap: 4px;
+          }
+        }
       `}</style>
     </div>
   );

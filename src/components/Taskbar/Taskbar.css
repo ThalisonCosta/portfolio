@@ -268,3 +268,102 @@
     font-size: 9px;
   }
 }
+
+/* iPhone and small device specific breakpoints */
+@media (max-width: 414px) {
+  .taskbar {
+    height: 52px; /* Slightly taller for better touch targets */
+    padding: 0 8px;
+  }
+
+  .taskbar-item {
+    width: 38px;
+    height: 32px;
+    border-radius: 8px;
+  }
+
+  .start-button {
+    width: 42px;
+    height: 32px;
+    font-size: 16px;
+  }
+
+  .system-tray {
+    padding: 4px 6px;
+    min-width: 50px;
+  }
+
+  .clock {
+    font-size: 12px;
+  }
+
+  .date {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 375px) {
+  .taskbar {
+    height: 50px;
+    padding: 0 6px;
+  }
+
+  .taskbar-center {
+    gap: 3px;
+  }
+
+  .taskbar-item {
+    width: 36px;
+    height: 30px;
+  }
+
+  .start-button {
+    width: 40px;
+    height: 30px;
+    font-size: 15px;
+  }
+
+  .system-tray {
+    padding: 3px 5px;
+    min-width: 45px;
+  }
+}
+
+@media (max-width: 320px) {
+  .taskbar {
+    height: 48px;
+    padding: 0 4px;
+  }
+
+  .taskbar-center {
+    gap: 2px;
+  }
+
+  .taskbar-item {
+    width: 34px;
+    height: 28px;
+  }
+
+  .start-button {
+    width: 38px;
+    height: 28px;
+    font-size: 14px;
+  }
+
+  .taskbar-icon {
+    font-size: 11px;
+  }
+
+  .system-tray {
+    padding: 2px 4px;
+    min-width: 40px;
+  }
+
+  .clock {
+    font-size: 11px;
+  }
+
+  .date {
+    font-size: 9px;
+  }
+}
