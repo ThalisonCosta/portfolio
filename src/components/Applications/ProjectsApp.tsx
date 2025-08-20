@@ -38,8 +38,8 @@ const REAL_PROJECTS: RealProject[] = [
     category: 'web',
     featured: true,
     status: 'live',
-    dateCreated: '2023-01-15',
-    dateUpdated: '2024-12-15',
+    dateCreated: '2025-06-15',
+    dateUpdated: '2025-08-22',
     features: [
       'Criação de bolões personalizados para chá de bebê',
       'Palpites sobre sexo, data, peso e altura do bebê',
@@ -48,30 +48,7 @@ const REAL_PROJECTS: RealProject[] = [
       'Relatórios e ranking dos participantes',
     ],
     sourceCodeUrl: undefined,
-  },
-  {
-    id: 'portfolio-desktop',
-    name: 'Windows Desktop Portfolio',
-    description: 'Interactive Windows 11-inspired portfolio website with desktop environment simulation',
-    longDescription:
-      'A unique portfolio website that simulates a Windows 11 desktop environment, complete with applications, file system, terminal, and interactive features. Built with React and TypeScript.',
-    websiteUrl: `${window.location.origin}/portfolio`,
-    technologies: ['React', 'TypeScript', 'CSS3', 'Vite', 'Playwright'],
-    category: 'web',
-    featured: true,
-    status: 'live',
-    dateCreated: '2024-01-01',
-    dateUpdated: '2024-12-20',
-    features: [
-      'Windows 11-style interface',
-      'Interactive desktop environment',
-      'Multiple applications (Terminal, File Explorer, Text Editor)',
-      'Theme support (Light/Dark)',
-      'Responsive design',
-      'Vim editor integration',
-    ],
-    sourceCodeUrl: 'https://github.com/ThalisonCosta/windows-desktop-portfolio',
-  },
+  }
 ];
 
 /**
