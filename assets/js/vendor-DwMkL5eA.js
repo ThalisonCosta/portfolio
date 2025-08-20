@@ -1,4 +1,4 @@
-import{r as O}from"./applications-CAIYtkt3.js";var y={exports:{}},n={};/**
+import{r as O}from"./applications-Dloo2toD.js";var y={exports:{}},n={};/**
  * @license React
  * react-dom.production.js
  *
