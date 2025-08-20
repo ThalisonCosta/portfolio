@@ -270,16 +270,16 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
 
         openWindow: (windowConfig) => {
           const { nextZIndex } = get();
-          
+
           // Mobile-aware default positioning and sizing
           const isMobile = window.innerWidth <= 768;
           const isSmallMobile = window.innerWidth <= 414;
           const isExtraSmall = window.innerWidth <= 320;
-          
+
           // Calculate centered position for mobile
           let defaultPosition = windowConfig.position;
           let defaultSize = windowConfig.size;
-          
+
           if (isMobile) {
             // Mobile-specific size adjustments based on component type
             if (windowConfig.component === 'calculator') {
@@ -293,11 +293,11 @@ export const useDesktopStore = create<DesktopState & DesktopActions>()(
                 height: isExtraSmall ? 140 : isSmallMobile ? 160 : 180,
               };
             }
-            
+
             // Center the window on mobile devices
             const margin = isExtraSmall ? 6 : isSmallMobile ? 8 : 10;
             const taskbarHeight = 60;
-            
+
             defaultPosition = {
               x: Math.max(margin, (window.innerWidth - defaultSize.width) / 2),
               y: Math.max(margin, (window.innerHeight - defaultSize.height - taskbarHeight) / 2),

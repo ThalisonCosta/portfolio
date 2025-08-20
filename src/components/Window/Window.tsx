@@ -103,15 +103,15 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
         const isMobile = window.innerWidth <= 768;
         const taskbarHeight = isMobile ? 60 : 48; // Larger taskbar on mobile
         const margin = isMobile ? 10 : 0; // Keep some margin on mobile
-        
+
         // Calculate available space
         const maxX = window.innerWidth - windowState.size.width - margin;
         const maxY = window.innerHeight - windowState.size.height - taskbarHeight - margin;
-        
+
         // Calculate new position with mobile-friendly constraints
         const newX = Math.max(margin, Math.min(maxX, e.clientX - dragStart.x));
         const newY = Math.max(margin, Math.min(maxY, e.clientY - dragStart.y));
-        
+
         updateWindowPosition(windowState.id, { x: newX, y: newY });
       } else if (isResizing && !windowState.isMaximized && windowState.isResizable !== false) {
         const deltaX = e.clientX - resizeStart.x;
@@ -121,7 +121,7 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
         const isMobile = window.innerWidth <= 768;
         let minWidth: number;
         let minHeight: number;
-        
+
         if (isMobile) {
           minWidth = windowState.component === 'calculator' ? 250 : 280;
           minHeight = windowState.component === 'calculator' ? 350 : 180;
@@ -129,7 +129,7 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
           minWidth = windowState.component === 'calculator' ? 280 : 300;
           minHeight = windowState.component === 'calculator' ? 430 : 200;
         }
-        
+
         // Mobile maximum sizes to prevent overflow
         const maxWidth = isMobile ? window.innerWidth - 20 : window.innerWidth;
         const maxHeight = isMobile ? window.innerHeight - 80 : window.innerHeight;
@@ -218,15 +218,15 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
         const isMobile = window.innerWidth <= 768;
         const taskbarHeight = isMobile ? 60 : 48;
         const margin = isMobile ? 10 : 0;
-        
+
         // Calculate available space
         const maxX = window.innerWidth - windowState.size.width - margin;
         const maxY = window.innerHeight - windowState.size.height - taskbarHeight - margin;
-        
+
         // Calculate new position with mobile-friendly constraints
         const newX = Math.max(margin, Math.min(maxX, touch.clientX - dragStart.x));
         const newY = Math.max(margin, Math.min(maxY, touch.clientY - dragStart.y));
-        
+
         updateWindowPosition(windowState.id, { x: newX, y: newY });
       } else if (isResizing && !windowState.isMaximized && windowState.isResizable !== false) {
         const touch = e.touches[0] as Touch;
@@ -237,7 +237,7 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
         const isMobile = window.innerWidth <= 768;
         let minWidth: number;
         let minHeight: number;
-        
+
         if (isMobile) {
           minWidth = windowState.component === 'calculator' ? 250 : 280;
           minHeight = windowState.component === 'calculator' ? 350 : 180;
@@ -245,7 +245,7 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
           minWidth = windowState.component === 'calculator' ? 280 : 300;
           minHeight = windowState.component === 'calculator' ? 430 : 200;
         }
-        
+
         // Mobile maximum sizes to prevent overflow
         const maxWidth = isMobile ? window.innerWidth - 20 : window.innerWidth;
         const maxHeight = isMobile ? window.innerHeight - 80 : window.innerHeight;
@@ -368,7 +368,7 @@ export const Window: React.FC<WindowProps> = React.memo(({ windowState }) => {
   // Mobile-aware window positioning and sizing
   const isMobile = window.innerWidth <= 768;
   const taskbarHeight = isMobile ? 60 : 48;
-  
+
   const windowStyle: React.CSSProperties = {
     position: 'absolute',
     left: windowState.isMaximized ? 0 : windowState.position.x,

@@ -48,7 +48,7 @@ const REAL_PROJECTS: RealProject[] = [
       'Relatórios e ranking dos participantes',
     ],
     sourceCodeUrl: undefined,
-  }
+  },
 ];
 
 /**
